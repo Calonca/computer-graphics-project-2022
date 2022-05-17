@@ -12,3 +12,15 @@ Computer_graphics.vcxproj
 Computer_graphics.vcxproj.filters
 
 Computer_graphics.vcxproj.user
+
+Project.sln
+
+VulkanTest.vcxproj
+
+VulkanTest.vcxproj.filters
+
+VulkanTest.vcxproj.user
+
+.vs/
+
+x64/
