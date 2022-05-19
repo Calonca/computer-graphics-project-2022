@@ -14,6 +14,11 @@
 #include <array>
 #include <unordered_map>
 
+#include "definitions.h"
+extern struct Model g_test;
+
+
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -55,24 +60,13 @@ const std::vector<const char*> deviceExtensions = {
 	const bool Verbose = true;
 #endif
 
-enum PipelineType {Flat, Wire};
-
-struct Model {
-	const char *ObjFile;
-	const char *TextureFile;
-	const glm::vec3 pos;
-	const float scale;
-	const PipelineType pt;
+std::vector<Model> SceneToLoad = {
+	{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0},
+	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1},
+	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
+	{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3},
+	{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}
 };
-
-const std::vector<Model> SceneToLoad = {
-	{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat},
-	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat},
-	{"Character.obj", "Colors2.png", {0,0,0}, 1, Flat},
-	{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire},
-	{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire}
-};
-
 
 struct SkyBoxModel {
 	const char *ObjFile;
@@ -96,6 +90,7 @@ std::vector<SingleText> SceneText = {
 };
 
 #include "view.cpp"
+#include "truck.cpp"
 
 
 namespace std {
@@ -261,11 +256,6 @@ struct VertexDescriptor {
 };
 
 
-
-
-
-
-
 struct CharData {
 	int x;
 	int y;
@@ -421,7 +411,7 @@ struct SceneModel {
 };
 
 
-class Assignment06 {
+class CGProject {
 public:
     void run() {
         initWindow();
@@ -510,15 +500,7 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 	
-
-	// Robot Pos
-	glm::vec3 RobotPos = glm::vec3(3,0,2);
-	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, 0.335f, -0.0f);
-	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 0.335f, 0.0f);
-	float followerDist = 0.8;
-	float lookYaw = 0.0;
-	float lookPitch = 0.0;
-	float lookRoll = 0.0;
+	Truck truck;
 	
 	// Other global variables
 	int curText = 0;
@@ -554,7 +536,7 @@ private:
     }
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-		auto app = reinterpret_cast<Assignment06*>
+		auto app = reinterpret_cast<CGProject*>
 						(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}    
@@ -2012,14 +1994,22 @@ private:
 	}
 
 	void loadModels() {
+		SceneToLoad.insert(SceneToLoad.begin()+2, truck.stl[0]);
+		//std::copy(truck.stl.begin(), truck.stl.end(), std::back_inserter(SceneToLoad));
+		//Model m = truck.stl[0];
+
+		//SceneToLoad.push_back(m);
+
 		Scene.resize(SceneToLoad.size());
 		int i = 0;
 
+		i++;
 		for (const auto& M : SceneToLoad) {
-			loadModelWithTexture(M, i);
+			loadModelWithTexture(M, M.id);
 			i++;
 		}
-		
+
+
 		loadSkyBox();
 		createTexts();
 		
@@ -2852,200 +2842,200 @@ private:
 		
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
-
+	
 	void updateUniformBuffer(uint32_t currentImage) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
 		static float lastTime = 0.0f;
-		
+
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>
-					(currentTime - startTime).count();
+			(currentTime - startTime).count();
 		float deltaT = time - lastTime;
 		lastTime = time;
-					
+
 		const float ROT_SPEED = glm::radians(60.0f);
 		const float MOVE_SPEED = 0.75f;
 		const float MOUSE_RES = 500.0f;
-		
+
 		static double old_xpos = 0, old_ypos = 0;
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 		double m_dx = xpos - old_xpos;
 		double m_dy = ypos - old_ypos;
 		old_xpos = xpos; old_ypos = ypos;
-//std::cout << xpos << " " << ypos << " " << m_dx << " " << m_dy << "\n";
+		//std::cout << xpos << " " << ypos << " " << m_dx << " " << m_dy << "\n";
 
 		glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
-			lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			truck.lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
+			truck.lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
 		}
 
 		static float debounce = time;
-		
+
 		static bool xray = false;
-		
-		if(glfwGetKey(window, GLFW_KEY_SPACE)) {
-			if(time - debounce > 0.33) {
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+			if (time - debounce > 0.33) {
 				curText = (curText + 1) % SceneText.size();
 				debounce = time;
 				framebufferResized = true;
-//std::cout << curText << "\n";
+				//std::cout << curText << "\n";
 			}
-		}			
-		if(glfwGetKey(window, GLFW_KEY_X)) {
-			if(time - debounce > 0.33) {
+		}
+		if (glfwGetKey(window, GLFW_KEY_X)) {
+			if (time - debounce > 0.33) {
 				xray = !xray;
 				debounce = time;
 			}
 		}
 
-		glm::vec3 oldRobotPos = RobotPos;
-		if(glfwGetKey(window, GLFW_KEY_LEFT)) {
-			lookYaw += deltaT * ROT_SPEED;
+		glm::vec3 oldRobotPos = truck.TruckPos;
+		if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+			truck.lookYaw += deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_RIGHT)) {
-			lookYaw -= deltaT * ROT_SPEED;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+			truck.lookYaw -= deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_UP)) {
-			lookPitch += deltaT * ROT_SPEED;
+		if (glfwGetKey(window, GLFW_KEY_UP)) {
+			truck.lookPitch += deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_DOWN)) {
-			lookPitch -= deltaT * ROT_SPEED;
+		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+			truck.lookPitch -= deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_Q)) {
-			lookRoll -= deltaT * ROT_SPEED;
+		if (glfwGetKey(window, GLFW_KEY_Q)) {
+			truck.lookRoll -= deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_E)) {
-			lookRoll += deltaT * ROT_SPEED;
+		if (glfwGetKey(window, GLFW_KEY_E)) {
+			truck.lookRoll += deltaT * ROT_SPEED;
 		}
-		if(glfwGetKey(window, GLFW_KEY_A)) {
-			RobotPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), lookYaw,
-									glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1,0,0,1)) * deltaT;
+		if (glfwGetKey(window, GLFW_KEY_A)) {
+			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
+				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
 		}
-		if(glfwGetKey(window, GLFW_KEY_D)) {
-			RobotPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), lookYaw,
-									glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1,0,0,1)) * deltaT;
+		if (glfwGetKey(window, GLFW_KEY_D)) {
+			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
+				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
 		}
-		if(glfwGetKey(window, GLFW_KEY_W)) {
-			RobotPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), lookYaw,
-									glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0,0,1,1)) * deltaT;
+		if (glfwGetKey(window, GLFW_KEY_W)) {
+			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
+				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
 		}
-		if(glfwGetKey(window, GLFW_KEY_S)) {
-			RobotPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), lookYaw,
-									glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0,0,1,1)) * deltaT;
-		}
-		
-		if(!canStep(RobotPos.x, RobotPos.z)) {
-			RobotPos = oldRobotPos;
+		if (glfwGetKey(window, GLFW_KEY_S)) {
+			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
+				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
 		}
 
-//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
+		if (!canStep(truck.TruckPos.x, truck.TruckPos.z)) {
+			truck.TruckPos = oldRobotPos;
+		}
+
+		//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
 
 		glm::mat4 CamMat = glm::mat4(1.0);
-					
+
 		static int prevCt = -1;
-		
+
 		glm::mat4 Prj = glm::perspective(glm::radians(90.0f),
-						swapChainExtent.width / (float) swapChainExtent.height,
-						0.1f, 50.0f);		
+			swapChainExtent.width / (float)swapChainExtent.height,
+			0.1f, 50.0f);
 		Prj[1][1] *= -1;
-		
+
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = RobotPos;
+		static glm::vec3 FollowerPos = truck.TruckPos;
 
-		switch(curText) {
-		  case 0:
-			if(curText != prevCt) {
+		switch (curText) {
+		case 0:
+			if (curText != prevCt) {
 				std::cout << "First Person view\n";
 				prevCt = curText;
 			}
 			{
-				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), lookYaw, glm::vec3(0,1,0)) * 	
-											glm::vec4(RobotCamDeltaPos,1.0f));
-//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = LookInDirMat(RobotPos + RRCDP, glm::vec3 (lookYaw, lookPitch, lookRoll));
+				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
+					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
+				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
+				CamMat = LookInDirMat(truck.TruckPos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
 			}
 			break;
-		  case 1:
-			if(curText != prevCt) {
+		case 1:
+			if (curText != prevCt) {
 				std::cout << "Third Person view\n";
 				prevCt = curText;
 			}
 			{
-				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), lookYaw, glm::vec3(0,1,0)) * 	
-											glm::vec4(FollowerDeltaTarget,1.0f));
-				CamMat = LookAtMat(FollowerPos, RobotPos + RFDT, lookRoll);
+				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
+					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
+				CamMat = LookAtMat(FollowerPos, truck.TruckPos + RFDT, truck.lookRoll);
 			}
 			break;
-		  case 2:
-			if(curText != prevCt) {
+		case 2:
+			if (curText != prevCt) {
 				std::cout << "Top view\n";
 				prevCt = curText;
 			}
 			CamMat = glm::translate(
-							glm::rotate(glm::mat4(1), 1.5708f, glm::vec3(1,0,0)),
-			 		 glm::vec3(0,-10,0));
+				glm::rotate(glm::mat4(1), 1.5708f, glm::vec3(1, 0, 0)),
+				glm::vec3(0, -10, 0));
 			break;
-		  case 3:
-			if(curText != prevCt) {
+		case 3:
+			if (curText != prevCt) {
 				std::cout << "Impostor view\n";
 				prevCt = curText;
 			}
-			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0,0, -1) - RobotPos - FollowerDeltaTarget);
+			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.TruckPos - truck.FollowerDeltaTarget);
 			break;
 		}
-		EyePos = -glm::vec3(CamMat * glm::vec4(0,0,0,1));
+		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
-		for(int j = 0; j < Scene.size(); j++) {
+		for (int j = 0; j < Scene.size(); j++) {
 			UniformBufferObject ubo{};
 			glm::vec3 delta;
 
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(SceneToLoad[j].scale));
-			if((j==1) && xray) {
+			if ((j == 1) && xray) {
 				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
-//std::cout << "Making invisible object " << j << "\n";
+				//std::cout << "Making invisible object " << j << "\n";
 			}
-			if(j==2) {
-				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), RobotPos),
-									   lookYaw, glm::vec3(0,1,0));
-				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0,1,0)) * ubo.mMat;
-				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), FollowerDeltaTarget) *
-									glm::rotate(glm::mat4(1), lookPitch, glm::vec3(1,0,0)) * 
-									glm::vec4(0.0f,0.0f,followerDist,1.0f);
+			if (j == 2) {
+				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.TruckPos),
+					truck.lookYaw, glm::vec3(0, 1, 0));
+				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
+				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
+					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
+					glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);
 			}
-			if((j==3) && !xray) {
+			if ((j == 3) && !xray) {
 				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
-//std::cout << "Making invisible object " << j << "\n";
+				//std::cout << "Making invisible object " << j << "\n";
 			}
-			if(j==4) {
+			if (j == 4) {
 				const float followerFilterCoeff = 7.5;
 				float alpha = fmin(followerFilterCoeff * deltaT, 1.0);
 				FollowerPos = FollowerPos * (1.0f - alpha) + alpha * FollowerTargetPos;
-				ubo.mMat = glm::rotate(glm::mat4(1), lookRoll, glm::vec3(0,0,1)) * ubo.mMat;
-				ubo.mMat = glm::rotate(glm::mat4(1), lookPitch, glm::vec3(1,0,0)) * ubo.mMat;
-				ubo.mMat = glm::rotate(glm::mat4(1), lookYaw, glm::vec3(0,1,0)) * ubo.mMat;
+				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookRoll, glm::vec3(0, 0, 1)) * ubo.mMat;
+				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) * ubo.mMat;
+				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) * ubo.mMat;
 				ubo.mMat = glm::translate(glm::mat4(1), FollowerPos) * ubo.mMat;
-				if(curText < 2) {
+				if (curText < 2) {
 					ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
 				}
 			}
-						
+
 			float rotAng = 0.0f;
 
 			ubo.mvpMat = Prj * CamMat * ubo.mMat;
 			ubo.nMat = glm::inverse(glm::transpose(ubo.mMat));
 
 			int i = j * swapChainImages.size() + currentImage;
-			
+
 			void* data;
 			vkMapMemory(device, uniformBuffersMemory[i], 0,
-								sizeof(ubo), 0, &data);
+				sizeof(ubo), 0, &data);
 			memcpy(data, &ubo, sizeof(ubo));
 			vkUnmapMemory(device, uniformBuffersMemory[i]);
 		}
-		
+
 		// updates global uniforms
 		GlobalUniformBufferObject gubo{};
 		gubo.lightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
@@ -3054,7 +3044,7 @@ private:
 
 		void* data;
 		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0,
-							sizeof(gubo), 0, &data);
+			sizeof(gubo), 0, &data);
 		memcpy(data, &gubo, sizeof(gubo));
 		vkUnmapMemory(device, globalUniformBuffersMemory[currentImage]);
 
@@ -3064,10 +3054,11 @@ private:
 		ubo.nMat = glm::mat4(1.0f);
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0,
-							sizeof(ubo), 0, &data);
+			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, SkyBoxUniformBuffersMemory[currentImage]);
 	}
+
 
     void recreateSwapChain() {
     	int width = 0, height = 0;
@@ -3225,7 +3216,7 @@ private:
 };
 
 int main() {
-    Assignment06 app;
+    CGProject app;
 
     try {
         app.run();
