@@ -13,6 +13,7 @@ Computer_graphics.vcxproj.filters
 
 Computer_graphics.vcxproj.user
 
+<<<<<<< HEAD
 .vs/Proj/v17/.suo
 
 .vs/Proj/v17/Browse.VC.db
@@ -40,3 +41,16 @@ Proj.vcxproj
 Proj.vcxproj.filters
 
 Proj.vcxproj.user
+=======
+Project.sln
+
+VulkanTest.vcxproj
+
+VulkanTest.vcxproj.filters
+
+VulkanTest.vcxproj.user
+
+.vs/
+
+x64/
+>>>>>>> main
