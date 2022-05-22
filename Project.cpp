@@ -90,7 +90,8 @@ std::vector<SingleText> SceneText = {
 };
 
 #include "view.cpp"
-#include "truck.cpp"
+#include "truck.h"
+#include "PhysicsEngine.h"
 
 
 namespace std {
@@ -416,6 +417,7 @@ public:
     void run() {
         initWindow();
         initVulkan();
+		initClasses();
         mainLoop();
         cleanup();
     }
@@ -439,6 +441,7 @@ private:
 	VkDescriptorPool descriptorPool;
 
 	VertexDescriptor 	phongAndSkyBoxVertices = VertexDescriptor(true, true, true, false, false);
+	VertexDescriptor 	modelsVD = VertexDescriptor(true, false, false, false, false);
 	VertexDescriptor 	textVertices = VertexDescriptor(true, false, true, false, false);
 
 	// Phong pipeline
@@ -500,6 +503,7 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 	
+	PhysicsEngine physicsEngine;
 	Truck truck;
 	
 	// Other global variables
@@ -2055,8 +2059,19 @@ private:
 		createTextureImageView(SText.TD);
 		createTextureSampler(SText.TD);
 	}
+
+	struct Vertex {
+		glm::vec3 pos;
+	};
+
+	std::vector<vec3> M1_vertices;
+	std::vector<uint32_t> M1_indices;
+
+
 	
 	void loadMesh(const char* FName, ModelData& MD, VertexDescriptor &VD) {
+
+
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -2072,37 +2087,95 @@ private:
 		std::cout << FName << "\n";
 
 		std::vector<float> vertex{};
-		vertex.resize(VD.size);
+		vertex.resize(VD.size);	
 
-//		std::unordered_map<std::vector<float>, uint32_t> uniqueVertices{};
-		for (const auto& shape : shapes) {
-			for (const auto& index : shape.mesh.indices) {
-				
-				vertex[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
-				vertex[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
-				vertex[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
-				vertex[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
-				vertex[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
-				vertex[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
-				vertex[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
-				vertex[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
-				
-//				if (uniqueVertices.count(vertex) == 0) {
-					int j = MD.vertices.size() / VD.size;
-//					uniqueVertices[vertex] =
-//							static_cast<uint32_t>(j);
-					int s = MD.vertices.size();
-					MD.vertices.resize(s + VD.size);
-					for(int k = 0; k < VD.size; k++) {
-						MD.vertices[s+k] = vertex[k];
-					}
-/**/				MD.indices.push_back(j);
-//				}
-				
-//				MD.indices.push_back(uniqueVertices[vertex]);
+		if (FName == "floor.obj" and false) {
+			for (int index = 0; index < 600;index++) {
+
+				if (int(index%3) == 0 ) {
+					vertex[VD.deltaPos + 0] = 1+index;
+					vertex[VD.deltaPos + 1] = 0;
+					vertex[VD.deltaPos + 2] = 0;
+				}
+
+				if (int(index%3) == 1 ) {
+					vertex[VD.deltaPos + 0] = 0+index-1;
+					vertex[VD.deltaPos + 1] = 1;
+					vertex[VD.deltaPos + 2] = 0;
+				}
+
+				if (int(index%3) == 2 ) {
+					vertex[VD.deltaPos + 0] = 0+index-2;
+					vertex[VD.deltaPos + 1] = 0;
+					vertex[VD.deltaPos + 2] = 1;
+				}
+
+				int j = MD.vertices.size() / VD.size;
+				int s = MD.vertices.size();
+				MD.vertices.resize(s + VD.size);
+				for (int k = 0; k < VD.size; k++) {
+					MD.vertices[s + k] = vertex[k];
+				}
+				MD.indices.push_back(j);
+
 			}
 		}
-		
+		else {
+			for (const auto& shape : shapes) {
+				for (const auto& index : shape.mesh.indices) {
+
+					vertex[VD.deltaPos + 0] = 0;//attrib.vertices[3 * index.vertex_index + 0];
+					vertex[VD.deltaPos + 1] = 0;//attrib.vertices[3 * index.vertex_index + 1];
+					vertex[VD.deltaPos + 2] = 0;//attrib.vertices[3 * index.vertex_index + 2];
+				
+					if (int(index.vertex_index) == 0 && FName == "floor.obj") {
+						vertex[VD.deltaPos + 0] = 200;
+						vertex[VD.deltaPos + 1] = 0;
+						vertex[VD.deltaPos + 2] =0;
+						std::cout << "This is bad";
+					}
+					
+					if (int(index.vertex_index) == 1 && FName == "floor.obj") {
+						vertex[VD.deltaPos + 0] = 0;
+						vertex[VD.deltaPos + 1] = 1;
+						vertex[VD.deltaPos + 2] = 0;
+					}
+					
+					if (int(index.vertex_index) == 2 && FName == "floor.obj") {
+						vertex[VD.deltaPos + 0] = 0;
+						vertex[VD.deltaPos + 1] = 0;
+						vertex[VD.deltaPos + 2] = 1;
+					}
+					
+				
+					if (FName == "SkyBoxCube.obj" or true) {
+						vertex[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
+						vertex[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
+						vertex[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
+					}
+
+					vertex[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
+					vertex[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
+					vertex[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
+					vertex[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
+					vertex[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
+
+					//				if (uniqueVertices.count(vertex) == 0) {
+					int j = MD.vertices.size() / VD.size;
+					//					uniqueVertices[vertex] =
+					//							static_cast<uint32_t>(j);
+					int s = MD.vertices.size();
+					MD.vertices.resize(s + VD.size);
+					for (int k = 0; k < VD.size; k++) {
+						MD.vertices[s + k] = vertex[k];
+					}
+					/**/				MD.indices.push_back(j);
+					//				}
+
+					//				MD.indices.push_back(uniqueVertices[vertex]);
+				}
+			}
+		}
 		std::cout << FName << " -> V: " << MD.vertices.size()
 				  << ", I: " << MD.indices.size() << "\n";
 	}
@@ -2760,6 +2833,11 @@ private:
 			}
 		}
 	}
+
+	void initClasses() {
+		RigidBody* rb = &truck.rb;
+		physicsEngine.AddRigidBody(rb);
+	}
     
     void mainLoop() {
         while (!glfwWindowShouldClose(window)) {
@@ -2844,6 +2922,7 @@ private:
     }
 	
 	void updateUniformBuffer(uint32_t currentImage) {
+		// Inputs
 		static auto startTime = std::chrono::high_resolution_clock::now();
 		static float lastTime = 0.0f;
 
@@ -2853,10 +2932,6 @@ private:
 		float deltaT = time - lastTime;
 		lastTime = time;
 
-		const float ROT_SPEED = glm::radians(60.0f);
-		const float MOVE_SPEED = 0.75f;
-		const float MOUSE_RES = 500.0f;
-
 		static double old_xpos = 0, old_ypos = 0;
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
@@ -2865,11 +2940,12 @@ private:
 		old_xpos = xpos; old_ypos = ypos;
 		//std::cout << xpos << " " << ypos << " " << m_dx << " " << m_dy << "\n";
 
+		/*
 		glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 			truck.lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
 			truck.lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
-		}
+		}*/
 
 		static float debounce = time;
 
@@ -2890,45 +2966,17 @@ private:
 			}
 		}
 
-		glm::vec3 oldRobotPos = truck.TruckPos;
-		if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-			truck.lookYaw += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-			truck.lookYaw -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_UP)) {
-			truck.lookPitch += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-			truck.lookPitch -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_Q)) {
-			truck.lookRoll -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_E)) {
-			truck.lookRoll += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_A)) {
-			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D)) {
-			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_W)) {
-			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_S)) {
-			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
-		}
+		vec3 oldPos = truck.rb.pos;
 
-		if (!canStep(truck.TruckPos.x, truck.TruckPos.z)) {
-			truck.TruckPos = oldRobotPos;
-		}
+		truck.UpdatePos(window, deltaT);
+
+		//Physics
+		physicsEngine.Step(deltaT);
+		//Collisions
+		/*
+		if (!canStep(truck.rb.pos.x, truck.rb.pos.z)) {
+			truck.rb.pos = oldPos;
+		}*/
 
 		//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
 
@@ -2943,7 +2991,7 @@ private:
 
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = truck.TruckPos;
+		static glm::vec3 FollowerPos = truck.rb.pos;
 
 		switch (curText) {
 		case 0:
@@ -2955,7 +3003,7 @@ private:
 				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = LookInDirMat(truck.TruckPos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
+				CamMat = LookInDirMat(truck.rb.pos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
 			}
 			break;
 		case 1:
@@ -2966,7 +3014,7 @@ private:
 			{
 				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
-				CamMat = LookAtMat(FollowerPos, truck.TruckPos + RFDT, truck.lookRoll);
+				CamMat = LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
 			}
 			break;
 		case 2:
@@ -2983,7 +3031,7 @@ private:
 				std::cout << "Impostor view\n";
 				prevCt = curText;
 			}
-			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.TruckPos - truck.FollowerDeltaTarget);
+			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.rb.pos - truck.FollowerDeltaTarget);
 			break;
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
@@ -2998,7 +3046,7 @@ private:
 				//std::cout << "Making invisible object " << j << "\n";
 			}
 			if (j == 2) {
-				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.TruckPos),
+				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.rb.pos),
 					truck.lookYaw, glm::vec3(0, 1, 0));
 				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
