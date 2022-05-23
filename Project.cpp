@@ -90,7 +90,7 @@ std::vector<SingleText> SceneText = {
 };
 
 #include "view.cpp"
-#include "truck.h"
+#include "Truck.h"
 #include "PhysicsEngine.h"
 
 
@@ -1459,9 +1459,10 @@ private:
 	}
 
 	static std::vector<char> readFile(const std::string& filename) {
+        std::string s = "failed to open file!"+filename;
 			std::ifstream file(filename, std::ios::ate | std::ios::binary);
 		if (!file.is_open()) {
-			throw std::runtime_error("failed to open file!");
+			throw std::runtime_error(s);
 		}
 		
 		size_t fileSize = (size_t) file.tellg();
@@ -2968,7 +2969,7 @@ private:
 
 		vec3 oldPos = truck.rb.pos;
 
-		truck.UpdatePos(window, deltaT);
+        truck.UpdatePos(window, deltaT);
 
 		//Physics
 		physicsEngine.Step(deltaT);

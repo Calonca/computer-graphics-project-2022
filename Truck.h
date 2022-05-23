@@ -37,7 +37,7 @@ public:
 	const float MOVE_SPEED = 9000.75f;
 	const float MOUSE_RES = 500.0f;
 	
-	void UpdatePos(GLFWwindow* window,float deltaT);
+	void UpdatePos(GLFWwindow* window, float deltaT);
 
 };
 
