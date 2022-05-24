@@ -15,8 +15,6 @@
 #include <unordered_map>
 
 #include "definitions.h"
-extern struct Model g_test;
-
 
 
 #define GLM_FORCE_RADIANS
@@ -2932,21 +2930,6 @@ private:
 			(currentTime - startTime).count();
 		float deltaT = time - lastTime;
 		lastTime = time;
-
-		static double old_xpos = 0, old_ypos = 0;
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		double m_dx = xpos - old_xpos;
-		double m_dy = ypos - old_ypos;
-		old_xpos = xpos; old_ypos = ypos;
-		//std::cout << xpos << " " << ypos << " " << m_dx << " " << m_dy << "\n";
-
-		/*
-		glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			truck.lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
-			truck.lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
-		}*/
 
 		static float debounce = time;
 
