@@ -16,7 +16,7 @@ public:
 	float lookPitch = glm::radians(-30.0f);
 	float lookRoll = 0.0;
 	std::vector<Model> stl = { 
-		{ "MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", {0,-10000.0f,0}, 1, Flat ,2}
+		{ "MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", {0,-10000.0f,0}, 0.5, Flat ,2}
 	};
 };
 
