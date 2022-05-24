@@ -36,8 +36,6 @@ extern struct Model g_test;
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-
-
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -68,10 +66,10 @@ const std::vector<const char*> deviceExtensions = {
 
 std::vector<Model> SceneToLoad = {
 	{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0},
-	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}
+	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
-	//{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3}
-	//{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}
+	{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3},
+	{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}
 };
 
 struct SkyBoxModel {
@@ -100,7 +98,8 @@ std::vector<uint32_t> M1_indices;
 
 #include "models.cpp"
 #include "view.cpp"
-#include "truck.cpp"
+#include "Truck.h"
+#include "PhysicsEngine.h"
 
 
 namespace std {
@@ -131,7 +130,6 @@ struct VertexDescriptor {
 	
 	int locPos;
 	int locNormal;
-
 	int locTexCoord;
 	int locColor;
 	int locTangent;
@@ -341,7 +339,7 @@ struct QueueFamilyIndices {
 			   presentFamily.has_value();
 	}
 };
-	
+    
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -424,24 +422,25 @@ struct SceneModel {
 
 class CGProject {
 public:
-	void run() {
-		initWindow();
-		initVulkan();
-		mainLoop();
-		cleanup();
-	}
+    void run() {
+        initWindow();
+        initVulkan();
+		initClasses();
+        mainLoop();
+        cleanup();
+    }
 
 private:
-	GLFWwindow* window;
-	VkInstance instance;
+    GLFWwindow* window;
+    VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkSurfaceKHR surface;
-	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	VkDevice device;
-	VkQueue graphicsQueue;
-	VkQueue presentQueue;
-	VkSwapchainKHR swapChain;
-	std::vector<VkImage> swapChainImages;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSwapchainKHR swapChain;
+    std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
@@ -450,12 +449,13 @@ private:
 	VkDescriptorPool descriptorPool;
 
 	VertexDescriptor 	phongAndSkyBoxVertices = VertexDescriptor(true, true, true, false, false);
+	VertexDescriptor 	modelsVD = VertexDescriptor(true, false, false, false, false);
 	VertexDescriptor 	textVertices = VertexDescriptor(true, false, true, false, false);
 
 	// Phong pipeline
-	VkDescriptorSetLayout PhongDescriptorSetLayout;
-	VkPipelineLayout PhongPipelineLayout;
-	VkPipelineLayout PhongWirePipelineLayout;
+ 	VkDescriptorSetLayout PhongDescriptorSetLayout;
+  	VkPipelineLayout PhongPipelineLayout;
+  	VkPipelineLayout PhongWirePipelineLayout;
 	VkPipeline PhongPipeline;
 	VkPipeline PhongWirePipeline;
 	//// For the first uniform (per object)
@@ -470,8 +470,8 @@ private:
 	std::vector<SceneModel> Scene;
 	
 	//  Skybox pipeline
-	VkDescriptorSetLayout SkyBoxDescriptorSetLayout; // for skybox
-	VkPipelineLayout SkyBoxPipelineLayout;	// for skybox
+ 	VkDescriptorSetLayout SkyBoxDescriptorSetLayout; // for skybox
+  	VkPipelineLayout SkyBoxPipelineLayout;	// for skybox
 	VkPipeline SkyBoxPipeline;		// for skybox
 	std::vector<VkBuffer> SkyBoxUniformBuffers;
 	std::vector<VkDeviceMemory> SkyBoxUniformBuffersMemory;
@@ -481,8 +481,8 @@ private:
 	SceneModel SkyBox;
 
 	//  Text pipeline
-	VkDescriptorSetLayout TextDescriptorSetLayout; 
-	VkPipelineLayout TextPipelineLayout;
+ 	VkDescriptorSetLayout TextDescriptorSetLayout; 
+  	VkPipelineLayout TextPipelineLayout;
 	VkPipeline TextPipeline;	
 	std::vector<VkBuffer> TextUniformBuffers;
 	std::vector<VkDeviceMemory> TextUniformBuffersMemory;
@@ -511,6 +511,7 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 	
+	PhysicsEngine physicsEngine;
 	Truck truck;
 	
 	// Other global variables
@@ -536,15 +537,15 @@ private:
 		return true;
 	}
 	
-	void initWindow() {
-		glfwInit();
+    void initWindow() {
+        glfwInit();
 
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-		glfwSetWindowUserPointer(window, this);
-		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-	}
+        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+        glfwSetWindowUserPointer(window, this);
+        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    }
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<CGProject*>
@@ -552,7 +553,7 @@ private:
 		app->framebufferResized = true;
 	}    
 
-	void initVulkan() {
+    void initVulkan() {
 		createInstance();
 		setupDebugMessenger();
 		createSurface();
@@ -573,15 +574,15 @@ private:
 		createDescriptorSets();
 		createCommandBuffers();
 		createSyncObjects();
-	}
+    }
 
-	void createInstance() {
-		VkApplicationInfo appInfo{};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hello Triangle";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    void createInstance() {
+    	VkApplicationInfo appInfo{};
+       	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    	appInfo.pApplicationName = "Hello Triangle";
+    	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    	appInfo.pEngineName = "No Engine";
+    	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 		
 		VkInstanceCreateInfo createInfo{};
@@ -602,7 +603,7 @@ private:
 		 
 		std::vector<VkExtensionProperties> extensionsPr(extensionCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, 
-												extensionsPr.data());
+		 										extensionsPr.data());
 		 
 		auto extensions = getRequiredExtensions();
 		createInfo.enabledExtensionCount =
@@ -630,12 +631,12 @@ private:
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 		
 		if(result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create instance!");
 		}
-	}
-	
-	std::vector<const char*> getRequiredExtensions() {
+    }
+    
+    std::vector<const char*> getRequiredExtensions() {
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
 		glfwExtensions =
@@ -676,9 +677,9 @@ private:
 		return true;    
 	}
 
-	void populateDebugMessengerCreateInfo(
-			VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-		createInfo = {};
+    void populateDebugMessengerCreateInfo(
+    		VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+    	createInfo = {};
 		createInfo.sType =
 			VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		createInfo.messageSeverity =
@@ -691,7 +692,7 @@ private:
 			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		createInfo.pfnUserCallback = debugCallback;
 		createInfo.pUserData = nullptr;
-	}
+    }
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -714,18 +715,18 @@ private:
 		}
 	}
 
-	void createSurface() {
-		if (glfwCreateWindowSurface(instance, window, nullptr, &surface)
-				!= VK_SUCCESS) {
+    void createSurface() {
+    	if (glfwCreateWindowSurface(instance, window, nullptr, &surface)
+    			!= VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
-	}
+    }
 
-	void pickPhysicalDevice() {
-		uint32_t deviceCount = 0;
-		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-		 
-		if (deviceCount == 0) {
+    void pickPhysicalDevice() {
+    	uint32_t deviceCount = 0;
+    	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    	 
+    	if (deviceCount == 0) {
 			throw std::runtime_error("failed to find GPUs with Vulkan support!");
 		}
 		
@@ -746,10 +747,10 @@ private:
 		if (physicalDevice == VK_NULL_HANDLE) {
 			throw std::runtime_error("failed to find a suitable GPU!");
 		}
-	}
+    }
 
-	bool isDeviceSuitable(VkPhysicalDevice device) {
-		QueueFamilyIndices indices = findQueueFamilies(device);
+    bool isDeviceSuitable(VkPhysicalDevice device) {
+ 		QueueFamilyIndices indices = findQueueFamilies(device);
 
 		bool extensionsSupported = checkDeviceExtensionSupport(device);
 
@@ -766,8 +767,8 @@ private:
 		return indices.isComplete() && extensionsSupported && swapChainAdequate &&
 						supportedFeatures.samplerAnisotropy;
 	}
-	
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+    
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
 		QueueFamilyIndices indices;
 		
 		uint32_t queueFamilyCount = 0;
@@ -788,7 +789,7 @@ private:
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface,
 												 &presentSupport);
 			if (presentSupport) {
-				indices.presentFamily = i;
+			 	indices.presentFamily = i;
 			}
 
 			if (indices.isComplete()) {
@@ -823,7 +824,7 @@ private:
 		SwapChainSupportDetails details;
 		
 		 vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
-				&details.capabilities);
+		 		&details.capabilities);
 
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
@@ -911,7 +912,7 @@ private:
 		VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
 		
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create logical device!");
 		}
 		
@@ -966,7 +967,7 @@ private:
 		 
 		 VkResult result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain);
 		 if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create swap chain!");
 		}
 		
@@ -1050,13 +1051,13 @@ private:
 		VkResult result = vkCreateImageView(device, &viewInfo, nullptr,
 				&imageView);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create image view!");
 		}
 		return imageView;
 	}
 
-	void createRenderPass() {
+    void createRenderPass() {
 		VkAttachmentDescription colorAttachmentResolve{};
 		colorAttachmentResolve.format = swapChainImageFormat;
 		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -1088,7 +1089,7 @@ private:
 		depthAttachmentRef.layout = 
 						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentDescription colorAttachment{};
+    	VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
 		colorAttachment.samples = msaaSamples;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -1124,7 +1125,7 @@ private:
 
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());;
 		renderPassInfo.pAttachments = attachments.data();
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
@@ -1134,7 +1135,7 @@ private:
 		VkResult result = vkCreateRenderPass(device, &renderPassInfo, nullptr,
 					&renderPass);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create render pass!");
 		}		
 	}
@@ -1248,44 +1249,44 @@ private:
 		}
 	}
 
-	void createPipelines() {
-		createPhongPipeline();
-		createSkyBoxPipeline();
-		createTextPipeline();
-	}
-	
-	void createPhongPipeline() {
-		createPipeline("PhongVert.spv", "PhongFrag.spv",
-						PhongPipelineLayout, PhongPipeline,
-						PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL,
-						1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
-		createPipeline("PhongVert.spv", "PhongFrag.spv",
-						PhongWirePipelineLayout, PhongWirePipeline,
-						PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_LINE,
-						1.0, VK_CULL_MODE_NONE, false, phongAndSkyBoxVertices);				    
-	}
+ 	void createPipelines() {
+ 		createPhongPipeline();
+ 		createSkyBoxPipeline();
+ 		createTextPipeline();
+ 	}
+ 	
+ 	void createPhongPipeline() {
+ 		createPipeline("PhongVert.spv", "PhongFrag.spv",
+ 					    PhongPipelineLayout, PhongPipeline,
+ 					    PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL,
+ 					    1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
+ 		createPipeline("PhongVert.spv", "PhongFrag.spv",
+ 					    PhongWirePipelineLayout, PhongWirePipeline,
+ 					    PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_LINE,
+ 					    1.0, VK_CULL_MODE_NONE, false, phongAndSkyBoxVertices);				    
+ 	}
 
-	void createSkyBoxPipeline() {
-		createPipeline("SkyBoxVert.spv", "SkyBoxFrag.spv",
-						SkyBoxPipelineLayout, SkyBoxPipeline,
-						SkyBoxDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
-						1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
-	}
+ 	void createSkyBoxPipeline() {
+ 		createPipeline("SkyBoxVert.spv", "SkyBoxFrag.spv",
+ 					    SkyBoxPipelineLayout, SkyBoxPipeline,
+ 					    SkyBoxDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
+ 					    1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
+ 	}
 
-	void createTextPipeline() {
-		createPipeline("TextVert.spv", "TextFrag.spv",
-						TextPipelineLayout, TextPipeline,
-						TextDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
-						1.0, VK_CULL_MODE_NONE, true, textVertices);
-	}
+ 	void createTextPipeline() {
+ 		createPipeline("TextVert.spv", "TextFrag.spv",
+ 					    TextPipelineLayout, TextPipeline,
+ 					    TextDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
+ 					    1.0, VK_CULL_MODE_NONE, true, textVertices);
+ 	}
 
-	void createPipeline(const char* VertexShaderName, const char* FragShaderName,
-						VkPipelineLayout& PipelineLayout,
-						VkPipeline& Pipeline,
-						VkDescriptorSetLayout &descriptorSetLayout,
-						VkCompareOp compareOp, VkPolygonMode polyModel, float LW,
-						VkCullModeFlagBits CM, bool transp,
-						VertexDescriptor &VD) {
+ 	void createPipeline(const char* VertexShaderName, const char* FragShaderName,
+ 						VkPipelineLayout& PipelineLayout,
+ 						VkPipeline& Pipeline,
+ 						VkDescriptorSetLayout &descriptorSetLayout,
+ 						VkCompareOp compareOp, VkPolygonMode polyModel, float LW,
+ 						VkCullModeFlagBits CM, bool transp,
+ 						VertexDescriptor &VD) {
 		auto vertShaderCode = readFile((SHADER_PATH + VertexShaderName).c_str());
 		auto fragShaderCode = readFile((SHADER_PATH + FragShaderName).c_str());
 		
@@ -1295,21 +1296,21 @@ private:
 				createShaderModule(fragShaderCode);
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-		vertShaderStageInfo.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
-		vertShaderStageInfo.pName = "main";
+        vertShaderStageInfo.sType =
+        		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        vertShaderStageInfo.module = vertShaderModule;
+        vertShaderStageInfo.pName = "main";
 
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-		fragShaderStageInfo.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
-		fragShaderStageInfo.pName = "main";
+        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+        fragShaderStageInfo.sType =
+        		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        fragShaderStageInfo.module = fragShaderModule;
+        fragShaderStageInfo.pName = "main";
 
-		VkPipelineShaderStageCreateInfo shaderStages[] =
-				{vertShaderStageInfo, fragShaderStageInfo};
+        VkPipelineShaderStageCreateInfo shaderStages[] =
+        		{vertShaderStageInfo, fragShaderStageInfo};
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType =
@@ -1418,7 +1419,7 @@ private:
 		VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
 					&PipelineLayout);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 		
@@ -1457,7 +1458,7 @@ private:
 		result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
 				&pipelineInfo, nullptr, &Pipeline);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create graphics pipeline!");
 		}
 		
@@ -1466,6 +1467,7 @@ private:
 	}
 
 	static std::vector<char> readFile(const std::string& filename) {
+        std::string s = "failed to open file!"+filename;
 			std::ifstream file(filename, std::ios::ate | std::ios::binary);
 		if (!file.is_open()) {
 			throw std::runtime_error("failed to open file!");
@@ -1493,14 +1495,14 @@ private:
 		VkResult result = vkCreateShaderModule(device, &createInfo, nullptr,
 						&shaderModule);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create shader module!");
 		}
 		
 		return shaderModule;
 	}
 
-	void createFramebuffers() {
+    void createFramebuffers() {
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 			std::array<VkImageView, 3> attachments = {
@@ -1523,16 +1525,16 @@ private:
 			VkResult result = vkCreateFramebuffer(device, &framebufferInfo, nullptr,
 						&swapChainFramebuffers[i]);
 			if (result != VK_SUCCESS) {
-				PrintVkError(result);
+			 	PrintVkError(result);
 				throw std::runtime_error("failed to create framebuffer!");
 			}
 		}
 	}
 
-	void createCommandPool() {
-		QueueFamilyIndices queueFamilyIndices = 
-				findQueueFamilies(physicalDevice);
-				
+    void createCommandPool() {
+    	QueueFamilyIndices queueFamilyIndices = 
+    			findQueueFamilies(physicalDevice);
+    			
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
@@ -1540,7 +1542,7 @@ private:
 		
 		VkResult result = vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create command pool!");
 		}
 	}
@@ -1624,9 +1626,9 @@ private:
 		VkDeviceMemory stagingBufferMemory;
 		 
 		createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-								VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								stagingBuffer, stagingBufferMemory);
+		  						VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		  						VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		  						stagingBuffer, stagingBufferMemory);
 		void* data;
 		vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
 		memcpy(data, pixels, static_cast<size_t>(imageSize));
@@ -1678,9 +1680,9 @@ private:
 		VkDeviceMemory stagingBufferMemory;
 		 
 		createBuffer(totalImageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-								VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								stagingBuffer, stagingBufferMemory);
+		  						VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		  						VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		  						stagingBuffer, stagingBufferMemory);
 		void* data;
 		vkMapMemory(device, stagingBufferMemory, 0, totalImageSize, 0, &data);
 		for(int i = 0; i < 6; i++) {
@@ -1796,7 +1798,7 @@ private:
 
 
 	void createSkyBoxImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkImage& image,
-					 VkDeviceMemory& imageMemory) {		
+				 	 VkDeviceMemory& imageMemory) {		
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -1815,8 +1817,8 @@ private:
 		
 		VkResult result = vkCreateImage(device, &imageInfo, nullptr, &image);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
-			throw std::runtime_error("failed to create image!");
+		 	PrintVkError(result);
+		 	throw std::runtime_error("failed to create image!");
 		}
 		
 		VkMemoryRequirements memRequirements;
@@ -1839,8 +1841,8 @@ private:
 	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels,
 					 VkSampleCountFlagBits numSamples, VkFormat format, 
 					 VkImageTiling tiling, VkImageUsageFlags usage,
-					 VkMemoryPropertyFlags properties, VkImage& image,
-					 VkDeviceMemory& imageMemory) {		
+				 	 VkMemoryPropertyFlags properties, VkImage& image,
+				 	 VkDeviceMemory& imageMemory) {		
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -1859,8 +1861,8 @@ private:
 		
 		VkResult result = vkCreateImage(device, &imageInfo, nullptr, &image);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
-			throw std::runtime_error("failed to create image!");
+		 	PrintVkError(result);
+		 	throw std::runtime_error("failed to create image!");
 		}
 		
 		VkMemoryRequirements memRequirements;
@@ -1999,8 +2001,8 @@ private:
 		VkResult result = vkCreateSampler(device, &samplerInfo, nullptr,
 										  &TD.textureSampler);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
-			throw std::runtime_error("failed to create texture sampler!");
+		 	PrintVkError(result);
+		 	throw std::runtime_error("failed to create texture sampler!");
 		}
 	}
 
@@ -2019,9 +2021,8 @@ private:
 			loadModelWithTexture(M, M.id);
 			i++;
 		}
-		//loadModelWithTexture(SceneToLoad[0], SceneToLoad[0].id);
 
-		
+
 		loadSkyBox();
 		createTexts();
 		
@@ -2068,11 +2069,7 @@ private:
 		createTextureSampler(SText.TD);
 	}
 	
-
-
-
 	void loadMesh(const char* FName, ModelData& MD, VertexDescriptor &VD) {
-
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -2086,15 +2083,16 @@ private:
 		MD.vertDesc = &VD;
 
 		std::cout << FName << "\n";
+
 		std::vector<float> vertex{};
 		vertex.resize(VD.size);
 
-		
+
 		if(FName=="floor.obj"){
-			
+
 			makeModels();
 
-			
+
 
 
 				for (int i = 0; i < M1_indices.size(); i++) {
@@ -2129,12 +2127,12 @@ private:
 					MD.indices.push_back(j);
 					//std::cout << " m1 indices \n" << j;
 
-					
+
 
 				}				//0  1 2 3 4 5  1    1 2 3 4 5   2   1 2 3 4 5  2    1 2 3 4 5  3    1 2 3 4 5  0    1 2 3 4 5
 				//MD.vertices = {0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0};
 		           //MD.vertices ={ 0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,1,2,1,0,0,0,0,0};
-								
+
 				//MD.indices = {0,1,2, 4,3,5};
 				/*std::cout << "  \n vertices \t";
 				for (int i = 0; i < MD.vertices.size(); i++)
@@ -2149,7 +2147,7 @@ private:
 
 
 		else {
-			
+
 
 			//		std::unordered_map<std::vector<float>, uint32_t> uniqueVertices{};
 			for (const auto& shape : shapes) {
@@ -2166,29 +2164,23 @@ private:
 
 					//				if (uniqueVertices.count(vertex) == 0) {
 					int j = MD.vertices.size() / VD.size;
-					//					uniqueVertices[vertex] =
-					//							static_cast<uint32_t>(j);
+//					uniqueVertices[vertex] =
+//							static_cast<uint32_t>(j);
 					int s = MD.vertices.size();
 					MD.vertices.resize(s + VD.size);
-					for (int k = 0; k < VD.size; k++) {
-						MD.vertices[s + k] = vertex[k];
-
+					for(int k = 0; k < VD.size; k++) {
+						MD.vertices[s+k] = vertex[k];
 					}
-									MD.indices.push_back(j);
-					//				}
-
-					//				MD.indices.push_back(uniqueVertices[vertex]);
-				}
+/**/				MD.indices.push_back(j);
+//				}
+				
+//				MD.indices.push_back(uniqueVertices[vertex]);
 			}
-
-			std::cout << FName << " -> V: " << MD.vertices.size()
-				<< ", I: " << MD.indices.size() << "\n";
 		}
-}
-
-
-
-
+		
+		std::cout << FName << " -> V: " << MD.vertices.size()
+				  << ", I: " << MD.indices.size() << "\n";
+	}
 	void createTextMesh(ModelData& MD, VertexDescriptor &VD) {
 		MD.vertDesc = &VD;
 
@@ -2276,8 +2268,6 @@ private:
 				  << ", I: " << MD.indices.size() << "\n";
 	}
 
-
-
 	void createVertexBuffer(ModelData& Md) {
 		VkDeviceSize bufferSize = sizeof(Md.vertices[0]) * Md.vertices.size();
 		
@@ -2316,7 +2306,7 @@ private:
 		VkResult result =
 				vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create vertex buffer!");
 		}
 		
@@ -2332,7 +2322,7 @@ private:
 		result = vkAllocateMemory(device, &allocInfo, nullptr,
 				&bufferMemory);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to allocate vertex buffer memory!");
 		}
 		
@@ -2345,16 +2335,16 @@ private:
 		 vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 		 
 		 for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) && 
-				(memProperties.memoryTypes[i].propertyFlags & properties) ==
-						properties) {
+		 	if ((typeFilter & (1 << i)) && 
+		 		(memProperties.memoryTypes[i].propertyFlags & properties) ==
+		 				properties) {
 				return i;
 			}
 		}
 		
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	
+    
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 		
@@ -2431,9 +2421,9 @@ private:
 
 		for (size_t i = 0; i < swapChainImages.size() * Scene.size(); i++) {
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-									 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-									 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-									 uniformBuffers[i], uniformBuffersMemory[i]);
+								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+								 	 uniformBuffers[i], uniformBuffersMemory[i]);
 		}
 
 		bufferSize = sizeof(GlobalUniformBufferObject);
@@ -2443,9 +2433,9 @@ private:
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-									 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-									 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-									 globalUniformBuffers[i], globalUniformBuffersMemory[i]);
+								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+								 	 globalUniformBuffers[i], globalUniformBuffersMemory[i]);
 		}
 
 		bufferSize = sizeof(UniformBufferObject);
@@ -2455,9 +2445,9 @@ private:
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-									 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-									 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-									 SkyBoxUniformBuffers[i], SkyBoxUniformBuffersMemory[i]);
+								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+								 	 SkyBoxUniformBuffers[i], SkyBoxUniformBuffersMemory[i]);
 		}
 		
 		bufferSize = sizeof(UniformBufferObject);
@@ -2467,9 +2457,9 @@ private:
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-									 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-									 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-									 TextUniformBuffers[i], TextUniformBuffersMemory[i]);
+								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+								 	 TextUniformBuffers[i], TextUniformBuffersMemory[i]);
 		}
 	}
 
@@ -2503,7 +2493,7 @@ private:
 		VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr,
 									&descriptorPool);
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to create descriptor pool!");
 		}
 	}
@@ -2690,10 +2680,10 @@ private:
 		}
 	}
 
-	void createCommandBuffers() {
-		commandBuffers.resize(swapChainFramebuffers.size());
-		
-		VkCommandBufferAllocateInfo allocInfo{};
+    void createCommandBuffers() {
+    	commandBuffers.resize(swapChainFramebuffers.size());
+    	
+    	VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -2702,7 +2692,7 @@ private:
 		VkResult result = vkAllocateCommandBuffers(device, &allocInfo,
 				commandBuffers.data());
 		if (result != VK_SUCCESS) {
-			PrintVkError(result);
+		 	PrintVkError(result);
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 		
@@ -2814,14 +2804,14 @@ private:
 			}
 		}
 	}
-	
-	void createSyncObjects() {
-		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-		imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
-				
-		VkSemaphoreCreateInfo semaphoreInfo{};
+    
+    void createSyncObjects() {
+    	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    	imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
+    	    	
+    	VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 		
 		VkFenceCreateInfo fenceInfo{};
@@ -2838,28 +2828,33 @@ private:
 			if (result1 != VK_SUCCESS ||
 				result2 != VK_SUCCESS ||
 				result3 != VK_SUCCESS) {
-				PrintVkError(result1);
-				PrintVkError(result2);
-				PrintVkError(result3);
+			 	PrintVkError(result1);
+			 	PrintVkError(result2);
+			 	PrintVkError(result3);
 				throw std::runtime_error("failed to create synchronization objects for a frame!!");
 			}
 		}
 	}
-	
-	void mainLoop() {
-		while (!glfwWindowShouldClose(window)) {
-			glfwPollEvents();
-			drawFrame();
-			
-			if(glfwGetKey(window, GLFW_KEY_ESCAPE)) {
-				break;
-			}
-		}
-		
-		vkDeviceWaitIdle(device);
+
+	void initClasses() {
+		RigidBody* rb = &truck.rb;
+		physicsEngine.AddRigidBody(rb);
 	}
-	
-	void drawFrame() {
+
+    void mainLoop() {
+        while (!glfwWindowShouldClose(window)) {
+            glfwPollEvents();
+            drawFrame();
+            
+            if(glfwGetKey(window, GLFW_KEY_ESCAPE)) {
+            	break;
+            }
+        }
+        
+        vkDeviceWaitIdle(device);
+    }
+    
+    void drawFrame() {
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame],
 						VK_TRUE, UINT64_MAX);
 		
@@ -2919,14 +2914,14 @@ private:
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
 			framebufferResized) {
-			framebufferResized = false;
-			recreateSwapChain();
-		} else if (result != VK_SUCCESS) {
-			throw std::runtime_error("failed to present swap chain image!");
-		}
+            framebufferResized = false;
+            recreateSwapChain();
+        } else if (result != VK_SUCCESS) {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
 		
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-	}
+    }
 	
 	void updateUniformBuffer(uint32_t currentImage) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
@@ -2950,11 +2945,12 @@ private:
 		old_xpos = xpos; old_ypos = ypos;
 		//std::cout << xpos << " " << ypos << " " << m_dx << " " << m_dy << "\n";
 
+		/*
 		glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 			truck.lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
 			truck.lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
-		}
+		}*/
 
 		static float debounce = time;
 
@@ -2975,45 +2971,17 @@ private:
 			}
 		}
 
-		glm::vec3 oldRobotPos = truck.TruckPos;
-		if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-			truck.lookYaw += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-			truck.lookYaw -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_UP)) {
-			truck.lookPitch += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-			truck.lookPitch -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_Q)) {
-			truck.lookRoll -= deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_E)) {
-			truck.lookRoll += deltaT * ROT_SPEED;
-		}
-		if (glfwGetKey(window, GLFW_KEY_A)) {
-			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D)) {
-			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(1, 0, 0, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_W)) {
-			truck.TruckPos -= MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
-		}
-		if (glfwGetKey(window, GLFW_KEY_S)) {
-			truck.TruckPos += MOVE_SPEED * glm::vec3(glm::rotate(glm::mat4(1.0f), truck.lookYaw,
-				glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(0, 0, 1, 1)) * deltaT;
-		}
+		vec3 oldPos = truck.rb.pos;
 
-		if (!canStep(truck.TruckPos.x, truck.TruckPos.z)) {
-			truck.TruckPos = oldRobotPos;
-		}
+        truck.UpdatePos(window, deltaT);
+
+		//Physics
+		physicsEngine.Step(deltaT);
+		//Collisions
+		/*
+		if (!canStep(truck.rb.pos.x, truck.rb.pos.z)) {
+			truck.rb.pos = oldPos;
+		}*/
 
 		//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
 
@@ -3028,7 +2996,7 @@ private:
 
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = truck.TruckPos;
+		static glm::vec3 FollowerPos = truck.rb.pos;
 
 		switch (curText) {
 		case 0:
@@ -3040,7 +3008,7 @@ private:
 				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = LookInDirMat(truck.TruckPos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
+				CamMat = LookInDirMat(truck.rb.pos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
 			}
 			break;
 		case 1:
@@ -3051,7 +3019,7 @@ private:
 			{
 				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
-				CamMat = LookAtMat(FollowerPos, truck.TruckPos + RFDT, truck.lookRoll);
+				CamMat = LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
 			}
 			break;
 		case 2:
@@ -3083,7 +3051,7 @@ private:
 				//std::cout << "Making invisible object " << j << "\n";
 			}
 			if (j == 2) {
-				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.TruckPos),
+				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.rb.pos),
 					truck.lookYaw, glm::vec3(0, 1, 0));
 				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
@@ -3145,8 +3113,8 @@ private:
 	}
 
 
-	void recreateSwapChain() {
-		int width = 0, height = 0;
+    void recreateSwapChain() {
+    	int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
 		
 		while (width == 0 || height == 0) {
@@ -3155,8 +3123,8 @@ private:
 		}
 
 		vkDeviceWaitIdle(device);
-		
-		cleanupSwapChain();
+    	
+    	cleanupSwapChain();
 
 		createSwapChain();
 		createImageViews();
@@ -3172,10 +3140,10 @@ private:
 	}
 
 	void cleanupSwapChain() {
-		vkDestroyImageView(device, colorImageView, nullptr);
-		vkDestroyImage(device, colorImage, nullptr);
-		vkFreeMemory(device, colorImageMemory, nullptr);
-		
+    	vkDestroyImageView(device, colorImageView, nullptr);
+    	vkDestroyImage(device, colorImage, nullptr);
+    	vkFreeMemory(device, colorImageMemory, nullptr);
+    	
 		vkDestroyImageView(device, depthImageView, nullptr);
 		vkDestroyImage(device, depthImage, nullptr);
 		vkFreeMemory(device, depthImageMemory, nullptr);
@@ -3227,68 +3195,68 @@ private:
 	}
 
 
-	void cleanup() {
-		cleanupSwapChain();
-		
-		for (size_t i = 0; i < Scene.size(); i++) {
-			vkDestroySampler(device, Scene[i].TD.textureSampler, nullptr);
-			vkDestroyImageView(device, Scene[i].TD.textureImageView, nullptr);
+    void cleanup() {
+    	cleanupSwapChain();
+    	
+    	for (size_t i = 0; i < Scene.size(); i++) {
+	    	vkDestroySampler(device, Scene[i].TD.textureSampler, nullptr);
+	    	vkDestroyImageView(device, Scene[i].TD.textureImageView, nullptr);
 			vkDestroyImage(device, Scene[i].TD.textureImage, nullptr);
 			vkFreeMemory(device, Scene[i].TD.textureImageMemory, nullptr);
-			
-			vkDestroyBuffer(device, Scene[i].MD.indexBuffer, nullptr);
-			vkFreeMemory(device, Scene[i].MD.indexBufferMemory, nullptr);
+	    	
+	    	vkDestroyBuffer(device, Scene[i].MD.indexBuffer, nullptr);
+	    	vkFreeMemory(device, Scene[i].MD.indexBufferMemory, nullptr);
 	
 			vkDestroyBuffer(device, Scene[i].MD.vertexBuffer, nullptr);
-			vkFreeMemory(device, Scene[i].MD.vertexBufferMemory, nullptr);
-		}
-		vkDestroySampler(device, SkyBox.TD.textureSampler, nullptr);
-		vkDestroyImageView(device, SkyBox.TD.textureImageView, nullptr);
+	    	vkFreeMemory(device, Scene[i].MD.vertexBufferMemory, nullptr);
+    	}
+    	vkDestroySampler(device, SkyBox.TD.textureSampler, nullptr);
+    	vkDestroyImageView(device, SkyBox.TD.textureImageView, nullptr);
 		vkDestroyImage(device, SkyBox.TD.textureImage, nullptr);
 		vkFreeMemory(device, SkyBox.TD.textureImageMemory, nullptr);
 
-		vkDestroyBuffer(device, SkyBox.MD.indexBuffer, nullptr);
-		vkFreeMemory(device, SkyBox.MD.indexBufferMemory, nullptr);
+    	vkDestroyBuffer(device, SkyBox.MD.indexBuffer, nullptr);
+    	vkFreeMemory(device, SkyBox.MD.indexBufferMemory, nullptr);
 
 		vkDestroyBuffer(device, SkyBox.MD.vertexBuffer, nullptr);
-		vkFreeMemory(device, SkyBox.MD.vertexBufferMemory, nullptr);
-				
-		vkDestroySampler(device, SText.TD.textureSampler, nullptr);
-		vkDestroyImageView(device, SText.TD.textureImageView, nullptr);
+    	vkFreeMemory(device, SkyBox.MD.vertexBufferMemory, nullptr);
+    	    	
+    	vkDestroySampler(device, SText.TD.textureSampler, nullptr);
+    	vkDestroyImageView(device, SText.TD.textureImageView, nullptr);
 		vkDestroyImage(device, SText.TD.textureImage, nullptr);
 		vkFreeMemory(device, SText.TD.textureImageMemory, nullptr);
 
-		vkDestroyBuffer(device, SText.MD.indexBuffer, nullptr);
-		vkFreeMemory(device, SText.MD.indexBufferMemory, nullptr);
+    	vkDestroyBuffer(device, SText.MD.indexBuffer, nullptr);
+    	vkFreeMemory(device, SText.MD.indexBufferMemory, nullptr);
 
 		vkDestroyBuffer(device, SText.MD.vertexBuffer, nullptr);
-		vkFreeMemory(device, SText.MD.vertexBufferMemory, nullptr);
-				
-		vkDestroyDescriptorSetLayout(device, PhongDescriptorSetLayout, nullptr);
-		vkDestroyDescriptorSetLayout(device, SkyBoxDescriptorSetLayout, nullptr);
-		vkDestroyDescriptorSetLayout(device, TextDescriptorSetLayout, nullptr);
-		
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    	vkFreeMemory(device, SText.MD.vertexBufferMemory, nullptr);
+    	    	
+    	vkDestroyDescriptorSetLayout(device, PhongDescriptorSetLayout, nullptr);
+    	vkDestroyDescriptorSetLayout(device, SkyBoxDescriptorSetLayout, nullptr);
+    	vkDestroyDescriptorSetLayout(device, TextDescriptorSetLayout, nullptr);
+    	
+    	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
 			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
 			vkDestroyFence(device, inFlightFences[i], nullptr);
-		}
+    	}
+    	
+    	vkDestroyCommandPool(device, commandPool, nullptr);
+    	
+ 		vkDestroyDevice(device, nullptr);
 		
-		vkDestroyCommandPool(device, commandPool, nullptr);
-		
-		vkDestroyDevice(device, nullptr);
-		
-		if (enableValidationLayers) {
+	   	if (enableValidationLayers) {
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
 		
 		vkDestroySurfaceKHR(instance, surface, nullptr);
-		vkDestroyInstance(instance, nullptr);
+    	vkDestroyInstance(instance, nullptr);
 
-		glfwDestroyWindow(window);
+        glfwDestroyWindow(window);
 
-		glfwTerminate();
-	}
+        glfwTerminate();
+    }
 
 
 
@@ -3301,17 +3269,14 @@ private:
 };
 
 int main() {
-	CGProject app;
+    CGProject app;
 
-	try {
-		app.run();
-	} catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
+    try {
+        app.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
-
-
-
