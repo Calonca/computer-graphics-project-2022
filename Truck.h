@@ -2,7 +2,6 @@
 #include "definitions.h"
 #include <vector>
 #include "glm/gtc/matrix_transform.hpp"
-#include <GLFW/glfw3.h>
 
 extern struct Model g_test;
 
@@ -13,7 +12,7 @@ public:
 	// Robot Pos
 	RigidBody rb = {
 		vec3(3, 0, 2),   //pos
-		vec3(0,0,0),     //force	
+		vec3(0,0,0),     //force
 		vec3(0,0,0),     //velocity
 		float(10.0f),    //mass
 		vec3(0,0,0),     // fGravity
@@ -36,8 +35,7 @@ public:
 	const float ROT_SPEED = glm::radians(60.0f);
 	const float MOVE_SPEED = 9000.75f;
 	const float MOUSE_RES = 500.0f;
-	
-	void UpdatePos(GLFWwindow* window, float deltaT);
 
+    void UpdatePos(GLFWwindow *window, float deltaT);
 };
 

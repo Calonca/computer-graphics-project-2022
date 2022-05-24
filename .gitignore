@@ -13,6 +13,35 @@ Computer_graphics.vcxproj.filters
 
 Computer_graphics.vcxproj.user
 
+<<<<<<< HEAD
+.vs/Proj/v17/.suo
+
+.vs/Proj/v17/Browse.VC.db
+
+.vs/Proj/v17/Browse.VC.db-shm
+
+.vs/Proj/v17/Browse.VC.db-wal
+
+.vs/Proj/v17/Browse.VC.opendb
+
+.vs/Proj/v17/fileList.bin
+
+.vs/Proj/v17/ipch/AutoPCH/130e939085a3024b/PROJECT.ipch
+
+.vs/Proj/v17/ipch/AutoPCH/95642abdc400a619/GLM.ipch
+
+.vs/Proj/v17/ipch/AutoPCH/e040954ef407a393/GLM.ipch
+
+.vs/Proj/v17/ipch/AutoPCH/f1338b49c7ba3b9d/PROJECT.ipch
+
+Proj.sln
+
+Proj.vcxproj
+
+Proj.vcxproj.filters
+
+Proj.vcxproj.user
+=======
 Project.sln
 
 VulkanTest.vcxproj
@@ -24,3 +53,4 @@ VulkanTest.vcxproj.user
 .vs/
 
 x64/
+>>>>>>> main
