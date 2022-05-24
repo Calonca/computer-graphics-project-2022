@@ -1,5 +1,6 @@
-set(PNAME a)
+set(PNAME CGProject)
 set(CFILE Project)
+SET(CMAKE_BUILD_TYPE Debug) #Enable this to enable breakpoints
 
 cmake_minimum_required(VERSION 3.18)
 project(${PNAME})               # Create project PNAME
