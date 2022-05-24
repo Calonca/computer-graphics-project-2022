@@ -17,6 +17,8 @@ add_executable(${PNAME} ${CFILE}.cpp
         PhysicsEngine.cpp
         PhysicsEngine.h
         Truck.cpp
-        Truck.h)
+        Truck.h
+        PerlinNoise.h
+        PerlinNoise.cpp)
 
 target_link_libraries(${PNAME} -lglfw -lvulkan -ldl -lpthread -lX11 -lXrandr -lXi)

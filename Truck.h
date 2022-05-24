@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include "definitions.h"
 #include <vector>
+#include <GLFW/glfw3.h>
 #include "glm/gtc/matrix_transform.hpp"
 
 extern struct Model g_test;
