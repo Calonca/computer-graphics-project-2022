@@ -1,7 +1,5 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
-
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -20,7 +18,6 @@
 #include "definitions.h"
 
 extern struct Model g_test;
-
 
 
 #define GLM_FORCE_RADIANS
@@ -2070,434 +2067,430 @@ private:
 	}
 	
 	void loadMesh(const char* FName, ModelData& MD, VertexDescriptor &VD) {
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-		
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, 
-						(MODEL_PATH + FName).c_str())) {
-			throw std::runtime_error(warn + err);
-		}
-		
-		MD.vertDesc = &VD;
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::string warn, err;
 
-		std::cout << FName << "\n";
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
+                              (MODEL_PATH + FName).c_str())) {
+            throw std::runtime_error(warn + err);
+        }
 
-		std::vector<float> vertex{};
-		vertex.resize(VD.size);
+        MD.vertDesc = &VD;
 
+        std::cout << FName << "\n";
 
-		if(FName=="floor.obj"){
-
-			makeModels();
+        std::vector<float> vertex{};
+        vertex.resize(VD.size);
 
 
+        if (FName == "floor.obj") {
+
+            makeModels();
 
 
-				for (int i = 0; i < M1_indices.size(); i++) {
+            for (int i = 0; i < M1_indices.size(); i++) {
 
-					vertex[VD.deltaPos + 0] = M1_vertices[3 * M1_indices[i] + 0];
-					//std::cout << " vtx x " << vertex[VD.deltaPos + 0];
-
-
-					vertex[VD.deltaPos + 1] = (float)M1_vertices[3 * M1_indices[i] + 1];
-					//std::cout << " vtx y " << vertex[VD.deltaPos + 1];
+                vertex[VD.deltaPos + 0] = M1_vertices[3 * M1_indices[i] + 0];
+                //std::cout << " vtx x " << vertex[VD.deltaPos + 0];
 
 
-					vertex[VD.deltaPos + 2] = M1_vertices[3 * M1_indices[i] + 2];
-					//std::cout << " vtx z " << vertex[VD.deltaPos + 2];
-
-					vertex[VD.deltaTexCoord + 0] = 0;
-					vertex[VD.deltaTexCoord + 1] = 0;
-					vertex[VD.deltaNormal + 0] = 0;
-					vertex[VD.deltaNormal + 1] = 0;
-					vertex[VD.deltaNormal + 2] = 0;
+                vertex[VD.deltaPos + 1] = (float) M1_vertices[3 * M1_indices[i] + 1];
+                //std::cout << " vtx y " << vertex[VD.deltaPos + 1];
 
 
-					int j = MD.vertices.size() / VD.size;
+                vertex[VD.deltaPos + 2] = M1_vertices[3 * M1_indices[i] + 2];
+                //std::cout << " vtx z " << vertex[VD.deltaPos + 2];
 
-					int s = MD.vertices.size();
-					//std::cout << " J " << j << "  MD VERTICE SIZE " << s << " vd size " << VD.size;
-					MD.vertices.resize(s + VD.size);
-					for (int k = 0; k < VD.size; k++) {
-						MD.vertices[s + k] = vertex[k];
-						//std::cout << " vtx all " << s + k << " val " << MD.vertices[s + k];
-					}
-					MD.indices.push_back(j);
-					//std::cout << " m1 indices \n" << j;
+                vertex[VD.deltaTexCoord + 0] = 0;
+                vertex[VD.deltaTexCoord + 1] = 0;
+                vertex[VD.deltaNormal + 0] = 0;
+                vertex[VD.deltaNormal + 1] = 0;
+                vertex[VD.deltaNormal + 2] = 0;
+
+
+                int j = MD.vertices.size() / VD.size;
+
+                int s = MD.vertices.size();
+                //std::cout << " J " << j << "  MD VERTICE SIZE " << s << " vd size " << VD.size;
+                MD.vertices.resize(s + VD.size);
+                for (int k = 0; k < VD.size; k++) {
+                    MD.vertices[s + k] = vertex[k];
+                    //std::cout << " vtx all " << s + k << " val " << MD.vertices[s + k];
+                }
+                MD.indices.push_back(j);
+                //std::cout << " m1 indices \n" << j;
 
 
 
-				}				//0  1 2 3 4 5  1    1 2 3 4 5   2   1 2 3 4 5  2    1 2 3 4 5  3    1 2 3 4 5  0    1 2 3 4 5
-				//MD.vertices = {0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0};
-		           //MD.vertices ={ 0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,1,2,1,0,0,0,0,0};
+            }                //0  1 2 3 4 5  1    1 2 3 4 5   2   1 2 3 4 5  2    1 2 3 4 5  3    1 2 3 4 5  0    1 2 3 4 5
+            //MD.vertices = {0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0};
+            //MD.vertices ={ 0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,1,2,1,0,0,0,0,0};
 
-				//MD.indices = {0,1,2, 4,3,5};
-				/*std::cout << "  \n vertices \t";
-				for (int i = 0; i < MD.vertices.size(); i++)
-					std::cout  << "," << MD.vertices[i];
+            //MD.indices = {0,1,2, 4,3,5};
+            /*std::cout << "  \n vertices \t";
+            for (int i = 0; i < MD.vertices.size(); i++)
+                std::cout  << "," << MD.vertices[i];
 
-				for (int i = 0; i < MD.indices.size(); i++)
-					std::cout << " \n  indixces \t" << i << " \n" << MD.indices[i];
-			std::cout << FName << " -> V: " << MD.vertices.size()
-				<< ", I: " << MD.indices.size() << "\n";*/
+            for (int i = 0; i < MD.indices.size(); i++)
+                std::cout << " \n  indixces \t" << i << " \n" << MD.indices[i];
+        std::cout << FName << " -> V: " << MD.vertices.size()
+            << ", I: " << MD.indices.size() << "\n";*/
 
-		}
-
-
-		else {
+        } else {
 
 
-			//		std::unordered_map<std::vector<float>, uint32_t> uniqueVertices{};
-			for (const auto& shape : shapes) {
-				for (const auto& index : shape.mesh.indices) {
+            //		std::unordered_map<std::vector<float>, uint32_t> uniqueVertices{};
+            for (const auto &shape: shapes) {
+                for (const auto &index: shape.mesh.indices) {
 
-					vertex[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
-					vertex[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
-					vertex[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
-					vertex[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
-					vertex[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
-					vertex[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
-					vertex[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
-					vertex[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
+                    vertex[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
+                    vertex[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
+                    vertex[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
+                    vertex[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
+                    vertex[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
+                    vertex[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
+                    vertex[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
+                    vertex[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
 
-					//				if (uniqueVertices.count(vertex) == 0) {
-					int j = MD.vertices.size() / VD.size;
+                    //				if (uniqueVertices.count(vertex) == 0) {
+                    int j = MD.vertices.size() / VD.size;
 //					uniqueVertices[vertex] =
 //							static_cast<uint32_t>(j);
-					int s = MD.vertices.size();
-					MD.vertices.resize(s + VD.size);
-					for(int k = 0; k < VD.size; k++) {
-						MD.vertices[s+k] = vertex[k];
-					}
-/**/				MD.indices.push_back(j);
+                    int s = MD.vertices.size();
+                    MD.vertices.resize(s + VD.size);
+                    for (int k = 0; k < VD.size; k++) {
+                        MD.vertices[s + k] = vertex[k];
+                    }
+/**/                MD.indices.push_back(j);
 //				}
-				
+
 //				MD.indices.push_back(uniqueVertices[vertex]);
-			}
-		}
-		
-		std::cout << FName << " -> V: " << MD.vertices.size()
-				  << ", I: " << MD.indices.size() << "\n";
-	}
-	void createTextMesh(ModelData& MD, VertexDescriptor &VD) {
-		MD.vertDesc = &VD;
+                }
+            }
 
-		int totLen = 0;
-		for(auto& Txt : SceneText) {
-			for(int i = 0; i < Txt.usedLines; i++) {
-				totLen += strlen(Txt.l[i]);
-			}
-		}
-		std::cout << "Total characters: " << totLen << "\n";
-		
-		MD.vertices.resize(4 * VD.size * totLen);
-		MD.indices.resize(6 * totLen);
-		
-		int FontId = 1;
-		
-		float PtoTdx = -0.95;
-		float PtoTdy = -0.95;
-		float PtoTsx = 2.0/800.0;
-		float PtoTsy = 2.0/600.0;
-		
-		int minChar = 32;
-		int maxChar = 127;
-		int texW = 1024;
-		int texH = 512;
-		
-		int tpx = 0;
-		int tpy = 0;
-		
-		int vb = 0, ib = 0, k = 0;
-		for(auto& Txt : SceneText) {
-			Txt.start = ib;
-			for(int i = 0; i < Txt.usedLines; i++) {
-				for(int j = 0; j < strlen(Txt.l[i]); j++) {
-					int c = ((int)Txt.l[i][j]) - minChar;
-					if((c >= 0) && (c <= maxChar)) {
+            std::cout << FName << " -> V: " << MD.vertices.size()
+                      << ", I: " << MD.indices.size() << "\n";
+        }
+    }
+        void createTextMesh(ModelData &MD, VertexDescriptor &VD) {
+            MD.vertDesc = &VD;
+
+            int totLen = 0;
+            for (auto &Txt: SceneText) {
+                for (int i = 0; i < Txt.usedLines; i++) {
+                    totLen += strlen(Txt.l[i]);
+                }
+            }
+            std::cout << "Total characters: " << totLen << "\n";
+
+            MD.vertices.resize(4 * VD.size * totLen);
+            MD.indices.resize(6 * totLen);
+
+            int FontId = 1;
+
+            float PtoTdx = -0.95;
+            float PtoTdy = -0.95;
+            float PtoTsx = 2.0 / 800.0;
+            float PtoTsy = 2.0 / 600.0;
+
+            int minChar = 32;
+            int maxChar = 127;
+            int texW = 1024;
+            int texH = 512;
+
+            int tpx = 0;
+            int tpy = 0;
+
+            int vb = 0, ib = 0, k = 0;
+            for (auto &Txt: SceneText) {
+                Txt.start = ib;
+                for (int i = 0; i < Txt.usedLines; i++) {
+                    for (int j = 0; j < strlen(Txt.l[i]); j++) {
+                        int c = ((int) Txt.l[i][j]) - minChar;
+                        if ((c >= 0) && (c <= maxChar)) {
 //std::cout << k << " " << j << " " << i << " " << vb << " " << ib << " " << c << "\n";
-						CharData d = Fonts[FontId].P[c];
-				
-						MD.vertices[vb +  0] = (float)(tpx + d.xoffset) * PtoTsx + PtoTdx;
-						MD.vertices[vb +  1] = (float)(tpy + d.yoffset) * PtoTsy + PtoTdy;
-						MD.vertices[vb +  2] = 0.0;
-						MD.vertices[vb +  3] = (float)d.x / texW;
-						MD.vertices[vb +  4] = (float)d.y / texH;
-						
-						MD.vertices[vb +  5] = (float)(tpx + d.xoffset + d.width) * PtoTsx + PtoTdx;
-						MD.vertices[vb +  6] = (float)(tpy + d.yoffset) * PtoTsy + PtoTdy;
-						MD.vertices[vb +  7] = 0.0;
-						MD.vertices[vb +  8] = (float)(d.x + d.width) / texW ;
-						MD.vertices[vb +  9] = (float)d.y / texH;
-				
-						MD.vertices[vb + 10] = (float)(tpx + d.xoffset) * PtoTsx + PtoTdx;
-						MD.vertices[vb + 11] = (float)(tpy + d.yoffset + d.height) * PtoTsy + PtoTdy;
-						MD.vertices[vb + 12] =  0.0;
-						MD.vertices[vb + 13] = (float)d.x / texW;
-						MD.vertices[vb + 14] = (float)(d.y + d.height) / texH;
-						
-						MD.vertices[vb + 15] = (float)(tpx + d.xoffset + d.width) * PtoTsx + PtoTdx;
-						MD.vertices[vb + 16] = (float)(tpy + d.yoffset + d.height) * PtoTsy + PtoTdy;
-						MD.vertices[vb + 17] = 0.0;
-						MD.vertices[vb + 18] = (float)(d.x + d.width) / texW;
-						MD.vertices[vb + 19] = (float)(d.y + d.height) / texH;
-						
-						MD.indices[ib + 0] = 4 * k + 0;
-						MD.indices[ib + 1] = 4 * k + 1;
-						MD.indices[ib + 2] = 4 * k + 2;
-						MD.indices[ib + 3] = 4 * k + 1;
-						MD.indices[ib + 4] = 4 * k + 2;
-						MD.indices[ib + 5] = 4 * k + 3;
-	
-						vb += 4 * VD.size;
-						ib += 6;
-						tpx += d.xadvance;
-						k++;
-					}
-				}
-				tpy += Fonts[FontId].lineHeight;
-				tpx = 0;	
-			}
-			tpx = 0;
-			tpy = 0;
-			Txt.len = ib - Txt.start;
-		}		
-		std::cout << "Text: " << MD.vertices.size()
-				  << ", I: " << MD.indices.size() << "\n";
-	}
+                            CharData d = Fonts[FontId].P[c];
 
-	void createVertexBuffer(ModelData& Md) {
-		VkDeviceSize bufferSize = sizeof(Md.vertices[0]) * Md.vertices.size();
-		
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-							VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-							VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-							stagingBuffer, stagingBufferMemory);
+                            MD.vertices[vb + 0] = (float) (tpx + d.xoffset) * PtoTsx + PtoTdx;
+                            MD.vertices[vb + 1] = (float) (tpy + d.yoffset) * PtoTsy + PtoTdy;
+                            MD.vertices[vb + 2] = 0.0;
+                            MD.vertices[vb + 3] = (float) d.x / texW;
+                            MD.vertices[vb + 4] = (float) d.y / texH;
 
-		void* data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, Md.vertices.data(), (size_t) bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);	
-		
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-								 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-								VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-								Md.vertexBuffer, Md.vertexBufferMemory);
-								
-		copyBuffer(stagingBuffer, Md.vertexBuffer, bufferSize);
-		
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
-	}
-	
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-					  VkMemoryPropertyFlags properties,
-					  VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-		VkBufferCreateInfo bufferInfo{};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		
-		VkResult result =
-				vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
-		if (result != VK_SUCCESS) {
-		 	PrintVkError(result);
-			throw std::runtime_error("failed to create vertex buffer!");
-		}
-		
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-		
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex =
-				findMemoryType(memRequirements.memoryTypeBits, properties);
+                            MD.vertices[vb + 5] = (float) (tpx + d.xoffset + d.width) * PtoTsx + PtoTdx;
+                            MD.vertices[vb + 6] = (float) (tpy + d.yoffset) * PtoTsy + PtoTdy;
+                            MD.vertices[vb + 7] = 0.0;
+                            MD.vertices[vb + 8] = (float) (d.x + d.width) / texW;
+                            MD.vertices[vb + 9] = (float) d.y / texH;
 
-		result = vkAllocateMemory(device, &allocInfo, nullptr,
-				&bufferMemory);
-		if (result != VK_SUCCESS) {
-		 	PrintVkError(result);
-			throw std::runtime_error("failed to allocate vertex buffer memory!");
-		}
-		
-		vkBindBufferMemory(device, buffer, bufferMemory, 0);	
-	}
-	
-	uint32_t findMemoryType(uint32_t typeFilter,
-							VkMemoryPropertyFlags properties) {
-		 VkPhysicalDeviceMemoryProperties memProperties;
-		 vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-		 
-		 for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-		 	if ((typeFilter & (1 << i)) && 
-		 		(memProperties.memoryTypes[i].propertyFlags & properties) ==
-		 				properties) {
-				return i;
-			}
-		}
-		
-		throw std::runtime_error("failed to find suitable memory type!");
-	}
-    
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-		
-		VkBufferCopy copyRegion{};
-		copyRegion.srcOffset = 0; // Optional copyRegion.dstOffset = 0; // Optional
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-		
-		endSingleTimeCommands(commandBuffer);
-	}
-	
-	VkCommandBuffer beginSingleTimeCommands() { 
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = commandPool;
-		allocInfo.commandBufferCount = 1;
-		
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-		
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
-		
-		return commandBuffer;
-	}
-	
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-		vkEndCommandBuffer(commandBuffer);
-		
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue);
-		
-		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-	}
-	
-	void createIndexBuffer(ModelData& Md) {
-		VkDeviceSize bufferSize = sizeof(Md.indices[0]) * Md.indices.size();
-	
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								 stagingBuffer, stagingBufferMemory);
+                            MD.vertices[vb + 10] = (float) (tpx + d.xoffset) * PtoTsx + PtoTdx;
+                            MD.vertices[vb + 11] = (float) (tpy + d.yoffset + d.height) * PtoTsy + PtoTdy;
+                            MD.vertices[vb + 12] = 0.0;
+                            MD.vertices[vb + 13] = (float) d.x / texW;
+                            MD.vertices[vb + 14] = (float) (d.y + d.height) / texH;
 
-		void* data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, Md.indices.data(), (size_t) bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
+                            MD.vertices[vb + 15] = (float) (tpx + d.xoffset + d.width) * PtoTsx + PtoTdx;
+                            MD.vertices[vb + 16] = (float) (tpy + d.yoffset + d.height) * PtoTsy + PtoTdy;
+                            MD.vertices[vb + 17] = 0.0;
+                            MD.vertices[vb + 18] = (float) (d.x + d.width) / texW;
+                            MD.vertices[vb + 19] = (float) (d.y + d.height) / texH;
 
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-								 VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-								 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-								 Md.indexBuffer, Md.indexBufferMemory);
+                            MD.indices[ib + 0] = 4 * k + 0;
+                            MD.indices[ib + 1] = 4 * k + 1;
+                            MD.indices[ib + 2] = 4 * k + 2;
+                            MD.indices[ib + 3] = 4 * k + 1;
+                            MD.indices[ib + 4] = 4 * k + 2;
+                            MD.indices[ib + 5] = 4 * k + 3;
 
-		copyBuffer(stagingBuffer, Md.indexBuffer, bufferSize);
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
-	}
+                            vb += 4 * VD.size;
+                            ib += 6;
+                            tpx += d.xadvance;
+                            k++;
+                        }
+                    }
+                    tpy += Fonts[FontId].lineHeight;
+                    tpx = 0;
+                }
+                tpx = 0;
+                tpy = 0;
+                Txt.len = ib - Txt.start;
+            }
+            std::cout << "Text: " << MD.vertices.size()
+                      << ", I: " << MD.indices.size() << "\n";
+        }
 
-	void createUniformBuffers() {
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+        void createVertexBuffer(ModelData &Md) {
+            VkDeviceSize bufferSize = sizeof(Md.vertices[0]) * Md.vertices.size();
 
-		uniformBuffers.resize(swapChainImages.size() * Scene.size());
-		uniformBuffersMemory.resize(swapChainImages.size() * Scene.size());
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                         stagingBuffer, stagingBufferMemory);
 
-		for (size_t i = 0; i < swapChainImages.size() * Scene.size(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								 	 uniformBuffers[i], uniformBuffersMemory[i]);
-		}
+            void *data;
+            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, Md.vertices.data(), (size_t) bufferSize);
+            vkUnmapMemory(device, stagingBufferMemory);
 
-		bufferSize = sizeof(GlobalUniformBufferObject);
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                     VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                         Md.vertexBuffer, Md.vertexBufferMemory);
 
-		globalUniformBuffers.resize(swapChainImages.size());
-		globalUniformBuffersMemory.resize(swapChainImages.size());
+            copyBuffer(stagingBuffer, Md.vertexBuffer, bufferSize);
 
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								 	 globalUniformBuffers[i], globalUniformBuffersMemory[i]);
-		}
+            vkDestroyBuffer(device, stagingBuffer, nullptr);
+            vkFreeMemory(device, stagingBufferMemory, nullptr);
+        }
 
-		bufferSize = sizeof(UniformBufferObject);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                          VkMemoryPropertyFlags properties,
+                          VkBuffer &buffer, VkDeviceMemory &bufferMemory) {
+            VkBufferCreateInfo bufferInfo{};
+            bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            bufferInfo.size = size;
+            bufferInfo.usage = usage;
+            bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		SkyBoxUniformBuffers.resize(swapChainImages.size());
-		SkyBoxUniformBuffersMemory.resize(swapChainImages.size());
+            VkResult result =
+                    vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
+            if (result != VK_SUCCESS) {
+                PrintVkError(result);
+                throw std::runtime_error("failed to create vertex buffer!");
+            }
 
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								 	 SkyBoxUniformBuffers[i], SkyBoxUniformBuffersMemory[i]);
-		}
-		
-		bufferSize = sizeof(UniformBufferObject);
+            VkMemoryRequirements memRequirements;
+            vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
 
-		TextUniformBuffers.resize(swapChainImages.size());
-		TextUniformBuffersMemory.resize(swapChainImages.size());
+            VkMemoryAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            allocInfo.allocationSize = memRequirements.size;
+            allocInfo.memoryTypeIndex =
+                    findMemoryType(memRequirements.memoryTypeBits, properties);
 
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-								 	 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-								 	 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-								 	 TextUniformBuffers[i], TextUniformBuffersMemory[i]);
-		}
-	}
+            result = vkAllocateMemory(device, &allocInfo, nullptr,
+                                      &bufferMemory);
+            if (result != VK_SUCCESS) {
+                PrintVkError(result);
+                throw std::runtime_error("failed to allocate vertex buffer memory!");
+            }
 
-	void createDescriptorPool() {
-		std::array<VkDescriptorPoolSize, 9> poolSizes{};
-		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
-		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
-		poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
-		poolSizes[3].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-		poolSizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[4].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-		poolSizes[5].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[5].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-		poolSizes[6].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[6].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-		poolSizes[7].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[7].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-		poolSizes[8].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[8].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            vkBindBufferMemory(device, buffer, bufferMemory, 0);
+        }
 
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size() * (Scene.size() + 2));
-		
-		VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr,
-									&descriptorPool);
-		if (result != VK_SUCCESS) {
-		 	PrintVkError(result);
-			throw std::runtime_error("failed to create descriptor pool!");
-		}
-	}
-	
+        uint32_t findMemoryType(uint32_t typeFilter,
+                                VkMemoryPropertyFlags properties) {
+            VkPhysicalDeviceMemoryProperties memProperties;
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+            for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+                if ((typeFilter & (1 << i)) &&
+                    (memProperties.memoryTypes[i].propertyFlags & properties) ==
+                    properties) {
+                    return i;
+                }
+            }
+
+            throw std::runtime_error("failed to find suitable memory type!");
+        }
+
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+            VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+            VkBufferCopy copyRegion{};
+            copyRegion.srcOffset = 0; // Optional copyRegion.dstOffset = 0; // Optional
+            copyRegion.size = size;
+            vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+            endSingleTimeCommands(commandBuffer);
+        }
+
+        VkCommandBuffer beginSingleTimeCommands() {
+            VkCommandBufferAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocInfo.commandPool = commandPool;
+            allocInfo.commandBufferCount = 1;
+
+            VkCommandBuffer commandBuffer;
+            vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+            VkCommandBufferBeginInfo beginInfo{};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+            vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+            return commandBuffer;
+        }
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+            vkEndCommandBuffer(commandBuffer);
+
+            VkSubmitInfo submitInfo{};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+            vkQueueWaitIdle(graphicsQueue);
+
+            vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        }
+
+        void createIndexBuffer(ModelData &Md) {
+            VkDeviceSize bufferSize = sizeof(Md.indices[0]) * Md.indices.size();
+
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                         stagingBuffer, stagingBufferMemory);
+
+            void *data;
+            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, Md.indices.data(), (size_t) bufferSize);
+            vkUnmapMemory(device, stagingBufferMemory);
+
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                     VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                         Md.indexBuffer, Md.indexBufferMemory);
+
+            copyBuffer(stagingBuffer, Md.indexBuffer, bufferSize);
+            vkDestroyBuffer(device, stagingBuffer, nullptr);
+            vkFreeMemory(device, stagingBufferMemory, nullptr);
+        }
+
+        void createUniformBuffers() {
+            VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+            uniformBuffers.resize(swapChainImages.size() * Scene.size());
+            uniformBuffersMemory.resize(swapChainImages.size() * Scene.size());
+
+            for (size_t i = 0; i < swapChainImages.size() * Scene.size(); i++) {
+                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                             uniformBuffers[i], uniformBuffersMemory[i]);
+            }
+
+            bufferSize = sizeof(GlobalUniformBufferObject);
+
+            globalUniformBuffers.resize(swapChainImages.size());
+            globalUniformBuffersMemory.resize(swapChainImages.size());
+
+            for (size_t i = 0; i < swapChainImages.size(); i++) {
+                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                             globalUniformBuffers[i], globalUniformBuffersMemory[i]);
+            }
+
+            bufferSize = sizeof(UniformBufferObject);
+
+            SkyBoxUniformBuffers.resize(swapChainImages.size());
+            SkyBoxUniformBuffersMemory.resize(swapChainImages.size());
+
+            for (size_t i = 0; i < swapChainImages.size(); i++) {
+                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                             SkyBoxUniformBuffers[i], SkyBoxUniformBuffersMemory[i]);
+            }
+
+            bufferSize = sizeof(UniformBufferObject);
+
+            TextUniformBuffers.resize(swapChainImages.size());
+            TextUniformBuffersMemory.resize(swapChainImages.size());
+
+            for (size_t i = 0; i < swapChainImages.size(); i++) {
+                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                             TextUniformBuffers[i], TextUniformBuffersMemory[i]);
+            }
+        }
+
+        void createDescriptorPool() {
+            std::array<VkDescriptorPoolSize, 9> poolSizes{};
+            poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[3].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSizes[4].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[5].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[5].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[6].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSizes[6].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[7].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[7].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[8].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSizes[8].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+            VkDescriptorPoolCreateInfo poolInfo{};
+            poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+            poolInfo.pPoolSizes = poolSizes.data();
+            poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size() * (Scene.size() + 2));
+
+            VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr,
+                                                     &descriptorPool);
+            if (result != VK_SUCCESS) {
+                PrintVkError(result);
+                throw std::runtime_error("failed to create descriptor pool!");
+            }
+        }
+
 	void createDescriptorSets() {
 		createPhongDescriptorSets();
 		createSkyBoxDescriptorSets();
@@ -3036,7 +3029,7 @@ private:
 				std::cout << "Impostor view\n";
 				prevCt = curText;
 			}
-			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.TruckPos - truck.FollowerDeltaTarget);
+			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.rb.pos - truck.FollowerDeltaTarget);
 			break;
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
