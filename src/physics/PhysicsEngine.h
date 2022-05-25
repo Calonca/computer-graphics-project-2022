@@ -20,6 +20,8 @@ public:
 	/// <param name="rb"></param>
 	void RemoveRigidBody(RigidBody* rb);
 
+    void SolveCollisions();
+
 	/// <summary>
 	/// Applies the forces and calculates the values of physical quantities after the dt in
 	/// </summary>

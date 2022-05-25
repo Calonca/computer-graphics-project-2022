@@ -2,7 +2,7 @@
 
 
 float tile_len = 1.0;
-int tile = 2;
+int tile = 200;
 int tiles = (tile + 1) * (1 + tile);
 void makeModels() {
 

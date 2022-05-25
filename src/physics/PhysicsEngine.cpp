@@ -1,6 +1,33 @@
 #include "PhysicsEngine.h"
 #include <iostream>
 
+struct CollisionPoints {
+    vec3 A; // Furthest point of A into B
+    vec3 B; // Furthest point of B into A
+    vec3 Normal; // B – A normalized
+    float Depth;    // Length of B – A
+    bool HasCollision;
+};
+
+struct Transform { // Describes an objects location
+    vec3 Position;
+    vec3 Scale;
+    quat Rotation;
+};
+
+//Collections of points which collision will be tested
+struct CollisionObject{
+    std::vector<vec3> points = {};//For now contains only one point
+    vec3 forceAfterCollision;
+    bool isColliding;
+};
+
+//A volume that when point are in it generates collisions
+struct Collider {
+    //Function given an object containing points
+    // returns a force
+};
+
 void PhysicsEngine::AddRigidBody(RigidBody* rb)
 {
 	if (!rb) return;
@@ -15,8 +42,11 @@ void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
 		rbs.erase(iterator);
 }
 
+
+
 void PhysicsEngine::Step(float dt)
 {
+
 	for (RigidBody* rb : rbs) {
 
 		if (rb->hasGravity)
@@ -41,4 +71,9 @@ void PhysicsEngine::Step(float dt)
 		rb->force = vec3(0, 0, 0);
 	
 	}
+}
+
+void PhysicsEngine::SolveCollisions() {
+    // for each collider check collision objects and set force
+
 }
