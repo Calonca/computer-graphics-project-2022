@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 using namespace glm;
@@ -64,16 +65,19 @@ struct Collider {
 
 
 struct PlaneCollider : Collider {
-    float planeY;
+    float planeY{};
     //Function that when given an object containing points
     // returns a force
     void testCollision(CollisionObject* co) {
         float pointY = co->points[0].y;
+        //float planeHeight = planeY+2*po
         if (pointY < planeY){
             co->isColliding= true;
-            co->forceAfterCollision=vec3(planeY - pointY);
+            co->forceAfterCollision=vec3(0,planeY - pointY,0);
+            //std::cout<<"Is colliding: "<<co->forceAfterCollision.y;
         }else{
             co->isColliding= false;
+            //std::cout<<"Not colliding";
         }
     }
 };

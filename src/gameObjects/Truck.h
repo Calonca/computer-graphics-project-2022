@@ -24,7 +24,7 @@ public:
 		vec3(0,0,0),     //velocity
 		float(10.0f),    //mass
 		vec3(0,-9.18,0),     // fGravity
-        false,           // hasGravity
+        true,           // hasGravity
 		0.9,             // static friction
 		0.2,             //dynamic friction
 		0.0f,            //bounciness

@@ -1,13 +1,15 @@
 #include "../utils/definitions.h"
 #include <stdio.h>
 #include <vector>
+#include "../utils/MatrixUtils.h"
+#include <iostream>
 
 #pragma once
 class PhysicsEngine
 {
 private:
 	std::vector<RigidBody*> rbs;
-    std::vector<Collider*> colliders;
+    std::vector<PlaneCollider*> colliders;
 
 public:
 	/// <summary>
@@ -24,8 +26,8 @@ public:
     void ApplyGravity();
     void SolveCollisions();
 
-    void AddCollider(Collider* c);
-    void RemoveCollider(Collider* c);
+    void AddCollider(PlaneCollider* collider);
+    void RemoveCollider(PlaneCollider* c);
 
 	/// <summary>
 	/// Applies the forces and calculates the values of physical quantities after the dt in
