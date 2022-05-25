@@ -2,7 +2,7 @@
 
 
 float tile_len = 1.0;
-int tile = 200;
+int tile = 20;
 int tiles = (tile + 1) * (1 + tile);
 void makeModels() {
 
@@ -61,7 +61,7 @@ void makeModels() {
 	}
 }
 
-void tile_pos(float x ,float y,float z) { 
+std::vector<vec3> tile_pos(float x ,float y,float z) { 
 	
 	int pos_index[6]; // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
 	int xx =floor( x / tile_len);
@@ -76,10 +76,66 @@ void tile_pos(float x ,float y,float z) {
 	pos_index[5] = M1_indices[6 * val +5];
 
 	//to access corresponding vertices of the triangle
-	for (int i = 0; i < 6; i++) { 
+	/*for (int i = 0; i < 6; i++) {
 		std::cout << "\n vertex value x \t" << M1_vertices[3 * pos_index[i] + 0];
 		std::cout << "\n vertex value y \t" << M1_vertices[3 * pos_index[i] + 1];
 		std::cout << "\n vertex value z \t" << M1_vertices[3 * pos_index[i] + 2];
-	}
+	}*/
+	std::vector<vec3> v1, v2;
+	v1[0][0] = M1_vertices[3 * pos_index[0] + 0];
+	v1[0][1] = M1_vertices[3 * pos_index[0] + 1];
+	v1[0][2] = M1_vertices[3 * pos_index[0] + 3];
 
+	v1[1][0] = M1_vertices[3 * pos_index[1] + 0];
+	v1[1][1] = M1_vertices[3 * pos_index[1] + 1];
+	v1[1][2] = M1_vertices[3 * pos_index[1] + 3];
+
+	v1[2][0] = M1_vertices[3 * pos_index[2] + 0];
+	v1[2][1] = M1_vertices[3 * pos_index[2] + 1];
+	v1[2][2] = M1_vertices[3 * pos_index[2] + 3];
+
+	v1[3][0] = (v1[0][0] + v1[1][0] + v1[2][0]) / 3;
+	v1[3][1] = (v1[0][1] + v1[1][1] + v1[2][1]) / 3;
+	v1[3][2] = (v1[0][2] + v1[1][2] + v1[2][2]) / 3;
+
+	v2[0][0] = M1_vertices[3 * pos_index[0] + 0];
+	v2[0][1] = M1_vertices[3 * pos_index[0] + 1];
+	v2[0][2] = M1_vertices[3 * pos_index[0] + 3];
+	 
+	v2[1][0] = M1_vertices[3 * pos_index[1] + 0];
+	v2[1][1] = M1_vertices[3 * pos_index[1] + 1];
+	v2[1][2] = M1_vertices[3 * pos_index[1] + 3];
+	 
+	v2[2][0] = M1_vertices[3 * pos_index[2] + 0];
+	v2[2][1] = M1_vertices[3 * pos_index[2] + 1];
+	v2[2][2] = M1_vertices[3 * pos_index[2] + 3];
+	 
+	v2[3][0] = (v2[0][0] + v2[1][0] + v2[2][0]) / 3;
+	v2[3][1] = (v2[0][1] + v2[1][1] + v2[2][1]) / 3;
+	v2[3][2] = (v2[0][2] + v2[1][2] + v2[2][2]) / 3;
+
+	float close1 = pow((pow(x-v1[3][0],2)+ pow(y - v1[3][1], 2)+ pow(z - v1[3][2], 2)),0.5);
+	float close2 = pow((pow(x - v2[3][0], 2) + pow(y - v2[3][1], 2) + pow(z - v2[3][2], 2)), 0.5);
+	
+	if (close1 < close2) {
+
+		return v2;
+	}
+	return v1;
 }
+
+
+void testCollision(CollisionObject* co) {
+	
+	std::vector<vec3> triang =tile_pos(co->points[0][0], co->points[0][1], co->points[0][2]);
+	float force = 0;
+	co->forceAfterCollision = { 0,0,0 };
+
+	if (co->points[0][1] - triang[3][1] <= 0) {
+		co->isColliding = true;
+		 force = abs(co->points[0][1] - triang[3][1]);
+		co->forceAfterCollision = { 0,force,0 };
+	}
+	
+}
+

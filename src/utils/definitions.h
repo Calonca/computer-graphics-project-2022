@@ -20,7 +20,7 @@ struct Model {
 struct CollisionObject{
     std::vector<vec3> points = {};//For now contains only one point
     vec3 forceAfterCollision;
-    bool isColliding;
+    bool isColliding =false;//default
 
 };
 
@@ -58,4 +58,8 @@ struct Collider {
     //Function tha when given an object containing points
     // returns a force
     virtual void testCollision(CollisionObject* co);
+
+
+
+
 };

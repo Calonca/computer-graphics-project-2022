@@ -61,15 +61,21 @@ void PhysicsEngine::Step(float dt)
 
 void PhysicsEngine::SolveCollisions() {
     //For each collider check collision objects and set force
-    for(Collider* collider : colliders){
+    for(Collider* colliders : colliders){
         for (RigidBody* rb : rbs) {
             if (!rb->co) continue;
             CollisionObject* collisionObject =rb->co;
-            collider->testCollision(collisionObject);
+            colliders->testCollision(collisionObject);
             if (collisionObject->isColliding)
                 rb->force += collisionObject->forceAfterCollision;
         }
     }
 }
+
+
+	
+
+
+
 
 
