@@ -7,6 +7,7 @@ class PhysicsEngine
 {
 private:
 	std::vector<RigidBody*> rbs;
+    std::vector<Collider*> colliders;
 
 public:
 	/// <summary>
@@ -21,6 +22,9 @@ public:
 	void RemoveRigidBody(RigidBody* rb);
 
     void SolveCollisions();
+
+    void AddCollider(Collider* c);
+    void RemoveCollider(Collider* c);
 
 	/// <summary>
 	/// Applies the forces and calculates the values of physical quantities after the dt in

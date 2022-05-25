@@ -16,6 +16,15 @@ struct Model {
 	int id;
 };
 
+//Collections of points which collision will be tested
+struct CollisionObject{
+    std::vector<vec3> points = {};//For now contains only one point
+    vec3 forceAfterCollision;
+    bool isColliding;
+
+};
+
+
 /// <summary>
 /// Component used ot hold physics values for entities
 /// </summary>
@@ -33,6 +42,7 @@ struct RigidBody {
 	float bounciness;
 	quat rot;
 
+    CollisionObject* co;
 
 };
 
@@ -42,15 +52,10 @@ struct Transform { //Describes an object location
     quat Rotation;
 };
 
-//Collections of points which collision will be tested
-struct CollisionObject{
-    std::vector<vec3> points = {};//For now contains only one point
-    vec3 forceAfterCollision;
-    bool isColliding;
-};
 
 //A volume that when point are in it generates collisions
 struct Collider {
     //Function tha when given an object containing points
     // returns a force
+    virtual void testCollision(CollisionObject* co);
 };

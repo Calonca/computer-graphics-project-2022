@@ -10,6 +10,13 @@ extern struct Model g_test;
 class Truck// It is an entity
 {
 public:
+
+    CollisionObject wheel1 = {
+            {vec3(0,0,0)},
+            vec3(0,0,0),
+            false
+    };//There should be one for each wheel but for now just one
+
 	// Robot Pos
 	RigidBody rb = {
 		vec3(3, 0, 2),   //pos
@@ -21,8 +28,10 @@ public:
 		0.9,             // static friction
 		0.2,             //dynamic friction
 		0.0f,            //bounciness
-		quat(vec3(0,glm::radians(-30.0f),0))
+		quat(vec3(0,glm::radians(-30.0f),0)),
+        wheel1
 	};
+
 	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, 1.335f, -0.0f);
 	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f, 0.0f);
 	float followerDist = 1.8;
