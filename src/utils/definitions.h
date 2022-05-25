@@ -1,4 +1,6 @@
 #pragma once
+
+#include <vector>
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 using namespace glm;
@@ -32,4 +34,31 @@ struct RigidBody {
 	quat rot;
 
 
+};
+
+struct CollisionPoints {
+    vec3 A; // Furthest point of A into B
+    vec3 B; // Furthest point of B into A
+    vec3 Normal; // B – A normalized
+    float Depth;    // Length of B – A
+    bool HasCollision;
+};
+
+struct Transform { // Describes an objects location
+    vec3 Position;
+    vec3 Scale;
+    quat Rotation;
+};
+
+//Collections of points which collision will be tested
+struct CollisionObject{
+    std::vector<vec3> points = {};//For now contains only one point
+    vec3 forceAfterCollision;
+    bool isColliding;
+};
+
+//A volume that when point are in it generates collisions
+struct Collider {
+    //Function given an object containing points
+    // returns a force
 };
