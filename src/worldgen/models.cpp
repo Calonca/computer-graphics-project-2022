@@ -1,8 +1,10 @@
 #include "PerlinNoise.h"
+#include "models.h"
+
 
 
 float tile_len = 1.0;
-int tile = 20;
+int tile = 200;
 int tiles = (tile + 1) * (1 + tile);
 void makeModels() {
 
@@ -21,7 +23,7 @@ void makeModels() {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
-			e = (pn.noise(xoff, yoff, xoff + yoff) + 0.5 * pn.noise(80 * xoff, 80 * yoff, xoff + yoff));
+			e = (pn.noise(xoff, yoff, xoff + yoff) + 3.5 * pn.noise(80 * xoff, 80 * yoff, xoff + yoff));
 			terrain[c] = pow(e, 1.2);// pn.noise(xoff, yoff, xoff + yoff);//pn.noise(sin(xoff * M_PI*2), cos(yoff* M_PI*2), 0.8);
 			//std::cout << " terrain val  " << terrain[c];
 			xoff += 0.15;
@@ -61,7 +63,7 @@ void makeModels() {
 	}
 }
 
-std::vector<vec3> tile_pos(float x ,float y,float z) { 
+std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	int pos_index[6]; // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
 	int xx =floor( x / tile_len);
 	int zz = floor(z / tile_len);
@@ -173,24 +175,5 @@ std::vector<vec3> tile_pos(float x ,float y,float z) {
 		return v2;
 	}
 	return v1;
-}
-
-
-void testCollision(CollisionObject* co) {
-	
-	std::vector<vec3> triang =tile_pos(co->points[0][0], co->points[0][1], co->points[0][2]);
-	float force = 0;
-	co->forceAfterCollision = { 0,0,0 };
-
-	if (co->points[0][1] < triang[3][1]) {
-		co->isColliding = true;
-		 force = abs(co->points[0][1] - triang[3][1]);
-		 std::cout << "val yyy  " << triang[3][1];
-
-		 std::cout << "force" << force;
-
-		co->forceAfterCollision = { 0,force,0 };
-	}
-	
 }
 

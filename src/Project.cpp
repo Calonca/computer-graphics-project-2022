@@ -2839,14 +2839,13 @@ private:
 		}
 	}
 
-    PlaneCollider planeCollider = {};
+    TerrainCollider planeCollider = {};
 
 	void initClasses() {
 		RigidBody* rb = &truck.rb;
 		physicsEngine.AddRigidBody(rb);
 
         //float planeY = 0.0f;
-        planeCollider.planeY = 0;
         physicsEngine.AddCollider(&planeCollider);
 	}
 

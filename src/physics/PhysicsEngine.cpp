@@ -6,12 +6,12 @@ void PhysicsEngine::AddRigidBody(RigidBody* rb)
 	rbs.push_back(rb);
 }
 
-void PhysicsEngine::AddCollider(PlaneCollider* c) {
+void PhysicsEngine::AddCollider(TerrainCollider* c) {
     if (!c) return;
     colliders.push_back(c);
 }
 
-void PhysicsEngine::RemoveCollider(PlaneCollider *c) {
+void PhysicsEngine::RemoveCollider(TerrainCollider *c) {
     if (!c) return;
     auto iterator = std::find(colliders.begin(), colliders.end(), c);
     if (iterator != colliders.end())
@@ -40,13 +40,12 @@ void PhysicsEngine::Step(float dt)
 //Adds forces to rigidbodies based on collisions
 void PhysicsEngine::SolveCollisions() {
     //For each collider check collision objects and set force
-    for(PlaneCollider* collider : colliders){
+    for(TerrainCollider* collider : colliders){
         for (RigidBody* rb : rbs) {
             if (!rb->co) continue;
             CollisionObject* collisionObject =rb->co;
-            collisionObject->points[0] += rb->pos;
             //PlaneCollider* pl = dynamic_cast<PlaneCollider*>(collider);
-            collider->testCollision(collisionObject);
+            collider->testCollision(collisionObject, rb->pos);
             if (collisionObject->isColliding) {
 
                 glm::vec3 aVel = rb->velocity;
@@ -70,7 +69,7 @@ void PhysicsEngine::SolveCollisions() {
                 glm::vec3 impluse = j * up;
 
                 rb->velocity -= impluse * aInvMass;
-                std::cout<<"After applying impulse: "<< MatrixUtils::printVector(impluse)<< std::endl;
+                //std::cout<<"After applying impulse: "<< MatrixUtils::printVector(impluse)<< std::endl;
 
                 // Friction
                 /*
@@ -111,9 +110,9 @@ void PhysicsEngine::SolveCollisions() {
                     bBody->Velocity = bVel + friction * bInvMass;
                 }
                 */
-                rb->force +=  collisionObject->forceAfterCollision;
+                rb->force +=  collisionObject->forceAfterCollision*50000.0f;
 
-                //std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
+                std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
             }
         }
     }

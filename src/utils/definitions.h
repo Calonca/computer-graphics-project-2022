@@ -58,7 +58,7 @@ struct Transform { //Describes an object location
 struct Collider {
     //Function tha when given an object containing points
     // returns a force
-    void testCollision(CollisionObject* co){
+    void testCollision(CollisionObject *co, vec3 translation) {
         co->isColliding= false;
     }
 };
@@ -68,7 +68,7 @@ struct PlaneCollider : Collider {
     float planeY{};
     //Function that when given an object containing points
     // returns a force
-    void testCollision(CollisionObject* co) {
+    void testCollision(CollisionObject *co, vec3 translation) {
         float pointY = co->points[0].y;
         //float planeHeight = planeY+2*po
         if (pointY < planeY){

@@ -3,13 +3,14 @@
 #include <vector>
 #include "../utils/MatrixUtils.h"
 #include <iostream>
+#include "../worldgen/models.h"
 
 #pragma once
 class PhysicsEngine
 {
 private:
 	std::vector<RigidBody*> rbs;
-    std::vector<PlaneCollider*> colliders;
+    std::vector<TerrainCollider*> colliders;
 
 public:
 	/// <summary>
@@ -26,8 +27,8 @@ public:
     void ApplyGravity();
     void SolveCollisions();
 
-    void AddCollider(PlaneCollider* collider);
-    void RemoveCollider(PlaneCollider* c);
+    void AddCollider(TerrainCollider* collider);
+    void RemoveCollider(TerrainCollider* c);
 
 	/// <summary>
 	/// Applies the forces and calculates the values of physical quantities after the dt in
