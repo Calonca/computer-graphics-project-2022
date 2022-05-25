@@ -34,7 +34,7 @@ struct RigidBody {
 	vec3 velocity;
 	float mass;//Mass in kg
 
-	vec3 fGravity;//Gravitational force, having a different force per object can allow different object to have different gravities
+	vec3 fGravity;//Gravitational force in multiples of g
 	bool hasGravity;//True if gravitational force is applied
 
 	float staticFriction;
@@ -57,9 +57,23 @@ struct Transform { //Describes an object location
 struct Collider {
     //Function tha when given an object containing points
     // returns a force
-    virtual void testCollision(CollisionObject* co);
+    void testCollision(CollisionObject* co){
+        co->isColliding= false;
+    }
+};
 
 
-
-
+struct PlaneCollider : Collider {
+    float planeY;
+    //Function that when given an object containing points
+    // returns a force
+    void testCollision(CollisionObject* co) {
+        float pointY = co->points[0].y;
+        if (pointY < planeY){
+            co->isColliding= true;
+            co->forceAfterCollision=vec3(planeY - pointY);
+        }else{
+            co->isColliding= false;
+        }
+    }
 };

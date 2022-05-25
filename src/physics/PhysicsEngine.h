@@ -21,6 +21,7 @@ public:
 	/// <param name="rb"></param>
 	void RemoveRigidBody(RigidBody* rb);
 
+    void ApplyGravity();
     void SolveCollisions();
 
     void AddCollider(Collider* c);
@@ -31,5 +32,7 @@ public:
 	/// </summary>
 	/// <param name="dt">physics step time</param>
 	void Step(float dt);
+
+    void ApplyForces(float dt);
 };
 

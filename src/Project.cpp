@@ -2841,6 +2841,11 @@ private:
 	void initClasses() {
 		RigidBody* rb = &truck.rb;
 		physicsEngine.AddRigidBody(rb);
+
+        //float planeY = 0.0f;
+        PlaneCollider planeCollider = {};
+        planeCollider.planeY =-10;
+        physicsEngine.AddCollider(&planeCollider);
 	}
 
     void mainLoop() {
