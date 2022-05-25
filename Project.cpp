@@ -130,7 +130,7 @@ struct VertexDescriptor {
 	int locColor;
 	int locTangent;
 	
-	int size;
+	int size;//For example 8. 3 for pos, 3 norm and 2 textCoords
 	int loc;
 	
 	VertexDescriptor(bool hPos, bool hNormal, bool hTexCoord, bool hColor, bool hTangent) {
@@ -2080,8 +2080,9 @@ private:
 
         std::cout << FName << "\n";
 
-        std::vector<float> vertex{};
-        vertex.resize(VD.size);
+        //Used to temporarily store vertices when copying them
+        std::vector<float> vertexToCopy{};
+        vertexToCopy.resize(VD.size);
 
 
         if (FName == "floor.obj") {
@@ -2089,24 +2090,31 @@ private:
             makeModels();
 
 
-            for (int i = 0; i < M1_indices.size(); i++) {
-
-                vertex[VD.deltaPos + 0] = M1_vertices[3 * M1_indices[i] + 0];
-                //std::cout << " vtx x " << vertex[VD.deltaPos + 0];
-
-
-                vertex[VD.deltaPos + 1] = (float) M1_vertices[3 * M1_indices[i] + 1];
-                //std::cout << " vtx y " << vertex[VD.deltaPos + 1];
+            for (unsigned int M1_indice : M1_indices) {
+                //Assigns vertexToCopy and indices to MD
+                //In case of vetex with normal and
+                //DeltaPos is 0
+                //DeltaNormal is 3
+                //deltaTextCoords is 6
 
 
-                vertex[VD.deltaPos + 2] = M1_vertices[3 * M1_indices[i] + 2];
-                //std::cout << " vtx z " << vertex[VD.deltaPos + 2];
 
-                vertex[VD.deltaTexCoord + 0] = 0;
-                vertex[VD.deltaTexCoord + 1] = 0;
-                vertex[VD.deltaNormal + 0] = 0;
-                vertex[VD.deltaNormal + 1] = 0;
-                vertex[VD.deltaNormal + 2] = 0;
+                vertexToCopy[VD.deltaPos + 0] = M1_vertices[3 * M1_indice + 0];
+                //std::cout << " vtx x " << vertexToCopy[VD.deltaPos + 0];
+
+                vertexToCopy[VD.deltaPos + 1] = M1_vertices[3 * M1_indice + 1];
+                //std::cout << " vtx y " << vertexToCopy[VD.deltaPos + 1];
+
+                vertexToCopy[VD.deltaPos + 2] = M1_vertices[3 * M1_indice + 2];
+                //std::cout << " vtx z " << vertexToCopy[VD.deltaPos + 2];
+
+                vertexToCopy[VD.deltaNormal + 0] = 0;
+                vertexToCopy[VD.deltaNormal + 1] = 0;
+                vertexToCopy[VD.deltaNormal + 2] = 0;
+
+                vertexToCopy[VD.deltaTexCoord + 0] = 0;
+                vertexToCopy[VD.deltaTexCoord + 1] = 0;
+
 
 
                 int j = MD.vertices.size() / VD.size;
@@ -2115,7 +2123,7 @@ private:
                 //std::cout << " J " << j << "  MD VERTICE SIZE " << s << " vd size " << VD.size;
                 MD.vertices.resize(s + VD.size);
                 for (int k = 0; k < VD.size; k++) {
-                    MD.vertices[s + k] = vertex[k];
+                    MD.vertices[s + k] = M1_vertices[3 * M1_indice + k];
                     //std::cout << " vtx all " << s + k << " val " << MD.vertices[s + k];
                 }
                 MD.indices.push_back(j);
@@ -2144,28 +2152,29 @@ private:
             for (const auto &shape: shapes) {
                 for (const auto &index: shape.mesh.indices) {
 
-                    vertex[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
-                    vertex[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
-                    vertex[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
-                    vertex[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
-                    vertex[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
-                    vertex[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
-                    vertex[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
-                    vertex[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
+                    vertexToCopy[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
+                    vertexToCopy[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
+                    vertexToCopy[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
+                    vertexToCopy[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
+                    vertexToCopy[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
+                    vertexToCopy[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
+                    vertexToCopy[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
+                    vertexToCopy[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
 
-                    //				if (uniqueVertices.count(vertex) == 0) {
+
+                    //				if (uniqueVertices.count(vertexToCopy) == 0) {
                     int j = MD.vertices.size() / VD.size;
-//					uniqueVertices[vertex] =
+//					uniqueVertices[vertexToCopy] =
 //							static_cast<uint32_t>(j);
                     int s = MD.vertices.size();
                     MD.vertices.resize(s + VD.size);
                     for (int k = 0; k < VD.size; k++) {
-                        MD.vertices[s + k] = vertex[k];
+                        MD.vertices[s + k] = vertexToCopy[k];
                     }
 /**/                MD.indices.push_back(j);
 //				}
 
-//				MD.indices.push_back(uniqueVertices[vertex]);
+//				MD.indices.push_back(uniqueVertices[vertexToCopy]);
                 }
             }
 
