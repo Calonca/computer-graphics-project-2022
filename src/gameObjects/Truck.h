@@ -23,13 +23,13 @@ public:
 		vec3(0,0,0),     //force
 		vec3(0,0,0),     //velocity
 		float(10.0f),    //mass
-		vec3(0,0,0),     // fGravity
-		false,           // hasGravity
+		vec3(0,-9.18,0),     // fGravity
+        false,           // hasGravity
 		0.9,             // static friction
 		0.2,             //dynamic friction
 		0.0f,            //bounciness
 		quat(vec3(0,glm::radians(-30.0f),0)),
-        wheel1
+        &wheel1
 	};
 
 	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, 1.335f, -0.0f);
