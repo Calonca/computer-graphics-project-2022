@@ -43,7 +43,7 @@ void PhysicsEngine::Step(float dt)
 //Adds forces to rigidbodies based on collisions
 void PhysicsEngine::SolveCollisions() {
     //For each collider check collision objects and set force
-    for(Collider* colliders : colliders){
+    for(Collider* collider : colliders){
         for (RigidBody* rb : rbs) {
             if (!rb->co) continue;
             CollisionObject* collisionObject =rb->co;

@@ -2180,7 +2180,8 @@ private:
 
             std::cout << FName << " -> V: " << MD.vertices.size()
                       << ", I: " << MD.indices.size() << "\n";
-			tile_pos(0.3, 5, 1.6);
+
+			
 		}
     }
         void createTextMesh(ModelData &MD, VertexDescriptor &VD) {
