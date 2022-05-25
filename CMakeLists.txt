@@ -19,6 +19,6 @@ add_executable(${PNAME} src/${CFILE}.cpp
         src/gameObjects/Truck.cpp
         src/gameObjects/Truck.h
         src/worldgen/PerlinNoise.h
-        src/worldgen/PerlinNoise.cpp)
+        src/worldgen/PerlinNoise.cpp src/utils/MatrixUtils.cpp src/utils/MatrixUtils.h)
 
 target_link_libraries(${PNAME} -lglfw -lvulkan -ldl -lpthread -lX11 -lXrandr -lXi)

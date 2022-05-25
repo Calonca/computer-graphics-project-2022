@@ -93,7 +93,7 @@ std::vector<float> M1_vertices;
 std::vector<uint32_t> M1_indices;
 
 #include "worldgen/models.cpp"
-#include "utils/view.cpp"
+#include "utils/MatrixUtils.h"
 #include "gameObjects/Truck.h"
 #include "physics/PhysicsEngine.h"
 
@@ -2991,7 +2991,7 @@ private:
 				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = LookInDirMat(truck.rb.pos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
+				CamMat = MatrixUtils::LookInDirMat(truck.rb.pos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
 			}
 			break;
 		case 1:
@@ -3002,7 +3002,7 @@ private:
 			{
 				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
-				CamMat = LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
+				CamMat = MatrixUtils::LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
 			}
 			break;
 		case 2:
