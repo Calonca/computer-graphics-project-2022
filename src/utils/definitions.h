@@ -19,9 +19,9 @@ struct Model {
 
 //Collections of points which collision will be tested
 struct CollisionObject{
-    std::vector<vec3> points = {};//For now contains only one point
+    std::vector<vec3> points ;//For now contains only one point
     vec3 forceAfterCollision;
-    bool isColliding;
+    bool isColliding =false;//default
 
 };
 
