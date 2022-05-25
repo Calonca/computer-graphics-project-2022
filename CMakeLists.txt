@@ -10,15 +10,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
 # Build project, give it a name and includes list of file to be compiled
-add_executable(${PNAME} ${CFILE}.cpp
-        Component.cpp
-        Component.h
-        definitions.h
-        PhysicsEngine.cpp
-        PhysicsEngine.h
-        Truck.cpp
-        Truck.h
-        PerlinNoise.h
-        PerlinNoise.cpp)
+add_executable(${PNAME} src/${CFILE}.cpp
+        src/gameObjects/Component.cpp
+        src/gameObjects/Component.h
+        src/utils/definitions.h
+        src/physics/PhysicsEngine.cpp
+        src/physics/PhysicsEngine.h
+        src/gameObjects/Truck.cpp
+        src/gameObjects/Truck.h
+        src/worldgen/PerlinNoise.h
+        src/worldgen/PerlinNoise.cpp)
 
 target_link_libraries(${PNAME} -lglfw -lvulkan -ldl -lpthread -lX11 -lXrandr -lXi)

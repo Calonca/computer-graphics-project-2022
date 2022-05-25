@@ -14,35 +14,35 @@
 #include <array>
 #include <unordered_map>
 
-#include "PerlinNoise.h"
+#include "worldgen/PerlinNoise.h"
 
-#include "definitions.h"
+#include "utils/definitions.h"
 
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
+#include "glm/gtx/hash.hpp"
 
 #include <chrono>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "stb_image.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/";
-const std::string TEXTURE_PATH = "textures/";
+const std::string MODEL_PATH = "resources/models/";
+const std::string TEXTURE_PATH = "resources/textures/";
 const std::string SHADER_PATH = "shaders/";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include "tiny_obj_loader.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -92,10 +92,10 @@ std::vector<SingleText> SceneText = {
 std::vector<float> M1_vertices;
 std::vector<uint32_t> M1_indices;
 
-#include "models.cpp"
-#include "view.cpp"
-#include "Truck.h"
-#include "PhysicsEngine.h"
+#include "worldgen/models.cpp"
+#include "utils/view.cpp"
+#include "gameObjects/Truck.h"
+#include "physics/PhysicsEngine.h"
 
 
 namespace std {

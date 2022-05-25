@@ -1,6 +1,6 @@
 #include "Truck.h"
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include "glm/gtx/euler_angles.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 
 void Truck::UpdatePos(GLFWwindow* window, float deltaT)
