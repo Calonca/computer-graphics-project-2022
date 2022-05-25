@@ -36,15 +36,7 @@ struct RigidBody {
 
 };
 
-struct CollisionPoints {
-    vec3 A; // Furthest point of A into B
-    vec3 B; // Furthest point of B into A
-    vec3 Normal; // B – A normalized
-    float Depth;    // Length of B – A
-    bool HasCollision;
-};
-
-struct Transform { // Describes an objects location
+struct Transform { //Describes an object location
     vec3 Position;
     vec3 Scale;
     quat Rotation;
@@ -59,6 +51,6 @@ struct CollisionObject{
 
 //A volume that when point are in it generates collisions
 struct Collider {
-    //Function given an object containing points
+    //Function tha when given an object containing points
     // returns a force
 };
