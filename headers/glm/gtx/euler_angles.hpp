@@ -11,7 +11,7 @@
 /// Build matrices from Euler angles.
 ///
 /// Extraction of Euler angles from rotation matrix.
-/// Based on the original paper 2014 Mike Day - Extracting Euler Angles from a Rotation Matrix.
+/// Based on the original paper 2014 Mike Day - Extracting Euler Angles from a rot Matrix.
 
 #pragma once
 

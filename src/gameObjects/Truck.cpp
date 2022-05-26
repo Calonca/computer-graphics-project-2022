@@ -39,10 +39,10 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 		glm::quat(glm::vec3(0, 0, lookRoll));
 
 	if (glfwGetKey(window, GLFW_KEY_W)) {
-		rb.force += vec3( MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) * deltaT);
+		rb.force += vec3( MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) );
 	}
 	if (glfwGetKey(window, GLFW_KEY_S)) {
-		rb.force += vec3(- MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) * deltaT);
+		rb.force += vec3(- MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) );
 	}
 
 

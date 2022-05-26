@@ -31,21 +31,22 @@ void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
 void PhysicsEngine::Step(float dt)
 {
     ApplyGravity();
-    SolveCollisions();
+    SolveCollisions(dt);
     ApplyForces(dt);
 }
 
 
 
 //Adds forces to rigidbodies based on collisions
-void PhysicsEngine::SolveCollisions() {
+void PhysicsEngine::SolveCollisions(float dt) {
     //For each collider check collision objects and set force
     for(TerrainCollider* collider : colliders){
         for (RigidBody* rb : rbs) {
             if (!rb->co) continue;
             CollisionObject* collisionObject =rb->co;
+            collisionObject->setTransform(rb);
             //PlaneCollider* pl = dynamic_cast<PlaneCollider*>(collider);
-            collider->testCollision(collisionObject, rb->pos);
+            collider->testCollision(collisionObject);
             if (collisionObject->isColliding) {
 
                 glm::vec3 aVel = rb->velocity;
@@ -69,7 +70,7 @@ void PhysicsEngine::SolveCollisions() {
                 glm::vec3 impluse = j * up;
 
                 rb->velocity -= impluse * aInvMass;
-                //std::cout<<"After applying impulse: "<< MatrixUtils::printVector(impluse)<< std::endl;
+                //std::cout<<"Velocity delta after impulse: "<< MatrixUtils::printVector(-impluse * aInvMass)<< std::endl;
 
                 // Friction
                 /*
@@ -110,9 +111,9 @@ void PhysicsEngine::SolveCollisions() {
                     bBody->Velocity = bVel + friction * bInvMass;
                 }
                 */
-                rb->force +=  collisionObject->forceAfterCollision*500.0f;
+                rb->force +=  collisionObject->forceAfterCollision*rb->mass*50000.0f*dt;
 
-                //std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
+                //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;
             }
         }
     }
@@ -140,7 +141,7 @@ void PhysicsEngine::ApplyForces(float dt) {
         //std::cout << length(rb->force) <<std::endl;
 
         //vec3 fwd = mat4(rb->rot) * glm::vec4(0, 0, -1, 1);
-
+        //std::cout<<"Resulting force: "<< MatrixUtils::printVector(rb->force)<< std::endl;
         rb->velocity += (rb->force / rb->mass) * dt;
         rb->pos += rb->velocity * dt;
 

@@ -4,11 +4,11 @@
 
 
 float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working
-int tile = 200;        // No of square tiles row wise(or column). Used to form the terrain 
+int tile = 200;        // No of square tiles row wise(or column). Used to form the terrain
 int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
 
 //Create Terrain with perlin noise
-void MakeModels() { 
+void makeModels() {
 
 	
 	
@@ -82,13 +82,13 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	v1.push_back({ // X,Y,Z of triangle 1 vertex 1
 		M1_vertices[3 * pos_index[0] + 0],
 		M1_vertices[3 * pos_index[0] + 1],
-		M1_vertices[3 * pos_index[0] + 2] 
+		M1_vertices[3 * pos_index[0] + 2]
 	});
-	
+
 	v1.push_back( { // X,Y,Z of triangle 1 vertex 2
 		M1_vertices[3 * pos_index[1] + 0],
 		M1_vertices[3 * pos_index[1] + 1],
-		M1_vertices[3 * pos_index[1] + 2] 
+		M1_vertices[3 * pos_index[1] + 2]
 	});
 
 	v1.push_back({ // X,Y,Z of triangle 1 vertex 3
@@ -98,7 +98,7 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	});
 
 
-	v1.push_back({ // X,Y,Z of centroid of triangle 1 
+	v1.push_back({ // X,Y,Z of centroid of triangle 1
 		(v1[0][0] + v1[1][0] + v1[2][0]) / 3,
 		(v1[0][1] + v1[1][1] + v1[2][1]) / 3,
 		(v1[0][2] + v1[1][2] + v1[2][2]) / 3
@@ -109,13 +109,13 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	v2.push_back({  // X,Y,Z of triangle 2 vertex 1
 		M1_vertices[3 * pos_index[3] + 0],
 		M1_vertices[3 * pos_index[3] + 1],
-		M1_vertices[3 * pos_index[3] + 2] 
+		M1_vertices[3 * pos_index[3] + 2]
 	});
-	
+
 	v2.push_back({  // X,Y,Z of triangle 2 vertex 2
 		M1_vertices[3 * pos_index[4] + 0],
 		M1_vertices[3 * pos_index[4] + 1],
-		M1_vertices[3 * pos_index[4] + 2] 
+		M1_vertices[3 * pos_index[4] + 2]
 	});
 
 	v2.push_back({  // X,Y,Z of triangle 2 vertex 3
@@ -132,7 +132,7 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	});
 
 
-	
+
 	//find which is the closes triangle to the point and return centroid vertices of those triangles.
 	float close1 = pow((pow(x-v1[3][0],2)+ pow(y - v1[3][1], 2)+ pow(z - v1[3][2], 2)),0.5);
 	float close2 = pow((pow(x - v2[3][0], 2) + pow(y - v2[3][1], 2) + pow(z - v2[3][2], 2)), 0.5);
