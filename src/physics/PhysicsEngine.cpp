@@ -112,7 +112,7 @@ void PhysicsEngine::SolveCollisions() {
                 */
                 rb->force +=  collisionObject->forceAfterCollision*500.0f;
 
-                std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
+                //std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
             }
         }
     }
@@ -148,5 +148,35 @@ void PhysicsEngine::ApplyForces(float dt) {
 
     }
 }
+/*
+stbi_uc* stationMap;
+int stationMapWidth, stationMapHeight;
+bool canStepPoint(float x, float y) {
+    int pixX = round(fmax(0.0f, fmin(stationMapWidth-1,  (x+10) * stationMapWidth  / 20.0)));
+    int pixY = round(fmax(0.0f, fmin(stationMapHeight-1, (y+10) * stationMapHeight / 20.0)));
+    int pix = (int)stationMap[stationMapWidth * pixY + pixX];
+//std::cout << pixX << " " << pixY << " " << x << " " << y << " \t P = " << pix << "\n";
+    return pix > 128;
+}
+const float checkRadius = 0.1;
+const int checkSteps = 12;
+bool canStep(float x, float y) {
+    for(int i = 0; i < checkSteps; i++) {
+        if(!canStepPoint(x + cos(6.2832 * i / (float)checkSteps) * checkRadius,
+                         y + sin(6.2832 * i / (float)checkSteps) * checkRadius)) {
+            return false;
+        }
+    }
+    return true;
+}
 
-
+ 		stationMap = stbi_load((TEXTURE_PATH + "MapSciFiStep.png").c_str(),
+							&stationMapWidth, &stationMapHeight,
+							NULL, 1);
+		if (!stationMap) {
+			std::cout << (TEXTURE_PATH + "MapSciFiStep.png").c_str() << "\n";
+			throw std::runtime_error("failed to load map image!");
+		}
+		std::cout << "Station map -> size: " << stationMapWidth
+				  << "x" << stationMapHeight <<"\n";
+*/
