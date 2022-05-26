@@ -25,9 +25,8 @@ void MakeModels() {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
-			e = (pn.noise(xoff, yoff, xoff + yoff) + 3.5 * pn.noise(0.4 * xoff, 0.4 * yoff, xoff + yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
-			terrain[c] = pow(e, 1.2);// pn.noise(xoff, yoff, xoff + yoff);//pn.noise(sin(xoff * M_PI*2), cos(yoff* M_PI*2), 0.8);
-			//std::cout << " terrain val  " << terrain[c];
+			e = (pn.noise(xoff, yoff, xoff + yoff) + 2.8 * pn.noise(0.4 * xoff, 0.4 * yoff, xoff + yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
+			terrain[c] = pow(e, 1.2);
 			xoff += 0.15;
 			c++;
 		}
@@ -78,13 +77,6 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	pos_index[4] = M1_indices[6 * val +4];
 	pos_index[5] = M1_indices[6 * val +5];
 
-	//to access corresponding vertices of the triangle
-	/*for (int i = 0; i < 6; i++) {
-		std::cout << "\n vertex value x \t" << M1_vertices[3 * pos_index[i] + 0];
-		std::cout << "\n vertex value y \t" << M1_vertices[3 * pos_index[i] + 1];
-		std::cout << "\n vertex value z \t" << M1_vertices[3 * pos_index[i] + 2];
-	}*/
-	//return { {1,2,3},{1,2,3},{1,2,3} };
 
 	std::vector<vec3> v1, v2; //Vertices of 2 Triangles forming the square tile
 	v1.push_back({ // X,Y,Z of triangle 1 vertex 1
