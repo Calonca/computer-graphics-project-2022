@@ -6,6 +6,7 @@
 #define CGPROJECT_MODELS_H
 
 #include "../utils/definitions.h"
+#include "../utils/MatrixUtils.h"
 
 #pragma once
 class models
@@ -17,15 +18,18 @@ public:
 struct TerrainCollider : Collider {
     //Function that when given an object containing points
     // returns a force
-    void testCollision(CollisionObject *co, vec3 translation) {
+    void testCollision(CollisionObject *co) {
 
-        std::vector<vec3> triang = models::tile_pos(co->points[0].x+translation.x, co->points[0].y+translation.y, co->points[0].z+translation.z);
+        vec3 firstPoint = co->getPoint(0);
+        //std::cout<<"First point position: "<< MatrixUtils::printVector(firstPoint)<< std::endl;
+        std::vector<vec3> triang = models::tile_pos(firstPoint.x,firstPoint.y,firstPoint.z);
         float force = 0;
         co->forceAfterCollision = { 0,0,0 };
+        co->isColliding = false;
 
-        if (co->points[0][1]+translation.y < triang[3][1]) {
+        if (firstPoint.y < triang[3][1]) {
             co->isColliding = true;
-            force = abs(co->points[0][1]+translation.y - triang[3][1]);
+            force = abs(firstPoint.y - triang[3][1]);
             //std::cout << "val yyy  " << triang[3][1];
 
             //std::cout << "force" << force<<std::endl;

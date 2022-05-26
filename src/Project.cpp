@@ -2006,7 +2006,7 @@ private:
 	}
 	
 	void loadModelWithTexture(const Model& M, int i) {
-		loadMesh(M.ObjFile, scene[i].MD, phongAndSkyBoxVertices);
+        loadMesh(M.ObjFile, scene[i].MD, phongAndSkyBoxVertices, M.pos);
 		createVertexBuffer(scene[i].MD);
 		createIndexBuffer(scene[i].MD);
 		
@@ -2016,7 +2016,7 @@ private:
 	}
 	
 	void loadSkyBox() {
-		loadMesh(SkyBoxToLoad.ObjFile, SkyBox.MD, phongAndSkyBoxVertices);
+        loadMesh(SkyBoxToLoad.ObjFile, SkyBox.MD, phongAndSkyBoxVertices, vec3(0, 0, 0));
 		createVertexBuffer(SkyBox.MD);
 		createIndexBuffer(SkyBox.MD);
 
@@ -2035,7 +2035,7 @@ private:
 		createTextureSampler(SText.TD);
 	}
 	
-	void loadMesh(const char* FName, ModelData& MD, VertexDescriptor &VD) {
+	void loadMesh(const char *FName, ModelData &MD, VertexDescriptor &VD, vec3 translation) {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
@@ -2122,9 +2122,9 @@ private:
             for (const auto &shape: shapes) {
                 for (const auto &index: shape.mesh.indices) {
 
-                    vertexToCopy[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0];
-                    vertexToCopy[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1];
-                    vertexToCopy[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2];
+                    vertexToCopy[VD.deltaPos + 0] = attrib.vertices[3 * index.vertex_index + 0]+translation.x;
+                    vertexToCopy[VD.deltaPos + 1] = attrib.vertices[3 * index.vertex_index + 1]+translation.y;
+                    vertexToCopy[VD.deltaPos + 2] = attrib.vertices[3 * index.vertex_index + 2]+translation.z;
                     vertexToCopy[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
                     vertexToCopy[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
                     vertexToCopy[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];

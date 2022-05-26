@@ -67,8 +67,8 @@ namespace glm
 	/// Builds a rotation 4 * 4 matrix created from an axis vector and an angle.
 	///
 	/// @param m Input matrix multiplied by this rotation matrix.
-	/// @param angle Rotation angle expressed in radians.
-	/// @param axis Rotation axis, recommended to be normalized.
+	/// @param angle rot angle expressed in radians.
+	/// @param axis rot axis, recommended to be normalized.
 	///
 	/// @tparam T A floating-point scalar type
 	/// @tparam Q A value from qualifier enum
@@ -97,8 +97,8 @@ namespace glm
 
 	/// Build a right handed look at view matrix.
 	///
-	/// @param eye Position of the camera
-	/// @param center Position where the camera is looking at
+	/// @param eye pos of the camera
+	/// @param center pos where the camera is looking at
 	/// @param up Normalized up vector, how the camera is oriented. Typically (0, 0, 1)
 	///
 	/// @tparam T A floating-point scalar type
@@ -111,8 +111,8 @@ namespace glm
 
 	/// Build a left handed look at view matrix.
 	///
-	/// @param eye Position of the camera
-	/// @param center Position where the camera is looking at
+	/// @param eye pos of the camera
+	/// @param center pos where the camera is looking at
 	/// @param up Normalized up vector, how the camera is oriented. Typically (0, 0, 1)
 	///
 	/// @tparam T A floating-point scalar type
@@ -125,8 +125,8 @@ namespace glm
 
 	/// Build a look at view matrix based on the default handedness.
 	///
-	/// @param eye Position of the camera
-	/// @param center Position where the camera is looking at
+	/// @param eye pos of the camera
+	/// @param center pos where the camera is looking at
 	/// @param up Normalized up vector, how the camera is oriented. Typically (0, 0, 1)
 	///
 	/// @tparam T A floating-point scalar type

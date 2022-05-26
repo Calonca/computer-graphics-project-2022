@@ -25,7 +25,7 @@ public:
 	void RemoveRigidBody(RigidBody* rb);
 
     void ApplyGravity();
-    void SolveCollisions();
+    void SolveCollisions(float dt);
 
     void AddCollider(TerrainCollider* collider);
     void RemoveCollider(TerrainCollider* c);

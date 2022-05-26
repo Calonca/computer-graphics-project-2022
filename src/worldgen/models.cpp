@@ -23,7 +23,7 @@ void makeModels() {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
-			e = (pn.noise(xoff, yoff, xoff + yoff) + 3.5 * pn.noise(80 * xoff, 80 * yoff, xoff + yoff));
+			e = (pn.noise(xoff, yoff, xoff + yoff) + 0.5 * pn.noise(80 * xoff, 80 * yoff, xoff + yoff));
 			terrain[c] = pow(e, 1.2);// pn.noise(xoff, yoff, xoff + yoff);//pn.noise(sin(xoff * M_PI*2), cos(yoff* M_PI*2), 0.8);
 			//std::cout << " terrain val  " << terrain[c];
 			xoff += 0.15;

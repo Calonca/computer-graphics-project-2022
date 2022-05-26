@@ -19,7 +19,7 @@ add_executable(${PNAME} src/${CFILE}.cpp
         src/gameObjects/Truck.cpp
         src/gameObjects/Truck.h
         src/worldgen/PerlinNoise.h
-        src/worldgen/PerlinNoise.cpp src/utils/MatrixUtils.cpp src/utils/MatrixUtils.h src/worldgen/models.h)
+        src/worldgen/PerlinNoise.cpp src/utils/MatrixUtils.cpp src/utils/MatrixUtils.h src/worldgen/models.h src/utils/definitions.cpp)
 
 #target_compile_definitions (${PNAME} PUBLIC NDEBUG) #Used to deactivate validation layers messages
 

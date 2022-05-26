@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 #include <iostream>
 #include "glm/glm.hpp"
@@ -7,6 +8,7 @@
 using namespace glm;
 
 enum PipelineType { Flat, Wire };
+struct RigidBody;
 
 struct Model {
 	const char* ObjFile;
@@ -17,12 +19,33 @@ struct Model {
 	int id;
 };
 
+struct Transform { //Describes an object location
+    vec3 pos;
+    float Scale;
+    quat rot;
+};
+
+
 //Collections of points which collision will be tested
 struct CollisionObject{
-    std::vector<vec3> points ;//For now contains only one point
+private:
+    std::vector<vec3> points;//For now contains only one point
+    Transform t;
+public:
     vec3 forceAfterCollision;
     bool isColliding =false;//default
+    CollisionObject(std::vector<vec3> points, const Transform &t, const vec3 &forceAfterCollision,
+                    bool isColliding);
 
+    vec3 getPoint (unsigned int i){
+        if (i<0 || i>=points.size())
+        {
+            std::cout<<"Collision points do not contain the following index: "
+            <<i<<"\nThe maximum allowed value is :"<<points.size()-1<<std::endl;
+        }
+        return points[i]+t.pos;
+    }
+    void setTransform(RigidBody* r);
 };
 
 
@@ -47,18 +70,13 @@ struct RigidBody {
 
 };
 
-struct Transform { //Describes an object location
-    vec3 Position;
-    vec3 Scale;
-    quat Rotation;
-};
 
 
 //A volume that when point are in it generates collisions
 struct Collider {
     //Function tha when given an object containing points
     // returns a force
-    void testCollision(CollisionObject *co, vec3 translation) {
+    void testCollision(CollisionObject *co) {
         co->isColliding= false;
     }
 };
@@ -68,8 +86,8 @@ struct PlaneCollider : Collider {
     float planeY{};
     //Function that when given an object containing points
     // returns a force
-    void testCollision(CollisionObject *co, vec3 translation) {
-        float pointY = co->points[0].y;
+    void testCollision(CollisionObject *co) {
+        float pointY = co->getPoint(0).y;
         //float planeHeight = planeY+2*po
         if (pointY < planeY){
             co->isColliding= true;
