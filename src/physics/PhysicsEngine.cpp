@@ -110,7 +110,7 @@ void PhysicsEngine::SolveCollisions() {
                     bBody->Velocity = bVel + friction * bInvMass;
                 }
                 */
-                rb->force +=  collisionObject->forceAfterCollision*50000.0f;
+                rb->force +=  collisionObject->forceAfterCollision*500.0f;
 
                 std::cout<<"After applying forces: "<< MatrixUtils::printVector(rb->force)<< std::endl;
             }

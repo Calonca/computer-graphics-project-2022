@@ -2087,7 +2087,7 @@ private:
 
         if (FName == "floor.obj") {
 
-            makeModels();
+            MakeModels();
 
 
             for (unsigned int M1_indice : M1_indices) {

@@ -3,10 +3,12 @@
 
 
 
-float tile_len = 1.0;
-int tile = 200;
-int tiles = (tile + 1) * (1 + tile);
-void makeModels() {
+float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working
+int tile = 200;        // No of square tiles row wise(or column). Used to form the terrain 
+int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
+
+//Create Terrain with perlin noise
+void MakeModels() { 
 
 	
 	
@@ -23,7 +25,7 @@ void makeModels() {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
-			e = (pn.noise(xoff, yoff, xoff + yoff) + 3.5 * pn.noise(80 * xoff, 80 * yoff, xoff + yoff));
+			e = (pn.noise(xoff, yoff, xoff + yoff) + 3.5 * pn.noise(0.4 * xoff, 0.4 * yoff, xoff + yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
 			terrain[c] = pow(e, 1.2);// pn.noise(xoff, yoff, xoff + yoff);//pn.noise(sin(xoff * M_PI*2), cos(yoff* M_PI*2), 0.8);
 			//std::cout << " terrain val  " << terrain[c];
 			xoff += 0.15;
@@ -84,89 +86,62 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	}*/
 	//return { {1,2,3},{1,2,3},{1,2,3} };
 
-	std::vector<vec3> v1, v2;
-	v1.push_back({
-				M1_vertices[3 * pos_index[0] + 0],
-				M1_vertices[3 * pos_index[0] + 1],
-				M1_vertices[3 * pos_index[0] + 2] });
-	v1.push_back( {
-			 M1_vertices[3 * pos_index[1] + 0],
-			 M1_vertices[3 * pos_index[1] + 1],
-			 M1_vertices[3 * pos_index[1] + 2] }
-	);
+	std::vector<vec3> v1, v2; //Vertices of 2 Triangles forming the square tile
+	v1.push_back({ // X,Y,Z of triangle 1 vertex 1
+		M1_vertices[3 * pos_index[0] + 0],
+		M1_vertices[3 * pos_index[0] + 1],
+		M1_vertices[3 * pos_index[0] + 2] 
+	});
+	
+	v1.push_back( { // X,Y,Z of triangle 1 vertex 2
+		M1_vertices[3 * pos_index[1] + 0],
+		M1_vertices[3 * pos_index[1] + 1],
+		M1_vertices[3 * pos_index[1] + 2] 
+	});
 
-	v1.push_back({
+	v1.push_back({ // X,Y,Z of triangle 1 vertex 3
 		M1_vertices[3 * pos_index[2] + 0],
 		M1_vertices[3 * pos_index[2] + 1],
 		M1_vertices[3 * pos_index[2] + 2]
-		});
+	});
 
 
-	v1.push_back({
+	v1.push_back({ // X,Y,Z of centroid of triangle 1 
 		(v1[0][0] + v1[1][0] + v1[2][0]) / 3,
 		(v1[0][1] + v1[1][1] + v1[2][1]) / 3,
 		(v1[0][2] + v1[1][2] + v1[2][2]) / 3
-		});
+	});
 
 
 
-	v2.push_back({
-				M1_vertices[3 * pos_index[3] + 0],
-				M1_vertices[3 * pos_index[3] + 1],
-				M1_vertices[3 * pos_index[3] + 2] });
-	v2.push_back({
-			 M1_vertices[3 * pos_index[4] + 0],
-			 M1_vertices[3 * pos_index[4] + 1],
-			 M1_vertices[3 * pos_index[4] + 2] }
-	);
+	v2.push_back({  // X,Y,Z of triangle 2 vertex 1
+		M1_vertices[3 * pos_index[3] + 0],
+		M1_vertices[3 * pos_index[3] + 1],
+		M1_vertices[3 * pos_index[3] + 2] 
+	});
+	
+	v2.push_back({  // X,Y,Z of triangle 2 vertex 2
+		M1_vertices[3 * pos_index[4] + 0],
+		M1_vertices[3 * pos_index[4] + 1],
+		M1_vertices[3 * pos_index[4] + 2] 
+	});
 
-	v2.push_back({
+	v2.push_back({  // X,Y,Z of triangle 2 vertex 3
 		M1_vertices[3 * pos_index[5] + 0],
 		M1_vertices[3 * pos_index[5] + 1],
 		M1_vertices[3 * pos_index[5] + 2]
-		});
+	});
 
 
-	v2.push_back({
+	v2.push_back({  // X,Y,Z of centroid of triangle 2
 		(v2[0][0] + v2[1][0] + v2[2][0]) / 3,
 		(v2[0][1] + v2[1][1] + v2[2][1]) / 3,
 		(v2[0][2] + v2[1][2] + v2[2][2]) / 3
-		});
+	});
 
 
-	//v1[0][0] = M1_vertices[3 * pos_index[0] + 0];
-	//v1[0][1] = M1_vertices[3 * pos_index[0] + 1];
-	//v1[0][2] = M1_vertices[3 * pos_index[0] + 2];
-
-	/*
-	v1[1][0] = M1_vertices[3 * pos_index[1] + 0];
-	v1[1][1] = M1_vertices[3 * pos_index[1] + 1];
-	v1[1][2] = M1_vertices[3 * pos_index[1] + 2];
-
-	v1[2][0] = M1_vertices[3 * pos_index[2] + 0];
-	v1[2][1] = M1_vertices[3 * pos_index[2] + 1];
-	v1[2][2] = M1_vertices[3 * pos_index[2] + 2];
-
-	v1[3][0] = (v1[0][0] + v1[1][0] + v1[2][0]) / 3;
-	v1[3][1] = (v1[0][1] + v1[1][1] + v1[2][1]) / 3;
-	v1[3][2] = (v1[0][2] + v1[1][2] + v1[2][2]) / 3;
-	std::cout << " vector  " << v1[0][1];
-	/*v2[0][0] = M1_vertices[3 * pos_index[3] + 0];
-	v2[0][1] = M1_vertices[3 * pos_index[3] + 1];
-	v2[0][2] = M1_vertices[3 * pos_index[3] + 2];
-	 
-	v2[1][0] = M1_vertices[3 * pos_index[4] + 0];
-	v2[1][1] = M1_vertices[3 * pos_index[4] + 1];
-	v2[1][2] = M1_vertices[3 * pos_index[4] + 2];
-	 
-	v2[2][0] = M1_vertices[3 * pos_index[5] + 0];
-	v2[2][1] = M1_vertices[3 * pos_index[5] + 1];
-	v2[2][2] = M1_vertices[3 * pos_index[5] + 2];
-	 
-	v2[3][0] = (v2[0][0] + v2[1][0] + v2[2][0]) / 3;
-	v2[3][1] = (v2[0][1] + v2[1][1] + v2[2][1]) / 3;
-	v2[3][2] = (v2[0][2] + v2[1][2] + v2[2][2]) / 3;
-	*/
+	
+	//find which is the closes triangle to the point and return centroid vertices of those triangles.
 	float close1 = pow((pow(x-v1[3][0],2)+ pow(y - v1[3][1], 2)+ pow(z - v1[3][2], 2)),0.5);
 	float close2 = pow((pow(x - v2[3][0], 2) + pow(y - v2[3][1], 2) + pow(z - v2[3][2], 2)), 0.5);
 	
