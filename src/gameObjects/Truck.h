@@ -38,7 +38,7 @@ public:
 	float lookYaw = 0.0;
 	float lookPitch = glm::radians(-30.0f);
 	float lookRoll = 0.0;
-	std::vector<Model> stl = { 
+	std::vector<Model> modelToLoad = {
 		{ "MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", {0,0,0}, 1, Flat ,2}
 	};
 

@@ -60,7 +60,7 @@ const std::vector<const char*> deviceExtensions = {
 	const bool Verbose = true;
 #endif
 
-std::vector<Model> SceneToLoad = {
+std::vector<Model> sceneToLoad = {
 	{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0},
 	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
@@ -343,11 +343,11 @@ struct SwapChainSupportDetails {
 };
 
 
-struct errorcode {
+struct ErrorCode {
 	VkResult resultCode;
 	std::string meaning;
 }
-ErrorCodes[ ] = {
+errorCodes[ ] = {
 	{ VK_NOT_READY, "Not Ready" },
 	{ VK_TIMEOUT, "Timeout" },
 	{ VK_EVENT_SET, "Event Set" },
@@ -378,11 +378,11 @@ ErrorCodes[ ] = {
 };
 
 void PrintVkError( VkResult result ) {
-	const int numErrorCodes = sizeof( ErrorCodes ) / sizeof( struct errorcode );
+	const int numErrorCodes = sizeof( errorCodes ) / sizeof( struct ErrorCode );
 	std::string meaning = "";
-	for( int i = 0; i < numErrorCodes; i++ ) {
-		if( result == ErrorCodes[i].resultCode ) {
-			meaning = ErrorCodes[i].meaning;
+	for(ErrorCode &errorCode : errorCodes) {
+		if( result == errorCode.resultCode ) {
+			meaning = errorCode.meaning;
 			break;
 		}
 	}
@@ -462,8 +462,8 @@ private:
 	std::vector<VkDeviceMemory> globalUniformBuffersMemory;	
 	// to access uniforms in the pipeline
 	std::vector<VkDescriptorSet> PhongDescriptorSets;
-	// Scene graph using the Phong pipeline
-	std::vector<SceneModel> Scene;
+	// scene graph using the Phong pipeline
+	std::vector<SceneModel> scene;
 	
 	//  Skybox pipeline
  	VkDescriptorSetLayout SkyBoxDescriptorSetLayout; // for skybox
@@ -512,27 +512,7 @@ private:
 	
 	// Other global variables
 	int curText = 0;
-	stbi_uc* stationMap;
-	int stationMapWidth, stationMapHeight;
-	bool canStepPoint(float x, float y) {
-		int pixX = round(fmax(0.0f, fmin(stationMapWidth-1,  (x+10) * stationMapWidth  / 20.0)));
-		int pixY = round(fmax(0.0f, fmin(stationMapHeight-1, (y+10) * stationMapHeight / 20.0)));
-		int pix = (int)stationMap[stationMapWidth * pixY + pixX];
-//std::cout << pixX << " " << pixY << " " << x << " " << y << " \t P = " << pix << "\n";		
-		return pix > 128;
-	}
-	const float checkRadius = 0.1;
-	const int checkSteps = 12;
-	bool canStep(float x, float y) {
-		for(int i = 0; i < checkSteps; i++) {
-			if(!canStepPoint(x + cos(6.2832 * i / (float)checkSteps) * checkRadius,
-							 y + sin(6.2832 * i / (float)checkSteps) * checkRadius)) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
+
     void initWindow() {
         glfwInit();
 
@@ -2003,17 +1983,17 @@ private:
 	}
 
 	void loadModels() {
-		SceneToLoad.insert(SceneToLoad.begin()+2, truck.stl[0]);
-		//std::copy(truck.stl.begin(), truck.stl.end(), std::back_inserter(SceneToLoad));
-		//Model m = truck.stl[0];
+		sceneToLoad.insert(sceneToLoad.begin() + 2, truck.modelToLoad[0]);
+		//std::copy(truck.modelToLoad.begin(), truck.modelToLoad.end(), std::back_inserter(sceneToLoad));
+		//Model m = truck.modelToLoad[0];
 
-		//SceneToLoad.push_back(m);
+		//sceneToLoad.push_back(m);
 
-		Scene.resize(SceneToLoad.size());
+		scene.resize(sceneToLoad.size());
 		int i = 0;
 
 		i++;
-		for (const auto& M : SceneToLoad) {
+		for (const auto& M : sceneToLoad) {
 			loadModelWithTexture(M, M.id);
 			i++;
 		}
@@ -2021,28 +2001,18 @@ private:
 
 		loadSkyBox();
 		createTexts();
-		
 
-		stationMap = stbi_load((TEXTURE_PATH + "MapSciFiStep.png").c_str(),
-							&stationMapWidth, &stationMapHeight,
-							NULL, 1);
-		if (!stationMap) {
-			std::cout << (TEXTURE_PATH + "MapSciFiStep.png").c_str() << "\n";
-			throw std::runtime_error("failed to load map image!");
-		}
-		std::cout << "Station map -> size: " << stationMapWidth
-				  << "x" << stationMapHeight <<"\n";
 //throw std::runtime_error("Now We Stop Here!");			
 	}
 	
 	void loadModelWithTexture(const Model& M, int i) {
-		loadMesh(M.ObjFile, Scene[i].MD, phongAndSkyBoxVertices);
-		createVertexBuffer(Scene[i].MD);
-		createIndexBuffer(Scene[i].MD);
+		loadMesh(M.ObjFile, scene[i].MD, phongAndSkyBoxVertices);
+		createVertexBuffer(scene[i].MD);
+		createIndexBuffer(scene[i].MD);
 		
-		createTextureImage(M.TextureFile, Scene[i].TD);
-		createTextureImageView(Scene[i].TD);
-		createTextureSampler(Scene[i].TD);
+		createTextureImage(M.TextureFile, scene[i].TD);
+		createTextureImageView(scene[i].TD);
+		createTextureSampler(scene[i].TD);
 	}
 	
 	void loadSkyBox() {
@@ -2419,10 +2389,10 @@ private:
         void createUniformBuffers() {
             VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-            uniformBuffers.resize(swapChainImages.size() * Scene.size());
-            uniformBuffersMemory.resize(swapChainImages.size() * Scene.size());
+            uniformBuffers.resize(swapChainImages.size() * scene.size());
+            uniformBuffersMemory.resize(swapChainImages.size() * scene.size());
 
-            for (size_t i = 0; i < swapChainImages.size() * Scene.size(); i++) {
+            for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {
                 createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -2469,11 +2439,11 @@ private:
         void createDescriptorPool() {
             std::array<VkDescriptorPoolSize, 9> poolSizes{};
             poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
             poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
             poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+            poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
             poolSizes[3].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
             poolSizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -2491,7 +2461,7 @@ private:
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
             poolInfo.pPoolSizes = poolSizes.data();
-            poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size() * (Scene.size() + 2));
+            poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size() * (scene.size() + 2));
 
             VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr,
                                                      &descriptorPool);
@@ -2508,15 +2478,15 @@ private:
 	}
 	
 	void createPhongDescriptorSets() {
-		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size() * Scene.size(),
+		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size() * scene.size(),
 												   PhongDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size() * Scene.size());
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
 		allocInfo.pSetLayouts = layouts.data();
 
-		PhongDescriptorSets.resize(swapChainImages.size() * Scene.size());
+		PhongDescriptorSets.resize(swapChainImages.size() * scene.size());
 		
 		VkResult result = vkAllocateDescriptorSets(device, &allocInfo,
 											PhongDescriptorSets.data());
@@ -2526,7 +2496,7 @@ private:
 		}
 		
 		for (size_t k = 0; k < swapChainImages.size(); k++) {
-			for (size_t j = 0; j < Scene.size(); j++) {
+			for (size_t j = 0; j < scene.size(); j++) {
 				size_t i = j * swapChainImages.size() + k;
 				
 				VkDescriptorBufferInfo bufferInfo{};
@@ -2536,8 +2506,8 @@ private:
 				
 				VkDescriptorImageInfo imageInfo{};
 				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				imageInfo.imageView = Scene[j].TD.textureImageView;
-				imageInfo.sampler = Scene[j].TD.textureSampler;
+				imageInfo.imageView = scene[j].TD.textureImageView;
+				imageInfo.sampler = scene[j].TD.textureSampler;
 				
 				VkDescriptorBufferInfo globalBufferInfo{};
 				globalBufferInfo.buffer = globalUniformBuffers[k];
@@ -2730,13 +2700,13 @@ private:
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					PhongPipeline);					
-			for(int j = 0; j < Scene.size(); j++) {
-				if(SceneToLoad[j].pt == Flat) {
-					VkBuffer vertexBuffers[] = {Scene[j].MD.vertexBuffer};
+			for(int j = 0; j < scene.size(); j++) {
+				if(sceneToLoad[j].pt == Flat) {
+					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-					vkCmdBindIndexBuffer(commandBuffers[i], Scene[j].MD.indexBuffer, 0,
-											VK_INDEX_TYPE_UINT32);
+					vkCmdBindIndexBuffer(commandBuffers[i], scene[j].MD.indexBuffer, 0,
+                                         VK_INDEX_TYPE_UINT32);
 					vkCmdBindDescriptorSets(commandBuffers[i],
 									VK_PIPELINE_BIND_POINT_GRAPHICS,
 									PhongPipelineLayout, 0, 1,
@@ -2744,19 +2714,19 @@ private:
 									0, nullptr);
 									
 					vkCmdDrawIndexed(commandBuffers[i],
-								static_cast<uint32_t>(Scene[j].MD.indices.size()), 1, 0, 0, 0);
+                                     static_cast<uint32_t>(scene[j].MD.indices.size()), 1, 0, 0, 0);
 				}
 			}
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					PhongWirePipeline);					
-			for(int j = 0; j < Scene.size(); j++) {
-				if(SceneToLoad[j].pt == Wire) {
-					VkBuffer vertexBuffers[] = {Scene[j].MD.vertexBuffer};
+			for(int j = 0; j < scene.size(); j++) {
+				if(sceneToLoad[j].pt == Wire) {
+					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-					vkCmdBindIndexBuffer(commandBuffers[i], Scene[j].MD.indexBuffer, 0,
-											VK_INDEX_TYPE_UINT32);
+					vkCmdBindIndexBuffer(commandBuffers[i], scene[j].MD.indexBuffer, 0,
+                                         VK_INDEX_TYPE_UINT32);
 					vkCmdBindDescriptorSets(commandBuffers[i],
 									VK_PIPELINE_BIND_POINT_GRAPHICS,
 									PhongPipelineLayout, 0, 1,
@@ -2764,7 +2734,7 @@ private:
 									0, nullptr);
 									
 					vkCmdDrawIndexed(commandBuffers[i],
-								static_cast<uint32_t>(Scene[j].MD.indices.size()), 1, 0, 0, 0);
+                                     static_cast<uint32_t>(scene[j].MD.indices.size()), 1, 0, 0, 0);
 				}
 			}
 
@@ -3031,11 +3001,11 @@ private:
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
-		for (int j = 0; j < Scene.size(); j++) {
+		for (int j = 0; j < scene.size(); j++) {
 			UniformBufferObject ubo{};
 			glm::vec3 delta;
 
-			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(SceneToLoad[j].scale));
+			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(sceneToLoad[j].scale));
 			if ((j == 1) && xray) {
 				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
 				//std::cout << "Making invisible object " << j << "\n";
@@ -3164,7 +3134,7 @@ private:
 		
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		
-		for (size_t i = 0; i < swapChainImages.size() * Scene.size(); i++) {
+		for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {
 			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
 			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
 		}
@@ -3188,17 +3158,17 @@ private:
     void cleanup() {
     	cleanupSwapChain();
     	
-    	for (size_t i = 0; i < Scene.size(); i++) {
-	    	vkDestroySampler(device, Scene[i].TD.textureSampler, nullptr);
-	    	vkDestroyImageView(device, Scene[i].TD.textureImageView, nullptr);
-			vkDestroyImage(device, Scene[i].TD.textureImage, nullptr);
-			vkFreeMemory(device, Scene[i].TD.textureImageMemory, nullptr);
+    	for (size_t i = 0; i < scene.size(); i++) {
+	    	vkDestroySampler(device, scene[i].TD.textureSampler, nullptr);
+	    	vkDestroyImageView(device, scene[i].TD.textureImageView, nullptr);
+			vkDestroyImage(device, scene[i].TD.textureImage, nullptr);
+			vkFreeMemory(device, scene[i].TD.textureImageMemory, nullptr);
 	    	
-	    	vkDestroyBuffer(device, Scene[i].MD.indexBuffer, nullptr);
-	    	vkFreeMemory(device, Scene[i].MD.indexBufferMemory, nullptr);
+	    	vkDestroyBuffer(device, scene[i].MD.indexBuffer, nullptr);
+	    	vkFreeMemory(device, scene[i].MD.indexBufferMemory, nullptr);
 	
-			vkDestroyBuffer(device, Scene[i].MD.vertexBuffer, nullptr);
-	    	vkFreeMemory(device, Scene[i].MD.vertexBufferMemory, nullptr);
+			vkDestroyBuffer(device, scene[i].MD.vertexBuffer, nullptr);
+	    	vkFreeMemory(device, scene[i].MD.vertexBufferMemory, nullptr);
     	}
     	vkDestroySampler(device, SkyBox.TD.textureSampler, nullptr);
     	vkDestroyImageView(device, SkyBox.TD.textureImageView, nullptr);
