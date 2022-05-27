@@ -84,8 +84,6 @@ struct SingleText {
 std::vector<SingleText> SceneText = {
 	{1, {"First Person View", "", "", ""}, 0, 0},
 	{1, {"Third Person View", "", "", ""}, 0, 0},
-	{1, {"Top View", "", "", ""}, 0, 0},
-	{1, {"Hidden Impostor View", "", "", ""}, 0, 0}
 };
 
 std::vector<float> M1_vertices;
@@ -509,8 +507,8 @@ private:
 	PhysicsEngine physicsEngine;
 	Truck truck;
 	
-	// Other global variables
-	int curText = 0;
+	// The current view, first or third person
+	int currentView = 0;
 
     void initWindow() {
         glfwInit();
@@ -2770,7 +2768,7 @@ private:
 							&TextDescriptorSets[i],
 							0, nullptr);							
 			vkCmdDrawIndexed(commandBuffers[i],
-						static_cast<uint32_t>(SceneText[curText].len), 1, static_cast<uint32_t>(SceneText[curText].start), 0, 0);
+                             static_cast<uint32_t>(SceneText[currentView].len), 1, static_cast<uint32_t>(SceneText[currentView].start), 0, 0);
 			
 			vkCmdEndRenderPass(commandBuffers[i]);
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -2915,20 +2913,12 @@ private:
 
 		static float debounce = time;
 
-		static bool xray = false;
-
 		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
 			if (time - debounce > 0.33) {
-				curText = (curText + 1) % SceneText.size();
+                currentView = (currentView + 1) % SceneText.size();
 				debounce = time;
 				framebufferResized = true;
-				//std::cout << curText << "\n";
-			}
-		}
-		if (glfwGetKey(window, GLFW_KEY_X)) {
-			if (time - debounce > 0.33) {
-				xray = !xray;
-				debounce = time;
+				//std::cout << currentView << "\n";
 			}
 		}
 
@@ -2959,11 +2949,11 @@ private:
 		glm::vec3 FollowerTargetPos;
 		static glm::vec3 FollowerPos = truck.rb.pos;
 
-		switch (curText) {
+		switch (currentView) {
 		case 0:
-			if (curText != prevCt) {
+			if (currentView != prevCt) {
 				std::cout << "First Person view\n";
-				prevCt = curText;
+				prevCt = currentView;
 			}
 			{
 				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
@@ -2973,31 +2963,15 @@ private:
 			}
 			break;
 		case 1:
-			if (curText != prevCt) {
+			if (currentView != prevCt) {
 				std::cout << "Third Person view\n";
-				prevCt = curText;
+				prevCt = currentView;
 			}
 			{
 				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
 				CamMat = MatrixUtils::LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
 			}
-			break;
-		case 2:
-			if (curText != prevCt) {
-				std::cout << "Top view\n";
-				prevCt = curText;
-			}
-			CamMat = glm::translate(
-				glm::rotate(glm::mat4(1), 1.5708f, glm::vec3(1, 0, 0)),
-				glm::vec3(0, -10, 0));
-			break;
-		case 3:
-			if (curText != prevCt) {
-				std::cout << "Impostor view\n";
-				prevCt = curText;
-			}
-			CamMat = glm::translate(glm::mat4(1.0), glm::vec3(0, 0, -1) - truck.rb.pos - truck.FollowerDeltaTarget);
 			break;
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
@@ -3008,10 +2982,7 @@ private:
 			glm::vec3 delta;
 
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
-			if (model.first=="walls" && xray) {
-				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
-				//std::cout << "Making invisible object " << j << "\n";
-			}
+
 			if (model.first=="truck") {
 				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.rb.pos),
 					truck.lookYaw, glm::vec3(0, 1, 0));
@@ -3019,22 +2990,6 @@ private:
 				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
 					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
 					glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);
-			}
-			if ((model.first=="wallsWire") && !xray) {
-				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
-				//std::cout << "Making invisible object " << j << "\n";
-			}
-			if (model.first=="pyramid") {
-				const float followerFilterCoeff = 7.5;
-				float alpha = fmin(followerFilterCoeff * deltaT, 1.0);
-				FollowerPos = FollowerPos * (1.0f - alpha) + alpha * FollowerTargetPos;
-				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookRoll, glm::vec3(0, 0, 1)) * ubo.mMat;
-				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) * ubo.mMat;
-				ubo.mMat = glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) * ubo.mMat;
-				ubo.mMat = glm::translate(glm::mat4(1), FollowerPos) * ubo.mMat;
-				if (curText < 2) {
-					ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
-				}
 			}
 
 			float rotAng = 0.0f;
