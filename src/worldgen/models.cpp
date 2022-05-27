@@ -155,7 +155,7 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 }
 
 
-vec3 normal_triangletile(float x, float y, float z) {
+vec3 normalTriangleTile(float x, float y, float z) {
 	vec3 normal;
 	vec3 U, V;
 	std::vector<vec3> triangle_vertex = models::tile_pos(x, y, z);
