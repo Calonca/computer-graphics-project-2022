@@ -143,9 +143,13 @@ void PhysicsEngine::ApplyForces(float dt) {
         //vec3 fwd = mat4(rb->rot) * glm::vec4(0, 0, -1, 1);
         //std::cout<<"Resulting force: "<< MatrixUtils::printVector(rb->force)<< std::endl;
         rb->velocity += (rb->force / rb->mass) * dt;
+        rb->velocity = mat4(quat(vec3(0,rb->angularVelocity,0)))*vec4(rb->velocity,1);
+
         rb->pos += rb->velocity * dt;
 
+        //Reset values
         rb->force = vec3(0, 0, 0);
+        rb->angularVelocity = 0;
 
     }
 }

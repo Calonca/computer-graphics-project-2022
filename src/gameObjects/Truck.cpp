@@ -24,13 +24,15 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_A)) {
-		rb.rot = quat(vec3(0,ROT_SPEED*deltaT,0)) * rb.rot;
+		//rb.rot = quat(vec3(0,ROT_SPEED*deltaT,0)) * rb.rot;
 		lookYaw += deltaT * ROT_SPEED;
+        rb.angularVelocity += deltaT * ROT_SPEED;
 		//rb.force += vec3(MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(-1, 0, 0, 1) * deltaT);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D)) {
-		rb.rot = quat(vec3(0, -ROT_SPEED * deltaT, 0)) * rb.rot;
+		//rb.rot = quat(vec3(0, -ROT_SPEED * deltaT, 0)) * rb.rot;
 		lookYaw -= deltaT * ROT_SPEED;
+        rb.angularVelocity -= deltaT * ROT_SPEED;
 		//rb.force += vec3(-2*MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(-1, 0, 0, 1) * deltaT);
 	}
 

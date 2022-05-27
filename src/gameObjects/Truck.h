@@ -34,7 +34,8 @@ public:
 		0,             //dynamic friction
 		0.0f,            //bounciness
 		quat(vec3(0,glm::radians(-30.0f),0)),
-        &wheel1
+        &wheel1,
+        0
 	};
 
 	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, 1.335f+spawnTransform.pos.y, -0.0f) ;

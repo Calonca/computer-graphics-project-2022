@@ -67,7 +67,7 @@ struct RigidBody {
 	quat rot;
 
     CollisionObject* co;
-
+    float angularVelocity;
 };
 
 
