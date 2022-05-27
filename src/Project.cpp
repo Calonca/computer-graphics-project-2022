@@ -59,13 +59,12 @@ const std::vector<const char*> deviceExtensions = {
 	const bool enableValidationLayers = true;
 	const bool Verbose = true;
 #endif
-
-std::vector<Model> sceneToLoad = {
-	{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0},
-	{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1},
+    std::map<std::string,Model> sceneToLoad = {
+            {"floor",{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0}},
+            {"walls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
-	{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3},
-	{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}
+            {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3}},
+            //{"pyramid",{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}}
 };
 
 struct SkyBoxModel {
@@ -1983,7 +1982,7 @@ private:
 	}
 
 	void loadModels() {
-		sceneToLoad.insert(sceneToLoad.begin() + 2, truck.modelToLoad[0]);
+		sceneToLoad["truck"]=truck.modelToLoad[0];
 		//std::copy(truck.modelToLoad.begin(), truck.modelToLoad.end(), std::back_inserter(sceneToLoad));
 		//Model m = truck.modelToLoad[0];
 
@@ -1994,7 +1993,7 @@ private:
 
 		i++;
 		for (const auto& M : sceneToLoad) {
-			loadModelWithTexture(M, M.id);
+			loadModelWithTexture(M.second, M.second.id);
 			i++;
 		}
 
@@ -2699,9 +2698,10 @@ private:
 					VK_SUBPASS_CONTENTS_INLINE);
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-					PhongPipeline);					
-			for(int j = 0; j < scene.size(); j++) {
-				if(sceneToLoad[j].pt == Flat) {
+					PhongPipeline);
+            for (const auto& M : sceneToLoad) {
+                int j = M.second.id;
+				if(M.second.pt == Flat) {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -2719,9 +2719,10 @@ private:
 			}
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-					PhongWirePipeline);					
-			for(int j = 0; j < scene.size(); j++) {
-				if(sceneToLoad[j].pt == Wire) {
+					PhongWirePipeline);
+            for (const auto& M : sceneToLoad) {
+                int j = M.second.id;
+                if(M.second.pt == Wire)  {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -3001,16 +3002,17 @@ private:
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
-		for (int j = 0; j < scene.size(); j++) {
-			UniformBufferObject ubo{};
+        for (const auto& model : sceneToLoad) {
+            int j = model.second.id;
+            UniformBufferObject ubo{};
 			glm::vec3 delta;
 
-			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(sceneToLoad[j].scale));
-			if ((j == 1) && xray) {
+			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
+			if (model.first=="walls" && xray) {
 				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
 				//std::cout << "Making invisible object " << j << "\n";
 			}
-			if (j == 2) {
+			if (model.first=="truck") {
 				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.rb.pos),
 					truck.lookYaw, glm::vec3(0, 1, 0));
 				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
@@ -3018,11 +3020,11 @@ private:
 					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
 					glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);
 			}
-			if ((j == 3) && !xray) {
+			if ((model.first=="wallsWire") && !xray) {
 				ubo.mMat = glm::scale(ubo.mMat, glm::vec3(0.0));
 				//std::cout << "Making invisible object " << j << "\n";
 			}
-			if (j == 4) {
+			if (model.first=="pyramid") {
 				const float followerFilterCoeff = 7.5;
 				float alpha = fmin(followerFilterCoeff * deltaT, 1.0);
 				FollowerPos = FollowerPos * (1.0f - alpha) + alpha * FollowerTargetPos;
