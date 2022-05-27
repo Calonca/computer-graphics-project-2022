@@ -15,7 +15,7 @@ public:
     //void makeModels(std::vector<float> M1_vertices, std::vector<uint32_t> M1_indices);
     static std::vector<vec3> tile_pos(float x ,float y,float z);
     // static vec3 normal_triangletile(float x, float y, float z);
-
+    static vec3 normalTriangleTile(float x, float y, float z);
 };
 
 struct TerrainCollider : Collider {
@@ -30,6 +30,7 @@ struct TerrainCollider : Collider {
         float force = 0;
         co->forceAfterCollision = { 0,0,0 };
         co->isColliding = false;
+        co->normal = models::normalTriangleTile(firstPoint.x,firstPoint.y,firstPoint.z);
 
         if (firstPoint.y < triang[3][1]) {
             co->isColliding = true;

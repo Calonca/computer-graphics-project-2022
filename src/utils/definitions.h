@@ -23,13 +23,14 @@ struct Model {
 //Collections of points which collision will be tested
 struct CollisionObject{
 private:
+
     std::vector<vec3> points;//For now contains only one point
     mat4 t;
 public:
     vec3 forceAfterCollision;
     bool isColliding =false;//default
-    CollisionObject(std::vector<vec3> points, const mat4 &t, const vec3 &forceAfterCollision,
-                    bool isColliding);
+    vec3 normal;
+    CollisionObject(std::vector<vec3> points, const mat4 &t, const vec3 &forceAfterCollision, bool isColliding);
 
     vec3 getPoint (unsigned int i){
         if (i<0 || i>=points.size())

@@ -31,3 +31,16 @@ mat4 MatrixUtils::LookAtMat(vec3 Pos, vec3 aim, float Roll) {
     mat4 rollRot = rotate(mat4(1), -Roll, vec3(0, 0, 1));
     return rollRot * viewMat;
 }
+
+mat4 MatrixUtils::LookAtMat(vec3 Pos, vec3 aim, vec3 up) {
+
+    vec3 vz = normalize(Pos - aim);
+    vec3 vx = normalize(cross(up, vz));
+    vec3 vy = cross(vz, vx);
+
+    mat4 camMat = mat4(vec4(vx, 0), vec4(vy, 0), vec4(vz, 0), vec4(Pos, 1));
+    mat4 viewMat = inverse(camMat);
+
+    mat4 rollRot = rotate(mat4(1), 0.0f, vec3(0, 0, 1));
+    return rollRot * viewMat;
+}

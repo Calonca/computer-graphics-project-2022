@@ -154,24 +154,25 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	return v1;
 }
 
+vec3 models::normalTriangleTile(float x, float y, float z) {
+    vec3 normal;
+    vec3 U, V;
+    std::vector<vec3> triangle_vertex = models::tile_pos(x, y, z);
+    U[0] = triangle_vertex[1][0] - triangle_vertex[0][0]; //X difference of P1 and P0
+    U[1] = triangle_vertex[1][1] - triangle_vertex[0][1]; //Y difference of P1 and P0
+    U[2] = triangle_vertex[1][2] - triangle_vertex[0][2]; //Z difference of P1 and P0
 
-vec3 normalTriangleTile(float x, float y, float z) {
-	vec3 normal;
-	vec3 U, V;
-	std::vector<vec3> triangle_vertex = models::tile_pos(x, y, z);
-	U[0] = triangle_vertex[1][0] - triangle_vertex[0][0]; //X difference of P1 and P0
-	U[1] = triangle_vertex[1][1] - triangle_vertex[0][1]; //Y difference of P1 and P0
-	U[2] = triangle_vertex[1][2] - triangle_vertex[0][2]; //Z difference of P1 and P0
 
+    V[0] = triangle_vertex[2][0] - triangle_vertex[0][0]; //X difference of P2 and P0
+    V[1] = triangle_vertex[2][1] - triangle_vertex[0][1]; //Y difference of P2 and P0
+    V[2] = triangle_vertex[2][2] - triangle_vertex[0][2]; //Z difference of P2 and P0
 
-	V[0] = triangle_vertex[2][0] - triangle_vertex[0][0]; //X difference of P2 and P0
-	V[1] = triangle_vertex[2][1] - triangle_vertex[0][1]; //Y difference of P2 and P0
-	V[2] = triangle_vertex[2][2] - triangle_vertex[0][2]; //Z difference of P2 and P0
+    normal[0] = U[1] * V[2] - U[2] * V[1];
+    normal[1] = U[2] * V[0] - U[0] * V[2];
+    normal[2] = U[0] * V[1] - U[1] * V[0];
+    vec3 norm = normalize(normal);
 
-	normal[0] = U[1] * V[2] - U[2] * V[1];
-	normal[1] = U[2] * V[0] - U[0] * V[2];
-	normal[2] = U[0] * V[1] - U[1] * V[0];
-	vec3 norm = normalize(normal);
-
-	return norm;
+    return norm;
 }
+
+

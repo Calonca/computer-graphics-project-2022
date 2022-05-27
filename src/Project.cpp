@@ -2985,7 +2985,8 @@ private:
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
 
 			if (model.first=="truck") {
-				glm::mat4 RobWM = truck.rb.transform;
+				glm::mat4 RobWM = glm::translate(mat4(1),vec3(truck.rb.transform[3]))*
+                    glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0));
 				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
 					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *

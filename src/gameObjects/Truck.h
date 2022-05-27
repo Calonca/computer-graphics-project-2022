@@ -36,7 +36,7 @@ public:
         0
 	};
 
-	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, 2+1.335f, -0.0f) ;
+	glm::vec3 RobotCamDeltaPos = glm::vec3(0.0f, transfrom[3].y+1.335f, -0.0f) ;
 	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f+transfrom[3].y, 0.0f) ;
 	float followerDist = 1.8;
 	float lookYaw = 0.0;

@@ -28,6 +28,8 @@ public:
     static std::string printVector(vec3 v) {
         return "x: "+std::to_string(v.x)+", y: "+std::to_string(v.y)+", z: "+std::to_string(v.z);
     };
+
+    static mat4 LookAtMat(vec3 Pos, vec3 aim, vec3 up);
 };
 
 

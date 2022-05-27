@@ -47,7 +47,34 @@ void PhysicsEngine::SolveCollisions(float dt) {
             collisionObject->setTransform(rb);
             //PlaneCollider* pl = dynamic_cast<PlaneCollider*>(collider);
             collider->testCollision(collisionObject);
+            //Follow orientation
+
+            vec4 forwardDir = rotate(mat4(1), radians(-90.0f),vec3(1,0,0))
+                    *
+                     vec4(collisionObject->normal,1);
+
+            vec3 pos = rb->transform[3];
+            mat4 rotMat = translate(rb->transform,-pos);
+            vec3 norm2 = rotMat*vec4(collisionObject->normal,1);//Normal in car reference system
+
+            glm::vec3 upVec(0, 1, 0);
+
+            vec3 oldUp = normalize(vec3(rotMat* vec4(0,1,0,1)));
+            vec3 axis = cross(oldUp, norm2);
+            float angle = acos( dot(oldUp, norm2) );
+
+
+            float xRot = 20.0f;
+
+            //rb->transform = translate(mat4(1),pos)*
+            //      MatrixUtils::LookAtMat(vec3(0,0,0),vec3(forwardDir),collisionObject->normal);
+            vec3 euler = eulerAngles(quat_cast(rotMat));
+
+            //rb->transform = rotate(rb->transform,radians(xRot)-euler.x,vec3(1,0,0));
+
             if (collisionObject->isColliding) {
+                //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
+                rb->force +=  collisionObject->forceAfterCollision*rb->mass*50000.0f*dt;
 
                 glm::vec3 aVel = rb->velocity;
                 glm::vec3 bVel = glm::vec3(0.0f);
@@ -111,7 +138,6 @@ void PhysicsEngine::SolveCollisions(float dt) {
                     bBody->Velocity = bVel + friction * bInvMass;
                 }
                 */
-                rb->force +=  collisionObject->forceAfterCollision*rb->mass*1000.0f*dt;
 
                 //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;
             }
@@ -143,8 +169,8 @@ void PhysicsEngine::ApplyForces(float dt) {
         //vec3 fwd = mat4(rb->rot) * glm::vec4(0, 0, -1, 1);
         //std::cout<<"Resulting force: "<< MatrixUtils::printVector(rb->force)<< std::endl;
         rb->velocity += (rb->force / rb->mass) * dt;
-        rb->velocity = rotate(mat4(1),rb->angularVelocity,vec3(0,1,0))*vec4(rb->velocity,1);
 
+        rb->velocity = rotate(mat4(1),rb->angularVelocity,vec3(0,1,0))*vec4(rb->velocity,1);
         rb->transform = rotate(rb->transform,rb->angularVelocity,vec3(0,1,0));
 
         rb->transform =
