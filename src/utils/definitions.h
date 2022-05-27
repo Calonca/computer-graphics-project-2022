@@ -19,22 +19,16 @@ struct Model {
 	int id;
 };
 
-struct Transform { //Describes an object location
-    vec3 pos;
-    float Scale;
-    quat rot;
-};
-
 
 //Collections of points which collision will be tested
 struct CollisionObject{
 private:
     std::vector<vec3> points;//For now contains only one point
-    Transform t;
+    mat4 t;
 public:
     vec3 forceAfterCollision;
     bool isColliding =false;//default
-    CollisionObject(std::vector<vec3> points, const Transform &t, const vec3 &forceAfterCollision,
+    CollisionObject(std::vector<vec3> points, const mat4 &t, const vec3 &forceAfterCollision,
                     bool isColliding);
 
     vec3 getPoint (unsigned int i){
@@ -43,7 +37,7 @@ public:
             std::cout<<"Collision points do not contain the following index: "
             <<i<<"\nThe maximum allowed value is :"<<points.size()-1<<std::endl;
         }
-        return points[i]+t.pos;
+        return points[i]+vec3(t[3]);
     }
     void setTransform(RigidBody* r);
 };
@@ -53,7 +47,7 @@ public:
 /// Component used ot hold physics values for entities
 /// </summary>
 struct RigidBody {
-	vec3 pos;
+    mat4 transform;
 	vec3 force;
 	vec3 velocity;
 	float mass;//Mass in kg
@@ -64,7 +58,6 @@ struct RigidBody {
 	float staticFriction;
 	float dynamicFriction;
 	float bounciness;
-	quat rot;
 
     CollisionObject* co;
     float angularVelocity;

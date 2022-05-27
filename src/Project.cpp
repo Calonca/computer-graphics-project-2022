@@ -2923,7 +2923,7 @@ private:
 			}
 		}
 
-		vec3 oldPos = truck.rb.pos;
+		//mat4 oldTransform = truck.rb.transform;
 
         truck.UpdatePos(window, deltaT);
 
@@ -2948,7 +2948,7 @@ private:
 
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = truck.rb.pos;
+		static glm::vec3 FollowerPos = truck.rb.transform[3];
 
 		switch (currentView) {
 		case 0:
@@ -2960,7 +2960,7 @@ private:
 				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = MatrixUtils::LookInDirMat(truck.rb.pos + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
+				CamMat = MatrixUtils::LookInDirMat(vec3(truck.rb.transform[3]) + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
 			}
 			break;
 		case 1:
@@ -2971,7 +2971,7 @@ private:
 			{
 				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
-				CamMat = MatrixUtils::LookAtMat(FollowerPos, truck.rb.pos + RFDT, truck.lookRoll);
+				CamMat = MatrixUtils::LookAtMat(FollowerPos, vec3(truck.rb.transform[3]) + RFDT, truck.lookRoll);
 			}
 			break;
 		}
@@ -2985,15 +2985,12 @@ private:
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
 
 			if (model.first=="truck") {
-				glm::mat4 RobWM = glm::rotate(glm::translate(glm::mat4(1), truck.rb.pos),
-					truck.lookYaw, glm::vec3(0, 1, 0));
+				glm::mat4 RobWM = truck.rb.transform;
 				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
 					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
 					glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);
 			}
-
-			float rotAng = 0.0f;
 
 			ubo.mvpMat = Prj * CamMat * ubo.mMat;
 			ubo.nMat = glm::inverse(glm::transpose(ubo.mMat));
