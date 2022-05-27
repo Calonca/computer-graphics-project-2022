@@ -12,7 +12,10 @@
 class models
 {
 public:
+    //void makeModels(std::vector<float> M1_vertices, std::vector<uint32_t> M1_indices);
     static std::vector<vec3> tile_pos(float x ,float y,float z);
+    // static vec3 normal_triangletile(float x, float y, float z);
+
 };
 
 struct TerrainCollider : Collider {
@@ -23,6 +26,7 @@ struct TerrainCollider : Collider {
         vec3 firstPoint = co->getPoint(0);
         //std::cout<<"First point position: "<< MatrixUtils::printVector(firstPoint)<< std::endl;
         std::vector<vec3> triang = models::tile_pos(firstPoint.x,firstPoint.y,firstPoint.z);
+        //models::normal_triangletile(firstPoint.x, firstPoint.y, firstPoint.z);
         float force = 0;
         co->forceAfterCollision = { 0,0,0 };
         co->isColliding = false;
@@ -39,5 +43,7 @@ struct TerrainCollider : Collider {
 
     }
 };
+
+
 
 #endif //CGPROJECT_MODELS_H

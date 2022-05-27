@@ -1,3 +1,5 @@
+#pragma once
+
 #include "PerlinNoise.h"
 #include "models.h"
 
@@ -8,7 +10,7 @@ int tile = 200;        // No of square tiles row wise(or column). Used to form t
 int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
 
 //Create Terrain with perlin noise
-void makeModels() {
+void  makeModels() {
 
 	
 	
@@ -64,7 +66,15 @@ void makeModels() {
 	}
 }
 
+
+
 std::vector<vec3> models::tile_pos(float x ,float y,float z) {
+	if (x<M1_vertices[0] || x>M1_vertices[M1_vertices.size() - 3] || z < M1_vertices[2] || z > M1_vertices[M1_vertices.size() - 1]) {
+		return { { 0,0,0},{0,0,0},{0,0,0},{10,-std::numeric_limits<float>::infinity(),-10} };
+
+
+	}
+
 	int pos_index[6]; // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
 	int xx =floor( x / tile_len);
 	int zz = floor(z / tile_len);
@@ -144,3 +154,24 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	return v1;
 }
 
+
+vec3 normal_triangletile(float x, float y, float z) {
+	vec3 normal;
+	vec3 U, V;
+	std::vector<vec3> triangle_vertex = models::tile_pos(x, y, z);
+	U[0] = triangle_vertex[1][0] - triangle_vertex[0][0]; //X difference of P1 and P0
+	U[1] = triangle_vertex[1][1] - triangle_vertex[0][1]; //Y difference of P1 and P0
+	U[2] = triangle_vertex[1][2] - triangle_vertex[0][2]; //Z difference of P1 and P0
+
+
+	V[0] = triangle_vertex[2][0] - triangle_vertex[0][0]; //X difference of P2 and P0
+	V[1] = triangle_vertex[2][1] - triangle_vertex[0][1]; //Y difference of P2 and P0
+	V[2] = triangle_vertex[2][2] - triangle_vertex[0][2]; //Z difference of P2 and P0
+
+	normal[0] = U[1] * V[2] - U[2] * V[1];
+	normal[1] = U[2] * V[0] - U[0] * V[2];
+	normal[2] = U[0] * V[1] - U[1] * V[0];
+	vec3 norm = normalize(normal);
+
+	return norm;
+}

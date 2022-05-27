@@ -2149,6 +2149,7 @@ private:
                       << ", I: " << MD.indices.size() << "\n";
 
 			
+			
 		}
     }
         void createTextMesh(ModelData &MD, VertexDescriptor &VD) {

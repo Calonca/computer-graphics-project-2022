@@ -3,6 +3,7 @@
 #include "glm/gtc/quaternion.hpp"
 
 
+
 void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 {
 	rb.force = vec3(0, 0, 0);
