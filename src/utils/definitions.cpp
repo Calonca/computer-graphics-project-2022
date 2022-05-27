@@ -1,12 +1,12 @@
 #include "definitions.h"
 
 void CollisionObject::setTransform(RigidBody *r) {
-    t.pos = r->pos;
+    t = r->transform;
 }
 
 CollisionObject::CollisionObject(
         std::vector<vec3> points,
-        const Transform &t,
+        const mat4 &t,
         const vec3 &forceAfterCollision,
         bool isColliding)
         :
