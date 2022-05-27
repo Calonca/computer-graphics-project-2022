@@ -60,7 +60,7 @@ const std::vector<const char*> deviceExtensions = {
 	const bool Verbose = true;
 #endif
     std::map<std::string,Model> sceneToLoad = {
-            {"floor",{"floor.obj", "MapSciFi1024.png", {0,0,0}, 1, Flat,0}},
+            {"floor",{"floor.obj", "grass.jpg", {0,0,0}, 1, Flat,0}},//MapSciFi1024
             {"walls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
             {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3}},
@@ -2079,8 +2079,8 @@ private:
                 vertexToCopy[VD.deltaNormal + 1] = 0;
                 vertexToCopy[VD.deltaNormal + 2] = 0;
 
-                vertexToCopy[VD.deltaTexCoord + 0] = 0;
-                vertexToCopy[VD.deltaTexCoord + 1] = 0;
+                vertexToCopy[VD.deltaTexCoord + 0] = 100;
+                vertexToCopy[VD.deltaTexCoord + 1] = 100;
 
 
 
