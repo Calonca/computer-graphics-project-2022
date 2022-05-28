@@ -27,7 +27,7 @@ void  makeModels() {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
-			e = (pn.noise(xoff, yoff, xoff + yoff) + 2.8 * pn.noise(0.4 * xoff, 0.4 * yoff, xoff + yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
+			e = (pn.noise(0.05*xoff, 0.05*yoff,0) + 3.8 * pn.noise(0.001 * yoff, 0.001 * xoff,0));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
 			terrain[c] = pow(e, 1.2);
 			xoff += 0.15;
 			c++;

@@ -138,6 +138,10 @@ void PhysicsEngine::SolveCollisions(float dt) {
                     bBody->Velocity = bVel + friction * bInvMass;
                 }
                 */
+<<<<<<< Updated upstream
+=======
+                rb->force +=  collisionObject->forceAfterCollision*rb->mass*410.0f*dt;
+>>>>>>> Stashed changes
 
                 //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;
             }
