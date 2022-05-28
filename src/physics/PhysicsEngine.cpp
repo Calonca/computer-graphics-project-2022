@@ -74,7 +74,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
             if (collisionObject->isColliding) {
                 //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                rb->force +=  collisionObject->forceAfterCollision*rb->mass*50000.0f*dt;
+                rb->force += collisionObject->forceAfterCollision*rb->mass*10000.0f*dt;
 
                 glm::vec3 aVel = rb->velocity;
                 glm::vec3 bVel = glm::vec3(0.0f);
