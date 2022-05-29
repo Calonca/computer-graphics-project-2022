@@ -2147,8 +2147,6 @@ private:
 
             std::cout << FName << " -> V: " << MD.vertices.size()
                       << ", I: " << MD.indices.size() << "\n";
-
-			
 			
 		}
     }

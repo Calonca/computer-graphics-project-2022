@@ -24,7 +24,7 @@ void  makeModels() {
 	float yoff = 0;
 	int c = 0;
 
-	for (int a = 0; a < tile + 1; a++) {
+	/*for (int a = 0; a < tile + 1; a++) {
 		float xoff = 0;
 
 		for (int b = 0; b < tile + 1; b++) {
@@ -34,14 +34,16 @@ void  makeModels() {
 		}
 
 		yoff += 0.15;
-	}
+	}*/
 
 	for (int i = 0; i < tiles; i++) {
 
 		M1_vertices[i * 3 + 0] =startx+ (i / (tile + 1)) * tile_len; // x of the vertex 0,0,0  (i/(tile+1))*tile_len
-		M1_vertices[i * 3 + 1] =  terrain[i]; // y of the vertex 0
+		M1_vertices[i * 3 + 2] = startz + (i % (tile + 1)) * tile_len;// z of the vertex 0,1,2
+		
+		M1_vertices[i * 3 + 1] =  (float)getHeight(pn, M1_vertices[i * 3 + 0], M1_vertices[i * 3 + 2]); // y of the vertex 0
 		//std::cout << " val noise " << terrain[i];
-		M1_vertices[i * 3 + 2] = startz+(i % (tile + 1)) * tile_len;;// z of the vertex 0,1,2
+		
 
 	}
 
@@ -67,7 +69,9 @@ void  makeModels() {
 }
 
 double getHeight(PerlinNoise &pn, float xoff, float yoff) {
-    double e = (pn.noise(xoff, 0, yoff) + 1.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
+	xoff *= 0.15;
+	yoff *= 0.15;
+    double e = (pn.noise(xoff, 0, yoff) + 2.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
     return pow(e, 1.2);
 }
 
@@ -77,19 +81,54 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 		return { { 0,0,0},{0,0,0},{0,0,0},{10,-std::numeric_limits<float>::infinity(),-10} };
 
 	}
+	 // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
+	float xx =floor( x );
+	float zz = floor(z );
+	vec3 p1,p2,p3;
+	
+	float t1[9] = { xx,getHeight(pn,xx,zz),zz,
+		xx,getHeight(pn,xx,zz+1),zz+1,
+		xx+1,getHeight(pn,xx+1,zz),zz
+	};
 
-	int pos_index[6]; // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
-	float xx =floor( x / tile_len)*tile_len;
-	float zz = floor(z / tile_len)*tile_len;
+	float t2[9] = { xx+1,getHeight(pn,xx+1,zz),zz,
+		xx,getHeight(pn,xx,zz + 1),zz + 1,
+		xx + 1,getHeight(pn,xx + 1,zz+1),zz+1
+	};
+	
 
-    float elevation = getHeight(pn,xx,zz);
     //std::cout<<elevation<<std::endl;
-    return {
-            {xx, getHeight(pn,xx,zz),zz},
-            {xx, getHeight(pn,xx,zz+tile_len),zz+tile_len},
-            {0,0,0},
-            {xx+tile_len, elevation,zz+tile_len}
-    };
+	float close1 = pow((pow(x - t1[0], 2) + pow(y - t1[1], 2) + pow(z - t1[2], 2)), 0.5);
+	float close2 = pow((pow(x - t2[6], 2) + pow(y - t2[7], 2) + pow(z - t2[8], 2)), 0.5);
+
+	if (close1 > close2) {
+		p1 = { t1[0],t1[1],t1[2] };
+		p2 = { t1[3],t1[4],t1[5] };
+		p3 = { t1[6],t1[7],t1[8] };
+	    
+
+		vec3 v0 = p1 - p2, v1 = p1 - p3;
+		vec3 nor = cross(v0, v1); //A,B,C
+		float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
+		float yy = (con- nor[0] *x - nor[2] * z ) / nor[1];
+
+		//std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
+		return { p1,p2,p3,{ 0,yy,0}};
+	}
+
+	
+	p1 = { t2[0],t2[1],t2[2] };
+	p2 = { t2[3],t2[4],t2[5] };
+	p3 = { t2[6],t2[7],t2[8] };
+
+	vec3 v0 = p1 - p2, v1 = p1 - p3;
+	vec3 nor = cross(v0, v1); //A,B,C
+	float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
+	float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
+
+	//std::cout << " y" << yy << " \t orig2 y" << t2[1]<<std::endl;
+	return { p1,p2,p3,{ 0,yy,0} };
+
 }
 
 vec3 models::normalTriangleTile(float x, float y, float z) {
