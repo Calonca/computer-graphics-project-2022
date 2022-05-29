@@ -7,7 +7,7 @@
 #include "glm/gtc/quaternion.hpp"
 using namespace glm;
 
-enum PipelineType { Flat, Wire };
+enum PipelineType { Flat, Terrain };
 struct RigidBody;
 
 struct Model {

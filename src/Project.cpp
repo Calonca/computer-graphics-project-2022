@@ -60,10 +60,10 @@ const std::vector<const char*> deviceExtensions = {
 	const bool Verbose = true;
 #endif
     std::map<std::string,Model> sceneToLoad = {
-            {"floor",{"floor.obj", "grass.jpg", {0,0,0}, 1, Flat,0}},//MapSciFi1024
+            {"terrain",{"floor.obj", "grass.jpg", {0,0,0}, 1, Terrain,0}},//MapSciFi1024
             {"walls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
-            {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Wire,3}},
+            {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,3}},
             //{"pyramid",{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}}
 };
 
@@ -284,13 +284,15 @@ std::vector<FontDef> Fonts = {{73,{{0,0,0,0,0,0,21},{116,331,18,61,4,4,21},{379,
 {902,121,10,7,-3,-1,6},{842,0,15,14,-3,2,9},{842,111,14,17,-2,-1,9},{858,123,14,14,-3,2,8},{842,129,14,17,-3,-1,9},{873,0,14,14,-3,2,9},{888,138,10,16,-3,-1,5},{858,0,14,17,-3,2,9},{888,0,13,16,-2,-1,9},{914,0,8,16,-2,-1,4},{807,134,10,20,-4,-1,4},{888,17,13,16,-2,-1,8},{914,17,8,16,-2,-1,4},{768,89,18,13,-2,2,14},{873,141,13,13,-2,2,9},{873,15,14,14,-3,2,9},{858,18,14,17,-2,2,9},{858,36,14,17,-3,2,9},{902,107,10,13,-2,2,6},{873,30,14,14,-3,2,8},{902,90,10,16,-3,0,5},{888,51,13,14,-2,2,9},{873,45,14,13,-3,2,8},{789,85,17,13,-3,2,12},{873,59,14,13,-3,2,8},{858,54,14,17,-3,2,8},{873,73,14,13,-3,2,8},{888,79,12,20,-4,-1,6},{914,85,8,16,-2,-1,5},{888,100,12,20,-3,-1,6},{825,15,16,8,-3,5,10},{873,112,14,10,-2,4,10}}}};
 
 
-// Questi dovrebbero essere definibili a piacimento e nel modo piu' semplice possibile,
-// traferirsi nello shader
+//Contains variables that are transfered to the shaders
 struct UniformBufferObject {
 	alignas(16) glm::mat4 mvpMat;
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
+    alignas(16) float height[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
+    vec2 translation;//Terrain translation
 };
+
 
 struct GlobalUniformBufferObject {
 	alignas(16) glm::vec3 lightDir;
@@ -448,9 +450,9 @@ private:
 	// Phong pipeline
  	VkDescriptorSetLayout PhongDescriptorSetLayout;
   	VkPipelineLayout PhongPipelineLayout;
-  	VkPipelineLayout PhongWirePipelineLayout;
+  	VkPipelineLayout TerrainPipelineLayout;
 	VkPipeline PhongPipeline;
-	VkPipeline PhongWirePipeline;
+	VkPipeline TerrainPipeline;
 	//// For the first uniform (per object)
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
@@ -1224,6 +1226,7 @@ private:
 
  	void createPipelines() {
  		createPhongPipeline();
+        createTerrainPipeline();
  		createSkyBoxPipeline();
  		createTextPipeline();
  	}
@@ -1233,11 +1236,13 @@ private:
  					    PhongPipelineLayout, PhongPipeline,
  					    PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL,
  					    1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
- 		createPipeline("PhongVert.spv", "PhongFrag.spv",
- 					    PhongWirePipelineLayout, PhongWirePipeline,
- 					    PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_LINE,
- 					    1.0, VK_CULL_MODE_NONE, false, phongAndSkyBoxVertices);				    
  	}
+    void createTerrainPipeline(){
+        createPipeline("TerrainVert.spv", "TerrainFrag.spv",
+                       TerrainPipelineLayout, TerrainPipeline,
+                       PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL,
+                       1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
+    }
 
  	void createSkyBoxPipeline() {
  		createPipeline("SkyBoxVert.spv", "SkyBoxFrag.spv",
@@ -2716,10 +2721,10 @@ private:
 			}
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-					PhongWirePipeline);
+                              TerrainPipeline);
             for (const auto& M : sceneToLoad) {
                 int j = M.second.id;
-                if(M.second.pt == Wire)  {
+                if(M.second.pt == Terrain)  {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -2982,6 +2987,15 @@ private:
 
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
 
+            if (model.first=="terrain"){
+                for(int i=0;i<TILE_NUMBER;i++) {
+                    for(int j=0;j<TILE_NUMBER;j++) {
+                        ubo.height[i][j]= (j>100)?4:0;
+                    }
+                }
+                ubo.translation = vec2(0,0);
+            }
+
 			if (model.first=="truck") {
 				glm::mat4 RobWM = glm::translate(mat4(1),vec3(truck.rb.transform[3]))*
                     glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0));
@@ -3070,9 +3084,9 @@ private:
 				static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
 		vkDestroyPipeline(device, PhongPipeline, nullptr);
-		vkDestroyPipeline(device, PhongWirePipeline, nullptr);
+		vkDestroyPipeline(device, TerrainPipeline, nullptr);
 		vkDestroyPipelineLayout(device, PhongPipelineLayout, nullptr);
-		vkDestroyPipelineLayout(device, PhongWirePipelineLayout, nullptr);
+		vkDestroyPipelineLayout(device, TerrainPipelineLayout, nullptr);
 
 		vkDestroyPipeline(device, SkyBoxPipeline, nullptr);
 		vkDestroyPipelineLayout(device, SkyBoxPipelineLayout, nullptr);
