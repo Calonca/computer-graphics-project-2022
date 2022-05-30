@@ -9,8 +9,8 @@ float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable work
 int tile = TILE_NUMBER;        // No of square tiles row wise(or column). Used to form the terrain
 int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
 
-double getHeight(PerlinNoise &pn, float xoff, float yoff);
-
+float getHeight(PerlinNoise &pn, float xoff, float yoff);
+float interpolate_y(float x, float z, float close1, float close2, float* t1, float* t2);
 static PerlinNoise pn;
 
 //Create Terrain with perlin noise
@@ -68,11 +68,11 @@ void  makeModels() {
 	}
 }
 
-double getHeight(PerlinNoise &pn, float xoff, float yoff) {
+float getHeight(PerlinNoise &pn, float xoff, float yoff) {
 	xoff *= 0.15;
 	yoff *= 0.15;
-    double e = (pn.noise(xoff, 0, yoff) + 2.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
-    return pow(e, 1.2);
+    float e = (float)(pn.noise(xoff, 0, yoff) + 2.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
+    return pow(e, 1.55);
 }
 
 
@@ -84,7 +84,6 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	 // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
 	float xx =floor( x );
 	float zz = floor(z );
-	vec3 p1,p2,p3;
 	
 	float t1[9] = { xx,getHeight(pn,xx,zz),zz,
 		xx,getHeight(pn,xx,zz+1),zz+1,
@@ -100,23 +99,31 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
     //std::cout<<elevation<<std::endl;
 	float close1 = pow((pow(x - t1[0], 2) + pow(y - t1[1], 2) + pow(z - t1[2], 2)), 0.5);
 	float close2 = pow((pow(x - t2[6], 2) + pow(y - t2[7], 2) + pow(z - t2[8], 2)), 0.5);
+	float yy = interpolate_y(x,z,close1, close2, t1,t2);
+	return { { 0,0,0},{0,0,0},{0,0,0},{0,yy,0} };
+}
+
+
+float interpolate_y(float x,float z,float close1, float close2, float *t1, float *t2) {
+	vec3 p1, p2, p3;
+
 
 	if (close1 > close2) {
 		p1 = { t1[0],t1[1],t1[2] };
 		p2 = { t1[3],t1[4],t1[5] };
 		p3 = { t1[6],t1[7],t1[8] };
-	    
+
 
 		vec3 v0 = p1 - p2, v1 = p1 - p3;
 		vec3 nor = cross(v0, v1); //A,B,C
 		float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
-		float yy = (con- nor[0] *x - nor[2] * z ) / nor[1];
+		float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
 
-		//std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
-		return { p1,p2,p3,{ 0,yy,0}};
+		std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
+		return yy;
 	}
 
-	
+
 	p1 = { t2[0],t2[1],t2[2] };
 	p2 = { t2[3],t2[4],t2[5] };
 	p3 = { t2[6],t2[7],t2[8] };
@@ -126,11 +133,10 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
 	float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
 
-	//std::cout << " y" << yy << " \t orig2 y" << t2[1]<<std::endl;
-	return { p1,p2,p3,{ 0,yy,0} };
+	std::cout << " y" << yy << " \t orig2 y" << t2[1]<<std::endl;
+	return  yy;
 
 }
-
 vec3 models::normalTriangleTile(float x, float y, float z) {
     vec3 normal;
     vec3 U, V;

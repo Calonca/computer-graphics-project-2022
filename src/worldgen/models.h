@@ -16,6 +16,7 @@ public:
     static std::vector<vec3> tile_pos(float x ,float y,float z);
     // static vec3 normal_triangletile(float x, float y, float z);
     static vec3 normalTriangleTile(float x, float y, float z);
+    //static vec3 interpolate(float close1, float close2,);
 };
 
 struct TerrainCollider : Collider {
