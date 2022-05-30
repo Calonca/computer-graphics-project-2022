@@ -63,8 +63,6 @@ void  makeModels() {
 		M1_indices[i * 6 + 5] = j + (i + tile + 2);
 
 
-
-
 	}
 }
 
