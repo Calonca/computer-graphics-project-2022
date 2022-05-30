@@ -289,8 +289,8 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 mvpMat;
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
-    alignas(16) float height[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
     alignas(16) vec2 translation;//Terrain translation
+    alignas(16) float height[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
 };
 
 
@@ -2989,12 +2989,17 @@ private:
 
 
             if (model.first=="terrain"){
+                const float tilesize = 1.0f;
+                int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
+                int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
+
+                ubo.translation = vec2(truckPosX-TILE_NUMBER/2, truckPosZ-TILE_NUMBER/2);//vec3(0,0,0);//truck.rb.transform[3];
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.height[j][i]= getHeight(pn,i,j);
+                        ubo.height[i][j]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
                     }
                 }
-                ubo.translation = vec3(0,0,0);//truck.rb.transform[3];
+
                 static float updateTime;
                 static vec3 tuckPos;
                 if (time - updateTime > 5.0f) {//Sets it to true each 5 second
