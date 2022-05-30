@@ -2990,7 +2990,7 @@ private:
             if (model.first=="terrain"){
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.height[i][j]= (j>100)?4:0;
+                        ubo.height[j][i]= getHeight(pn,i,j);
                     }
                 }
                 ubo.translation = vec2(0,0);

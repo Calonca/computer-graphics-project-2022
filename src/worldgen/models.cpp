@@ -119,7 +119,7 @@ float interpolate_y(float x,float z,float close1, float close2, float *t1, float
 		float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
 		float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
 
-		std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
+	//	std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
 		return yy;
 	}
 
@@ -133,7 +133,7 @@ float interpolate_y(float x,float z,float close1, float close2, float *t1, float
 	float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
 	float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
 
-	std::cout << " y" << yy << " \t orig2 y" << t2[1]<<std::endl;
+	//std::cout << " y" << yy << " \t orig2 y" << t2[1]<<std::endl;
 	return  yy;
 
 }
