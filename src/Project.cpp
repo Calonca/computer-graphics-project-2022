@@ -290,7 +290,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
     alignas(16) vec2 translation;//Terrain translation
-    alignas(16) float height[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
+    alignas(16) float tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
 };
 
 
@@ -2389,6 +2389,7 @@ private:
 
         void createUniformBuffers() {
             VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+            //std::cout<<"Size of buffer: "<<sizeof(float[1][1]);
 
             uniformBuffers.resize(swapChainImages.size() * scene.size());
             uniformBuffersMemory.resize(swapChainImages.size() * scene.size());
@@ -2946,7 +2947,7 @@ private:
 
 		glm::mat4 Prj = glm::perspective(glm::radians(90.0f),
 			swapChainExtent.width / (float)swapChainExtent.height,
-			0.1f, 50.0f);
+			0.1f, 150.0f);
 		Prj[1][1] *= -1;
 
 		glm::vec3 EyePos;
@@ -2993,18 +2994,18 @@ private:
                 int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
                 int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
 
-                ubo.translation = vec2(truckPosX-TILE_NUMBER/2, truckPosZ-TILE_NUMBER/2);//vec3(0,0,0);//truck.rb.transform[3];
+                static float updateTime;
+                static vec2 sTranslation;
+                if (time - updateTime > 0.0f) {//Sets it to true each 5 second
+                    sTranslation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
+                    updateTime = time;
+                }
+                ubo.translation = sTranslation;
+
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.height[j][i]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
+                        ubo.tHeight[i][j]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
                     }
-                }
-
-                static float updateTime;
-                static vec3 tuckPos;
-                if (time - updateTime > 5.0f) {//Sets it to true each 5 second
-
-                    updateTime = time;
                 }
             }
 

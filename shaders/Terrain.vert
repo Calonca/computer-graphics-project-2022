@@ -28,7 +28,6 @@ void main() {
 	vec4 translatedPos = vec4(translatedXZ.x,ubo.height[xTile][zTile],translatedXZ.y, 1.0);
 
 	gl_Position = ubo.mvpMat * translatedPos;
-	//gl_Position = ubo.mvpMat * vec4(inPosition, 1.0);
 	fragPos = (ubo.mMat * translatedPos).xyz;
 	fragNorm = mat3(ubo.nMat) * inNormal;
 	fragTexCoord = inTexCoord;
