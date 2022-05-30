@@ -75,10 +75,7 @@ float getHeight(PerlinNoise &pn, float xoff, float yoff) {
 
 
 std::vector<vec3> models::tile_pos(float x ,float y,float z) {
-	if (x<M1_vertices[0] || x>M1_vertices[M1_vertices.size() - 3] || z < M1_vertices[2] || z > M1_vertices[M1_vertices.size() - 1]) {
-		return { { 0,0,0},{0,0,0},{0,0,0},{10,-std::numeric_limits<float>::infinity(),-10} };
 
-	}
 	 // index containing the 2 traingles(forming square tile) corrsponding to point in 3d
 	float xx =floor( x );
 	float zz = floor(z );
