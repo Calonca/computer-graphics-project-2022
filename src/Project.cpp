@@ -72,7 +72,7 @@ struct SkyBoxModel {
 	const char *TextureFile[6];
 };
 
-const SkyBoxModel SkyBoxToLoad = {"SkyBoxCube.obj", {"sky/bkg1_right.png", "sky/bkg1_left.png", "sky/bkg1_top.png", "sky/bkg1_bot.png", "sky/bkg1_front.png", "sky/bkg1_back.png"}};
+const SkyBoxModel SkyBoxToLoad = {"SkyBoxCube.obj", {"sky/sky_sides.png", "sky/sky_sides.png", "sky/sky_top.png", "sky/sky_bottom.png", "sky/sky_sides.png", "sky/sky_sides.png"}};
 
 struct SingleText {
 	int usedLines;
@@ -2996,7 +2996,7 @@ private:
                 ubo.translation = vec2(truckPosX-TILE_NUMBER/2, truckPosZ-TILE_NUMBER/2);//vec3(0,0,0);//truck.rb.transform[3];
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.height[i][j]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
+                        ubo.height[j][i]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
                     }
                 }
 
