@@ -1,8 +1,11 @@
-/usr/local/bin/glslc PhongShader.vert -o PhongVert.spv
-/usr/local/bin/glslc PhongShader.frag -o PhongFrag.spv
-/usr/local/bin/glslc SkyBoxShader.vert -o SkyBoxVert.spv
-/usr/local/bin/glslc SkyBoxShader.frag -o SkyBoxFrag.spv
-/usr/local/bin/glslc TextShader.vert -o TextVert.spv
-/usr/local/bin/glslc TextShader.frag -o TextFrag.spv
-/usr/local/bin/glslc Terrain.frag -o TerrainFrag.spv
-/usr/local/bin/glslc Terrain.vert -o TerrainVert.spv
+LOC="/usr/local/bin/glslc"
+LOC="glslc"
+
+$LOC PhongShader.vert -o PhongVert.spv
+$LOC PhongShader.frag -o PhongFrag.spv
+$LOC SkyBoxShader.vert -o SkyBoxVert.spv
+$LOC SkyBoxShader.frag -o SkyBoxFrag.spv
+$LOC TextShader.vert -o TextVert.spv
+$LOC TextShader.frag -o TextFrag.spv
+$LOC Terrain.frag -o TerrainFrag.spv
+$LOC Terrain.vert -o TerrainVert.spv
