@@ -12,7 +12,7 @@ class Truck// It is an entity
 public:
 
     mat4 transfrom =
-            translate(mat4(1),vec3(0,2,0));//*
+            translate(mat4(1),vec3(0,20,0));//*
             //mat4(quat(vec3(0,glm::radians(-30.0f),0)));
     CollisionObject wheel1 = {
             {vec3(0,0,0)+vec3(transfrom[3])},
