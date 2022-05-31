@@ -8,7 +8,7 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 mMat;
 	mat4 nMat;//Transform the normals in world postion
 	vec2 translation; //Translation of the terrain on x,z
-	float height[TILE][TILE];//Used for the terrain, x,z
+	vec4 height[TILE][TILE];//Used for the terrain, x,z
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -20,12 +20,12 @@ layout(location = 1) out vec3 fragNorm;
 layout(location = 2) out vec2 fragTexCoord;
 
 void main() {
-	int xTile = int(inPosition.x)/4;
-	int zTile = int(inPosition.z)/4;
+	int xTile = int(inPosition.x);
+	int zTile = int(inPosition.z);
 	//int xTileTranslation = int((translation.x/TILESIZE)/4);
 	//int zTileTranslation = int((translation.x/TILESIZE)/4);
 	vec2 translatedXZ = vec2(inPosition.x,inPosition.z)+ubo.translation;
-	vec4 translatedPos = vec4(translatedXZ.x,ubo.height[xTile][zTile],translatedXZ.y, 1.0);
+	vec4 translatedPos = vec4(translatedXZ.x,ubo.height[xTile][zTile].x,translatedXZ.y, 1.0);
 
 	gl_Position = ubo.mvpMat * translatedPos;
 	fragPos = (ubo.mMat * translatedPos).xyz;

@@ -290,7 +290,8 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
     alignas(16) vec2 translation;//Terrain translation
-    alignas(16) float tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
+    alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
+    alignas(16) float padding;
 };
 
 
@@ -3004,7 +3005,8 @@ private:
 
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.tHeight[i][j]= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
+                        ubo.tHeight[i][j].x= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
+
                     }
                 }
             }
