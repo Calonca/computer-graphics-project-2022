@@ -72,7 +72,7 @@ struct SkyBoxModel {
 	const char *TextureFile[6];
 };
 
-const SkyBoxModel SkyBoxToLoad = {"SkyBoxCube.obj", {"sky/sky_sides.png", "sky/sky_sides.png", "sky/sky_top.png", "sky/sky_bottom.png", "sky/sky_sides.png", "sky/sky_sides.png"}};
+const SkyBoxModel SkyBoxToLoad = {"SkyBoxCube.obj", {"sky/sky_sides.png", "sky/sky_sides.png", "sky/sky_top.png", "sky/sky_sides.png", "sky/sky_bottom.png", "sky/sky_sides.png"}};
 
 struct SingleText {
 	int usedLines;
@@ -292,6 +292,7 @@ struct UniformBufferObject {
     alignas(16) vec2 translation;//Terrain translation
     alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
     alignas(16) float padding;
+	alignas(16) float ti;//time
 };
 
 
@@ -3048,7 +3049,24 @@ private:
 		UniformBufferObject ubo{};
 		ubo.mMat = glm::mat4(1.0f);
 		ubo.nMat = glm::mat4(1.0f);
+		static auto startT = std::chrono::high_resolution_clock::now();
+		static float lastT = 0.0f;
+
+		auto currentT = std::chrono::high_resolution_clock::now();
+		float t = std::chrono::duration<float, std::chrono::seconds::period>
+			(currentT - startT).count();
+		ubo.ti = t;
+
+		
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
+		if (glfwGetKey(window, GLFW_KEY_P))
+			ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(-1, 0, 0));
+
+		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t*6), glm::vec3(-1, 0, 0));
+
+		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t *3.5f), glm::vec3(0, -1, 0));
+
+
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));

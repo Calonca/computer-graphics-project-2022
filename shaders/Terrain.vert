@@ -1,6 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-const int TILE = 200;
+const int TILE = 60;
 const float TILESIZE = 1.0f;
 
 layout(binding = 0) uniform UniformBufferObject {

@@ -3,7 +3,7 @@
 #include "PerlinNoise.h"
 #include "models.h"
 
-#define TILE_NUMBER 200
+#define TILE_NUMBER 60
 
 float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working
 int tile = TILE_NUMBER;        // No of square tiles row wise(or column). Used to form the terrain
