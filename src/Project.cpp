@@ -60,7 +60,7 @@ const std::vector<const char*> deviceExtensions = {
 	const bool Verbose = true;
 #endif
     std::map<std::string,Model> sceneToLoad = {
-            {"terrain",{"floor.obj", "grass.jpg", {0,0,0}, 1, Terrain,0}},//MapSciFi1024
+            {"terrain",{"floor.obj", "sky/grass.jpg", {0,0,0}, 1, Terrain,0}},//MapSciFi1024
             {"walls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
             {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,3}},
@@ -289,9 +289,8 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 mvpMat;
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
-    alignas(16) vec2 translation;//Terrain translation
+    alignas(16) vec4 translation;//Terrain translation
     alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
-    alignas(16) float padding;
 };
 
 
@@ -452,8 +451,12 @@ private:
  	VkDescriptorSetLayout PhongDescriptorSetLayout;
   	VkPipelineLayout PhongPipelineLayout;
   	VkPipelineLayout TerrainPipelineLayout;
+	VkPipelineLayout SunAndSkyPipelineLayout;
+
 	VkPipeline PhongPipeline;
 	VkPipeline TerrainPipeline;
+	VkPipeline SunAndSkyPipeline;
+
 	//// For the first uniform (per object)
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
@@ -1229,6 +1232,7 @@ private:
  		createPhongPipeline();
         createTerrainPipeline();
  		createSkyBoxPipeline();
+		createSunAndSkyPipeline();
  		createTextPipeline();
  	}
  	
@@ -1251,6 +1255,13 @@ private:
  					    SkyBoxDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
  					    1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
  	}
+
+	void createSunAndSkyPipeline() {
+		createPipeline("SunSkyVert.spv", "SunSkyFrag.spv",
+			SunAndSkyPipelineLayout, SunAndSkyPipeline,
+			PhongDescriptorSetLayout, VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL,
+			1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
+	}
 
  	void createTextPipeline() {
  		createPipeline("TextVert.spv", "TextFrag.spv",
@@ -2057,7 +2068,7 @@ private:
         std::vector<float> vertexToCopy{};
         vertexToCopy.resize(VD.size);
 
-
+		
         if (FName == "floor.obj") {
 
             makeModels();
@@ -2724,6 +2735,8 @@ private:
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                               TerrainPipeline);
+
+			
             for (const auto& M : sceneToLoad) {
                 int j = M.second.id;
                 if(M.second.pt == Terrain)  {
@@ -2742,7 +2755,7 @@ private:
                                      static_cast<uint32_t>(scene[j].MD.indices.size()), 1, 0, 0, 0);
 				}
 			}
-
+			
 			// Draws the Skybox
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					SkyBoxPipeline);
@@ -2759,7 +2772,24 @@ private:
 			vkCmdDrawIndexed(commandBuffers[i],
 						static_cast<uint32_t>(SkyBox.MD.indices.size()), 1, 0, 0, 0);
 			
-			
+
+			//sunandsky
+			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				SunAndSkyPipeline);
+
+
+			vkCmdBindDescriptorSets(commandBuffers[i],
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				SunAndSkyPipelineLayout, 0, 1,
+				&PhongDescriptorSets[i],
+				0, nullptr);
+			//VkBuffer vertexBuffers[] = { SkyBox.MD.vertexBuffer };
+			//VkDeviceSize offsets[] = { 0 };
+
+
+			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+
 			// Draws the text
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					TextPipeline);
@@ -3001,11 +3031,11 @@ private:
                     sTranslation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
                     updateTime = time;
                 }
-                ubo.translation = sTranslation;
+                ubo.translation = vec4( sTranslation.x, sTranslation.y,0,0);
 
                 for(int i=0;i<TILE_NUMBER;i++) {
                     for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.tHeight[i][j].x= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
+						ubo.tHeight[i][j].x =  getHeight(pn, i + ubo.translation.x, j + ubo.translation.y);
 
                     }
                 }
@@ -3100,8 +3130,10 @@ private:
 
 		vkDestroyPipeline(device, PhongPipeline, nullptr);
 		vkDestroyPipeline(device, TerrainPipeline, nullptr);
+		vkDestroyPipeline(device, SunAndSkyPipeline, nullptr);
 		vkDestroyPipelineLayout(device, PhongPipelineLayout, nullptr);
 		vkDestroyPipelineLayout(device, TerrainPipelineLayout, nullptr);
+		vkDestroyPipelineLayout(device, SunAndSkyPipelineLayout, nullptr);
 
 		vkDestroyPipeline(device, SkyBoxPipeline, nullptr);
 		vkDestroyPipelineLayout(device, SkyBoxPipelineLayout, nullptr);

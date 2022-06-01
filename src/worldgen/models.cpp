@@ -3,7 +3,7 @@
 #include "PerlinNoise.h"
 #include "models.h"
 
-#define TILE_NUMBER 200
+#define TILE_NUMBER 60
 
 float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working
 int tile = TILE_NUMBER;        // No of square tiles row wise(or column). Used to form the terrain
@@ -41,7 +41,7 @@ void  makeModels() {
 		M1_vertices[i * 3 + 0] =startx+ (i / (tile + 1)) * tile_len; // x of the vertex 0,0,0  (i/(tile+1))*tile_len
 		M1_vertices[i * 3 + 2] = startz + (i % (tile + 1)) * tile_len;// z of the vertex 0,1,2
 		
-		M1_vertices[i * 3 + 1] =  (float)getHeight(pn, M1_vertices[i * 3 + 0], M1_vertices[i * 3 + 2]); // y of the vertex 0
+		M1_vertices[i * 3 + 1] = (float)getHeight(pn, M1_vertices[i * 3 + 0], M1_vertices[i * 3 + 2]); // y of the vertex 0
 		//std::cout << " val noise " << terrain[i];
 		
 
