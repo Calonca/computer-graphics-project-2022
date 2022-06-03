@@ -18,15 +18,17 @@ void main() {
 	//changes color of the sky based on the angle time.y (set from 0 to 360)
 
 	if(time.y>0 && time.y<=90){
-		b1=float(time.y)/100 ;
-		b2=float(time.y)/100 ;
-		outColor= col*vec4(0.05,0.05f+b1,0.1+b2,1.0f);
+		b1=sin(radians(time.y));
+		b2=sin(radians(time.y));
+		outColor= col*vec4(0.0,b1,b2,1.0f);
 		
 	}
 
 	else
 		if(time.y>90 && time.y<=180){
-			outColor= col*vec4(0.05,0.01f*time.y,0.1*time.y,1.0f);
+			b1=sin(radians(time.y));
+		   b2=sin(radians(time.y));
+		outColor= col*vec4(0.0,b1,b2,1.0f);
 		}
 
 	else{
