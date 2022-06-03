@@ -35,7 +35,6 @@
 
 static float rot = 0;
 static float change_time = 0;
-
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -3107,13 +3106,12 @@ private:
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
 		
 		if (glfwGetKey(window, GLFW_KEY_P)) {
-			change_time += 0.2;
-
-			std::cout << "  chg time " << change_time << " rot time " << rot << std::endl;
+			change_time += 0.15;
+			std::cout << "  chg time " << change_time << " rot time " << rot <<std::endl;
 		}
-		rot = time + change_time;
-	
-		ubo.ti.y =(int)rot%360;
+		rot = (time + change_time)*3.5;
+		rot= remainder(rot, 360);
+		ubo.ti.y = rot;
 		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
