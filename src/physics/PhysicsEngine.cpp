@@ -42,7 +42,7 @@ void PhysicsEngine::Step(float dt)
 void PhysicsEngine::SolveCollisions(float dt) {
     //For each collider check collision objects and set force
 
-    std::cout<<"Testing collison points:"<<std::endl;
+    //std::cout<<"Testing collison points:"<<std::endl;
     for(TerrainCollider* collider : colliders){
         for (RigidBody* rb : rbs) {
             for (CollisionObject collisionObject : rb->co) {
