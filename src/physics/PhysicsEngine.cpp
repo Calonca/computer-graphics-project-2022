@@ -42,7 +42,7 @@ void PhysicsEngine::Step(float dt)
 void PhysicsEngine::SolveCollisions(float dt) {
     //For each collider check collision objects and set force
 
-    std::cout<<"Testing collison points:"<<std::endl;
+    //std::cout<<"Testing collison points:"<<std::endl;
     for(TerrainCollider* collider : colliders){
         for (RigidBody* rb : rbs) {
             for (CollisionObject collisionObject : rb->co) {
@@ -77,7 +77,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                 if (collisionObject.isColliding) {
                     //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 1000.0f,
+                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 8.0f,
                                   collisionObject.getLocalPoint(0));
 
                     glm::vec3 aVel = rb->velocity;

@@ -32,6 +32,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+static float rot = 0;
+static float change_time = 0;
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -3058,14 +3061,17 @@ private:
 		float t = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentT - startT).count();
 		ubo.ti.x = time;
-
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
-		if (glfwGetKey(window, GLFW_KEY_P))
-			ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(-1, 0, 0));
+		
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			change_time += 0.2;
 
-		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t*4), glm::vec3(-1, 0, 0));
-
-
+			std::cout << "  chg time " << change_time << " rot time " << rot << std::endl;
+		}
+		rot = time + change_time;
+	
+		ubo.ti.y =(int)rot%360;
+		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
