@@ -9,7 +9,7 @@ float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable work
 int tile = TILE_NUMBER;        // No of square tiles row wise(or column). Used to form the terrain
 int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
 
-float getHeight(PerlinNoise &pn, float xoff, float yoff);
+float getHeight(PerlinNoise &pn, float xoff, float zoff);
 float interpolate_y(float x, float z, float close1, float close2, float* t1, float* t2);
 static PerlinNoise pn;
 
@@ -66,11 +66,14 @@ void  makeModels() {
 	}
 }
 
-float getHeight(PerlinNoise &pn, float xoff, float yoff) {
-	xoff *= 0.15;
-	yoff *= 0.15;
-    float e = (float)(pn.noise(xoff, 0, yoff) + 2.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
-    return pow(e, 1.55)-5;
+float getHeight(PerlinNoise &pn, float xoff, float zoff) {
+    float e = (float)(
+            0.1f*pn.noise(0.15 * xoff, 0, 0.15*zoff) +
+            //2.8 * pn.noise(0.06 * xoff, 2, 0.06 * zoff)+
+            10 * pn.noise(0.02 * xoff, 3, 0.02 * zoff)
+            );
+    //xoff and and zoff defines the frequency of slopes and the multiplication factor defines the amplitude or max heights
+    return pow(e, 1.55)-15;
 }
 
 
