@@ -286,13 +286,14 @@ std::vector<FontDef> Fonts = {{73,{{0,0,0,0,0,0,21},{116,331,18,61,4,4,21},{379,
 
 //Contains variables that are transfered to the shaders
 struct UniformBufferObject {
+	alignas(16) vec4 ti;//time
 	alignas(16) glm::mat4 mvpMat;
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
     alignas(16) vec2 translation;//Terrain translation
     alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
-    alignas(16) float padding;
-	alignas(16) float ti;//time
+
+
 };
 
 
@@ -300,6 +301,8 @@ struct GlobalUniformBufferObject {
 	alignas(16) glm::vec3 lightDir;
 	alignas(16) glm::vec4 lightColor;
 	alignas(16) glm::vec3 eyePos;
+	
+
 };
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
@@ -3039,6 +3042,9 @@ private:
 		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		gubo.eyePos = EyePos;
 
+
+	
+
 		void* data;
 		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0,
 			sizeof(gubo), 0, &data);
@@ -3049,22 +3055,20 @@ private:
 		UniformBufferObject ubo{};
 		ubo.mMat = glm::mat4(1.0f);
 		ubo.nMat = glm::mat4(1.0f);
+	
 		static auto startT = std::chrono::high_resolution_clock::now();
 		static float lastT = 0.0f;
 
 		auto currentT = std::chrono::high_resolution_clock::now();
 		float t = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentT - startT).count();
-		ubo.ti = t;
-
+		ubo.ti.x = time;
 		
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
 		if (glfwGetKey(window, GLFW_KEY_P))
 			ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(-1, 0, 0));
 
-		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t*6), glm::vec3(-1, 0, 0));
-
-		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t *3.5f), glm::vec3(0, -1, 0));
+		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(t*4), glm::vec3(-1, 0, 0));
 
 
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0,

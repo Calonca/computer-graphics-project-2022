@@ -1,6 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 layout(binding = 0) uniform UniformBufferObject {
+	vec4 ti;
 	mat4 mvpMat;
 	mat4 mMat;
 	mat4 nMat;
