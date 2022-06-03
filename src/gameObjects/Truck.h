@@ -54,8 +54,8 @@ public:
 		vec3(0,-9.18,0),     // fGravity
         true,           // hasGravity
 		0.8,             // static friction
-		0.0025f,             //dynamic friction
-		-0.5f,            //bounciness
+		0.005f,             //dynamic friction
+		0.1f,            //bounciness
         {wheelfl,wheelfr,wheelbl,wheelbr},
         vec3(0,0,0)
 	};

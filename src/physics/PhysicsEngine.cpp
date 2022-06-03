@@ -77,7 +77,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                 if (collisionObject.isColliding) {
                     //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 1000.0f,collisionObject.getLocalPoint(0));
+                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 10.0f,collisionObject.getLocalPoint(0));
 
                     glm::vec3 aVel = rb->velocity;
                     glm::vec3 bVel = glm::vec3(0.0f);
@@ -140,7 +140,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 void PhysicsEngine::ApplyGravity(float dt) {
     for (RigidBody* rb : rbs) {
         if (rb->hasGravity){
-            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-1,0));//Adds gravity to forces
+            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-0.1,0));//Adds gravity to forces
         }
     }
 }
@@ -148,7 +148,7 @@ void PhysicsEngine::ApplyGravity(float dt) {
 
 
 void PhysicsEngine::ApplyForces(float dt) {
-    float inertia = 5000;
+    float inertia = 1000;
     for (RigidBody* rb : rbs) {
 
         vec3 resultingForce = vec3(0,0,0);
@@ -159,13 +159,16 @@ void PhysicsEngine::ApplyForces(float dt) {
         for (Moment moment : rb->moments){
             //std::cout<<"force: ";
             //MatrixUtils::printVector(moment.force);
+            vec3 force;
             if (moment.isGlobal)
-                resultingForce += MatrixUtils::fromGlobalToLocal(rb->transform,moment.force);
+                force = MatrixUtils::fromGlobalToLocal(rb->transform,moment.force);
             else
-                resultingForce += moment.force;
+                force = moment.force;
+
+            resultingForce += force;
             //std::cout<<"pos: ";
             //MatrixUtils::printVector(moment.point);
-            torque += cross(moment.point,moment.force);
+            torque += cross(moment.point,force);
         }
 
         rb->velocity += (resultingForce / rb->mass) * dt;
@@ -175,7 +178,7 @@ void PhysicsEngine::ApplyForces(float dt) {
         rb->angularVelocity += angularAcceleration*dt;
 
         //Angular drag
-        const float angularDrag = 0.0025f;
+        const float angularDrag = 0.025f;
         rb->angularVelocity -= angularDrag * rb->angularVelocity;
         //Adds air friction
         rb->velocity -= rb->dynamicFriction*rb->velocity;
