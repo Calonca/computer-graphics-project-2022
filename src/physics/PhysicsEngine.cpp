@@ -113,7 +113,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
                     }
 
 
-                    MatrixUtils::printVector(tangent);
+                    //MatrixUtils::printVector(tangent);
 
                     float f  = -dot(rVel, tangent) / (aInvMass );
 
