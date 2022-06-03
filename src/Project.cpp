@@ -290,14 +290,15 @@ std::vector<FontDef> Fonts = {{73,{{0,0,0,0,0,0,21},{116,331,18,61,4,4,21},{379,
 
 //Contains variables that are transfered to the shaders
 struct UniformBufferObject {
-	alignas(16) vec4 ti;//time
-	alignas(16) glm::mat4 mvpMat;
-	alignas(16) glm::mat4 mMat;
-	alignas(16) glm::mat4 nMat;
-    alignas(8) vec2 translation;//Terrain translation
-    alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
+	vec4 ti;//time
+	mat4 mvpMat;
+	mat4 mMat;
+	mat4 nMat;
+};
 
-
+struct TerrainUniformBufferObject {
+    vec2 translation;//Terrain translation
+    alignas(16) vec4 height[TILE_NUMBER+1][TILE_NUMBER+1];
 };
 
 
@@ -305,8 +306,6 @@ struct GlobalUniformBufferObject {
 	alignas(16) glm::vec3 lightDir;
 	alignas(16) glm::vec4 lightColor;
 	alignas(16) glm::vec3 eyePos;
-
-
 };
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
@@ -463,8 +462,13 @@ private:
 	VkPipeline PhongPipeline;
 	VkPipeline TerrainPipeline;
 	//// For the first uniform (per object)
+	//We should have multiple buffers, because multiple frames may be in flight at the same time
+    // and we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+    std::vector<VkBuffer> terrainUniformBuffers;
+    std::vector<VkDeviceMemory> terrainUniformBuffersMemory;
 	//// For the second uniform (per scene)
 	std::vector<VkBuffer> globalUniformBuffers;
 	std::vector<VkDeviceMemory> globalUniformBuffersMemory;	
@@ -1140,8 +1144,7 @@ private:
 		
 		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorType =
-						VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
@@ -1153,16 +1156,21 @@ private:
 		globalUboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
 		globalUboLayoutBinding.pImmutableSamplers = nullptr;
 
-		std::array<VkDescriptorSetLayoutBinding, 3> bindings =
-							{uboLayoutBinding, samplerLayoutBinding, globalUboLayoutBinding};
+        VkDescriptorSetLayoutBinding terrainUboLayoutBinding{};
+        terrainUboLayoutBinding.binding = 3;
+        terrainUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        terrainUboLayoutBinding.descriptorCount = 1;
+        terrainUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding.pImmutableSamplers = nullptr;
+
+        std::array<VkDescriptorSetLayoutBinding, 4> bindings = {uboLayoutBinding, samplerLayoutBinding, globalUboLayoutBinding,terrainUboLayoutBinding};
 		
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		layoutInfo.pBindings = bindings.data();
 		
-		VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo,
-									nullptr, &PhongDescriptorSetLayout);
+		VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &PhongDescriptorSetLayout);
 		if (result != VK_SUCCESS) {
 			PrintVkError(result);
 			throw std::runtime_error("failed to create descriptor set layout!");
@@ -1277,44 +1285,35 @@ private:
 		auto vertShaderCode = readFile((SHADER_PATH + VertexShaderName).c_str());
 		auto fragShaderCode = readFile((SHADER_PATH + FragShaderName).c_str());
 		
-		VkShaderModule vertShaderModule =
-				createShaderModule(vertShaderCode);
-		VkShaderModule fragShaderModule =
-				createShaderModule(fragShaderCode);
+		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType =
-        		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
         vertShaderStageInfo.module = vertShaderModule;
         vertShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType =
-        		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
         fragShaderStageInfo.module = fragShaderModule;
         fragShaderStageInfo.pName = "main";
 
-        VkPipelineShaderStageCreateInfo shaderStages[] =
-        		{vertShaderStageInfo, fragShaderStageInfo};
+        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		auto bindingDescription = VD.getBindingDescription();
 		auto attributeDescriptions = VD.getAttributeDescriptions();
 				
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.vertexAttributeDescriptionCount =
-				static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-		vertexInputInfo.pVertexAttributeDescriptions =
-				attributeDescriptions.data();		
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-		inputAssembly.sType =
-			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
@@ -1331,16 +1330,14 @@ private:
 		scissor.extent = swapChainExtent;
 		
 		VkPipelineViewportStateCreateInfo viewportState{};
-		viewportState.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewportState.viewportCount = 1;
 		viewportState.pViewports = &viewport;
 		viewportState.scissorCount = 1;
 		viewportState.pScissors = &scissor;
 		
 		VkPipelineRasterizationStateCreateInfo rasterizer{};
-		rasterizer.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizer.depthClampEnable = VK_FALSE;
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
 		rasterizer.polygonMode = polyModel;
@@ -1353,8 +1350,7 @@ private:
 		rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
 		
 		VkPipelineMultisampleStateCreateInfo multisampling{};
-		multisampling.sType =
-				VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable = VK_TRUE;
 		multisampling.minSampleShading = .2f;
 		multisampling.rasterizationSamples = msaaSamples;
@@ -1369,6 +1365,7 @@ private:
 				VK_COLOR_COMPONENT_G_BIT |
 				VK_COLOR_COMPONENT_B_BIT |
 				VK_COLOR_COMPONENT_A_BIT;
+
 		colorBlendAttachment.blendEnable = transp ? VK_TRUE : VK_FALSE;
 		colorBlendAttachment.srcColorBlendFactor =
 				transp ? VK_BLEND_FACTOR_SRC_ALPHA : VK_BLEND_FACTOR_ONE;
@@ -1396,8 +1393,7 @@ private:
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 		
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		pipelineLayoutInfo.sType =
-			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
@@ -1411,8 +1407,7 @@ private:
 		}
 		
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};
-		depthStencil.sType = 
-				VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.depthTestEnable = VK_TRUE;
 		depthStencil.depthWriteEnable = VK_TRUE;
 		depthStencil.depthCompareOp = compareOp;
@@ -1424,8 +1419,7 @@ private:
 		depthStencil.back = {}; // Optional
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType =
-				VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -2397,8 +2391,8 @@ private:
         }
 
         void createUniformBuffers() {
+            //Phong uniform buffer
             VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-            //std::cout<<"Size of buffer: "<<sizeof(float[1][1]);
 
             uniformBuffers.resize(swapChainImages.size() * scene.size());
             uniformBuffersMemory.resize(swapChainImages.size() * scene.size());
@@ -2410,6 +2404,20 @@ private:
                              uniformBuffers[i], uniformBuffersMemory[i]);
             }
 
+            //Terrain uniform buffer
+            bufferSize = sizeof(TerrainUniformBufferObject);
+
+            terrainUniformBuffers.resize(swapChainImages.size() * scene.size());
+            terrainUniformBuffersMemory.resize(swapChainImages.size() * scene.size());
+
+            for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {
+                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                             terrainUniformBuffers[i], terrainUniformBuffersMemory[i]);
+            }
+
+            //Global uniform buffer
             bufferSize = sizeof(GlobalUniformBufferObject);
 
             globalUniformBuffers.resize(swapChainImages.size());
@@ -2422,6 +2430,8 @@ private:
                              globalUniformBuffers[i], globalUniformBuffersMemory[i]);
             }
 
+
+            //Skybox uniform buffer
             bufferSize = sizeof(UniformBufferObject);
 
             SkyBoxUniformBuffers.resize(swapChainImages.size());
@@ -2434,6 +2444,7 @@ private:
                              SkyBoxUniformBuffers[i], SkyBoxUniformBuffersMemory[i]);
             }
 
+            //Text uniform buffer
             bufferSize = sizeof(UniformBufferObject);
 
             TextUniformBuffers.resize(swapChainImages.size());
@@ -2448,7 +2459,7 @@ private:
         }
 
         void createDescriptorPool() {
-            std::array<VkDescriptorPoolSize, 9> poolSizes{};
+            std::array<VkDescriptorPoolSize, 10> poolSizes{};
             poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
             poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -2467,6 +2478,8 @@ private:
             poolSizes[7].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
             poolSizes[8].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             poolSizes[8].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+            poolSizes[9].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSizes[9].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * scene.size());
 
             VkDescriptorPoolCreateInfo poolInfo{};
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -2489,8 +2502,7 @@ private:
 	}
 	
 	void createPhongDescriptorSets() {
-		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size() * scene.size(),
-												   PhongDescriptorSetLayout);
+		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size() * scene.size(), PhongDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = descriptorPool;
@@ -2524,8 +2536,13 @@ private:
 				globalBufferInfo.buffer = globalUniformBuffers[k];
 				globalBufferInfo.offset = 0;
 				globalBufferInfo.range = sizeof(GlobalUniformBufferObject);
+
+                VkDescriptorBufferInfo terrainBufferInfo{};
+                terrainBufferInfo.buffer = terrainUniformBuffers[i];
+                terrainBufferInfo.offset = 0;
+                terrainBufferInfo.range = sizeof(TerrainUniformBufferObject);
 				
-				std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+				std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
 				descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				descriptorWrites[0].dstSet = PhongDescriptorSets[i];
 				descriptorWrites[0].dstBinding = 0;
@@ -2550,6 +2567,14 @@ private:
 				descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrites[2].descriptorCount =  1;
 				descriptorWrites[2].pBufferInfo = &globalBufferInfo;
+
+                descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                descriptorWrites[3].dstSet = PhongDescriptorSets[i];
+                descriptorWrites[3].dstBinding = 3;
+                descriptorWrites[3].dstArrayElement = 0;
+                descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                descriptorWrites[3].descriptorCount =  1;
+                descriptorWrites[3].pBufferInfo = &terrainBufferInfo;
 
 				vkUpdateDescriptorSets(device,
 							static_cast<uint32_t>(descriptorWrites.size()),
@@ -2872,8 +2897,7 @@ private:
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-		VkPipelineStageFlags waitStages[] =
-			{VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
@@ -3003,6 +3027,8 @@ private:
         for (const auto& model : sceneToLoad) {
             int j = model.second.id;
             UniformBufferObject ubo{};
+            TerrainUniformBufferObject tubo{};
+
 			glm::vec3 delta;
 
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(model.second.scale));
@@ -3019,14 +3045,15 @@ private:
                     sTranslation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
                     updateTime = time;
                 }
-                ubo.translation = sTranslation;
+                tubo.translation = sTranslation;
 
-                for(int i=0;i<TILE_NUMBER;i++) {
-                    for(int j=0;j<TILE_NUMBER;j++) {
-                        ubo.tHeight[i][j].x= getHeight(pn,i+ubo.translation.x,j+ubo.translation.y);
 
+                for(int i=0;i<TILE_NUMBER+1;i++) {
+                    for(int j=0;j<TILE_NUMBER+1;j++) {
+                        tubo.height[i][j].x= getHeight(pn, i + tubo.translation.x, j + tubo.translation.y);
                     }
                 }
+
             }
 
 			if (model.first=="truck") {
@@ -3044,10 +3071,14 @@ private:
 			int i = j * swapChainImages.size() + currentImage;
 
 			void* data;
-			vkMapMemory(device, uniformBuffersMemory[i], 0,
-				sizeof(ubo), 0, &data);
+			vkMapMemory(device, uniformBuffersMemory[i], 0, sizeof(ubo), 0, &data);
 			memcpy(data, &ubo, sizeof(ubo));
 			vkUnmapMemory(device, uniformBuffersMemory[i]);
+
+            void* dataa;
+            vkMapMemory(device, terrainUniformBuffersMemory[i], 0, sizeof(tubo), 0, &dataa);
+            memcpy(dataa, &tubo, sizeof(tubo));
+            vkUnmapMemory(device, terrainUniformBuffersMemory[i]);
 		}
 
 		// updates global uniforms
@@ -3057,8 +3088,7 @@ private:
 		gubo.eyePos = EyePos;
 
 		void* data;
-		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0,
-			sizeof(gubo), 0, &data);
+		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0, sizeof(gubo), 0, &data);
 		memcpy(data, &gubo, sizeof(gubo));
 		vkUnmapMemory(device, globalUniformBuffersMemory[currentImage]);
 
@@ -3085,8 +3115,7 @@ private:
 	
 		ubo.ti.y =(int)rot%360;
 		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
-		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0,
-			sizeof(ubo), 0, &data);
+		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, SkyBoxUniformBuffersMemory[currentImage]);
 	}
@@ -3157,6 +3186,12 @@ private:
 			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
 			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
 		}
+
+        for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {
+            vkDestroyBuffer(device, terrainUniformBuffers[i], nullptr);
+            vkFreeMemory(device, terrainUniformBuffersMemory[i], nullptr);
+        }
+
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			vkDestroyBuffer(device, globalUniformBuffers[i], nullptr);
 			vkFreeMemory(device, globalUniformBuffersMemory[i], nullptr);
