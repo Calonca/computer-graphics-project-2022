@@ -4,7 +4,7 @@ const int TILE = 60;
 const float TILESIZE = 1.0f;
 
 layout(binding = 0) uniform UniformBufferObject {
-	    vec4 ti;
+	vec4 ti;
 	mat4 mvpMat;
 	mat4 mMat;
 	mat4 nMat;//Transform the normals in world postion

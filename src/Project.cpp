@@ -61,9 +61,9 @@ const std::vector<const char*> deviceExtensions = {
 #endif
     std::map<std::string,Model> sceneToLoad = {
             {"terrain",{"floor.obj", "grass.jpg", {0,0,0}, 1, Terrain,0}},//MapSciFi1024
-            {"walls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
+            {"walls",{"pyramid.obj", "Colors.png", {0,0,0}, 1, Flat,1}},
 	//{ "Character.obj", "Colors2.png", {0,0,0}, 1, Flat ,2},
-            {"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,3}},
+            //{"wireWalls",{"Walls.obj", "Colors.png", {0,0,0}, 1, Flat,3}},
             //{"pyramid",{"pyramid.obj", "whatever.png", {0,0,0}, 0.3, Wire,4}}
 };
 
@@ -290,7 +290,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 mvpMat;
 	alignas(16) glm::mat4 mMat;
 	alignas(16) glm::mat4 nMat;
-    alignas(16) vec2 translation;//Terrain translation
+    alignas(8) vec2 translation;//Terrain translation
     alignas(16) vec4 tHeight[TILE_NUMBER][TILE_NUMBER]; //Used for the terrain, x,-z. 1Mb
 
 
@@ -301,7 +301,7 @@ struct GlobalUniformBufferObject {
 	alignas(16) glm::vec3 lightDir;
 	alignas(16) glm::vec4 lightColor;
 	alignas(16) glm::vec3 eyePos;
-	
+
 
 };
 
@@ -2938,11 +2938,6 @@ private:
 
 		//Physics
 		physicsEngine.Step(deltaT);
-		//Collisions
-		/*
-		if (!canStep(truck.rb.pos.x, truck.rb.pos.z)) {
-			truck.rb.pos = oldPos;
-		}*/
 
 		//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
 
@@ -2966,10 +2961,13 @@ private:
 				prevCt = currentView;
 			}
 			{
-				glm::vec3 RRCDP = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
-					glm::vec4(truck.RobotCamDeltaPos, 1.0f));
+				//glm::vec3 RRCDP = truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f);
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				CamMat = MatrixUtils::LookInDirMat(vec3(truck.rb.transform[3]) + RRCDP, glm::vec3(truck.lookYaw, truck.lookPitch, truck.lookRoll));
+				//CamMat = MatrixUtils::LookInDirMat(truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f),
+                //                                   glm::vec3(0,0,0));
+
+                CamMat = inverse(truck.rb.transform*truck.camDelta);
+                //CamMat = inverse(truck.camDelta);
 			}
 			break;
 		case 1:
@@ -2978,9 +2976,9 @@ private:
 				prevCt = currentView;
 			}
 			{
-				glm::vec3 RFDT = glm::vec3(glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0)) *
-					glm::vec4(truck.FollowerDeltaTarget, 1.0f));
-				CamMat = MatrixUtils::LookAtMat(FollowerPos, vec3(truck.rb.transform[3]) + RFDT, truck.lookRoll);
+				glm::vec3 aim = truck.rb.transform  *
+					glm::vec4(truck.FollowerDeltaTarget, 1.0f);
+				CamMat = MatrixUtils::LookAtMat(FollowerPos+vec3(0,2,0),  truck.rb.transform[3], 0);
 			}
 			break;
 		}
@@ -3016,12 +3014,12 @@ private:
             }
 
 			if (model.first=="truck") {
-				glm::mat4 RobWM = glm::translate(mat4(1),vec3(truck.rb.transform[3]))*
-                    glm::rotate(glm::mat4(1), truck.lookYaw, glm::vec3(0, 1, 0));
-				ubo.mMat = glm::rotate(RobWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
-				FollowerTargetPos = RobWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
-					glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
-					glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);
+				glm::mat4 TruckWM = truck.rb.transform;
+
+				ubo.mMat = glm::rotate(TruckWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
+				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
+                                    glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
+                                    glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);*/
 			}
 
 			ubo.mvpMat = Prj * CamMat * ubo.mMat;
@@ -3042,9 +3040,6 @@ private:
 		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		gubo.eyePos = EyePos;
 
-
-	
-
 		void* data;
 		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0,
 			sizeof(gubo), 0, &data);
@@ -3055,7 +3050,7 @@ private:
 		UniformBufferObject ubo{};
 		ubo.mMat = glm::mat4(1.0f);
 		ubo.nMat = glm::mat4(1.0f);
-	
+
 		static auto startT = std::chrono::high_resolution_clock::now();
 		static float lastT = 0.0f;
 
@@ -3063,7 +3058,7 @@ private:
 		float t = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentT - startT).count();
 		ubo.ti.x = time;
-		
+
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
 		if (glfwGetKey(window, GLFW_KEY_P))
 			ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(-1, 0, 0));

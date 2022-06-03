@@ -5,6 +5,9 @@
 #include <iostream>
 #include "../worldgen/models.h"
 
+
+#include <functional>
+
 #pragma once
 class PhysicsEngine
 {
@@ -24,7 +27,7 @@ public:
 	/// <param name="rb"></param>
 	void RemoveRigidBody(RigidBody* rb);
 
-    void ApplyGravity();
+    void ApplyGravity(float dt);
     void SolveCollisions(float dt);
 
     void AddCollider(TerrainCollider* collider);

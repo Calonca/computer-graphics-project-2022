@@ -6,42 +6,47 @@
 
 void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 {
-	rb.force = vec3(0, 0, 0);
+    rb.angularVelocity.y = 0;
 	if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-        lookYaw += deltaT * ROT_SPEED;
-        rb.angularVelocity += deltaT * ROT_SPEED;
+        rb.addLocalMoment(vec3( 10*ROT_SPEED * glm::vec4(0, 0, 1, 1) ),
+                     vec3(-1,0,0));
+        rb.addLocalMoment(vec3( 10*ROT_SPEED * glm::vec4(0, 0, -1, 1) ),
+                     vec3(1,0,0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-        lookYaw -= deltaT * ROT_SPEED;
-        rb.angularVelocity -= deltaT * ROT_SPEED;
+        rb.addLocalMoment(vec3( 10*ROT_SPEED * glm::vec4(0, 0, -1, 1) ),
+                     vec3(-1,0,0));
+        rb.addLocalMoment(vec3( 10*ROT_SPEED * glm::vec4(0, 0, 1, 1) ),
+                     vec3(1,0,0));
 	}
+    const float LOOK_SPEED = 1.2f;
 	if (glfwGetKey(window, GLFW_KEY_UP)) {
-        rb.transform = rotate(rb.transform, ROT_SPEED * deltaT,vec3(1,0,0));
-		lookPitch += deltaT * ROT_SPEED;
+        camDelta = camDelta * rotate(mat4(1), LOOK_SPEED*deltaT,vec3(1,0,0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-        rb.transform = rotate(rb.transform, -ROT_SPEED * deltaT,vec3(1,0,0));
-		lookPitch -= deltaT * ROT_SPEED;
+        camDelta = camDelta * rotate(mat4(1),-LOOK_SPEED*deltaT,vec3(1,0,0));
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_A)) {
-		lookYaw += deltaT * ROT_SPEED;
-        rb.angularVelocity += deltaT * ROT_SPEED;
+        rb.addLocalMoment(vec3(ROT_SPEED * glm::vec4(0, 0, 1, 1)),
+                          vec3(-1, 0, 0));
+        rb.addLocalMoment(vec3( ROT_SPEED * glm::vec4(0, 0, -1, 1) ),
+                     vec3(1,0,0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_D)) {
-		lookYaw -= deltaT * ROT_SPEED;
-        rb.angularVelocity -= deltaT * ROT_SPEED;
+        rb.addLocalMoment(vec3( ROT_SPEED * glm::vec4(0, 0, -1, 1) ),
+                     vec3(-1,0,0));
+        rb.addLocalMoment(vec3( ROT_SPEED * glm::vec4(0, 0, 1, 1) ),
+                     vec3(1,0,0));
 	}
-    /*
-	rb.rot = glm::quat(glm::vec3(0, lookYaw, 0)) *
-		glm::quat(glm::vec3(lookPitch, 0, 0)) *
-		glm::quat(glm::vec3(0, 0, lookRoll));*/
 
 	if (glfwGetKey(window, GLFW_KEY_W)) {
-		rb.force += vec3( MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) );
+        rb.addLocalMoment(vec3(MOVE_SPEED * glm::vec4(0, 0, -1, 1)),
+                          vec3(0, 0, 0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_S)) {
-		rb.force += vec3(- MOVE_SPEED * mat4(quat(glm::vec3(0, lookYaw, 0))) * glm::vec4(0, 0, -1, 1) );
+        rb.addLocalMoment(vec3(MOVE_SPEED * glm::vec4(0, 0, 1, 1)),
+                          vec3(0, 0, 0));
 	}
 
 
@@ -56,15 +61,27 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
-        lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
+        //lookPitch += m_dy * ROT_SPEED / MOUSE_RES;
+        //lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
     }
 
+    const float CAM_UP_SPEED = 1.0f;
     if (glfwGetKey(window, GLFW_KEY_E)) {
-        RobotCamDeltaPos.y += 0.01;
+        camDelta = translate(mat4(1),vec3(0,CAM_UP_SPEED*deltaT,0.9f*CAM_UP_SPEED*deltaT))*
+                camDelta;
     }
     if (glfwGetKey(window, GLFW_KEY_Q)) {
-        RobotCamDeltaPos.y -= 0.01;
+        camDelta = translate(mat4(1),vec3(0,-CAM_UP_SPEED*deltaT,-0.9f*CAM_UP_SPEED*deltaT))*
+                camDelta;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_R)) {
+        camDelta = translate(mat4(1),vec3(0,0,-10*CAM_UP_SPEED*deltaT))*
+                   camDelta;
+    }
+    if (glfwGetKey(window, GLFW_KEY_F)) {
+        camDelta = translate(mat4(1),vec3(0,0,10*CAM_UP_SPEED*deltaT))*
+                   camDelta;
     }
     ////
 

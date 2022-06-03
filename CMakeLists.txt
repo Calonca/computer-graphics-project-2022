@@ -13,13 +13,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 add_executable(${PNAME} src/${CFILE}.cpp
         src/gameObjects/Component.cpp
         src/gameObjects/Component.h
-        src/utils/definitions.h
-        src/physics/PhysicsEngine.cpp
-        src/physics/PhysicsEngine.h
         src/gameObjects/Truck.cpp
         src/gameObjects/Truck.h
+        src/utils/definitions.h
+        src/utils/definitions.cpp
+        src/utils/MatrixUtils.cpp
+        src/utils/MatrixUtils.h
+        src/physics/PhysicsEngine.cpp
+        src/physics/PhysicsEngine.h
         src/worldgen/PerlinNoise.h
-        src/worldgen/PerlinNoise.cpp src/utils/MatrixUtils.cpp src/utils/MatrixUtils.h src/worldgen/models.h src/utils/definitions.cpp)
+        src/worldgen/PerlinNoise.cpp
+        src/worldgen/models.h
+        src/Project.h)
 
 #target_compile_definitions (${PNAME} PUBLIC NDEBUG) #Used to deactivate validation layers messages
 
