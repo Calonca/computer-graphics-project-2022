@@ -15,10 +15,11 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTexCoord;
 
 layout(location = 0) out vec3 fragTexCoord;
-layout(location = 1) out float time;
+layout(location = 1) out vec2 time;
 void main()
 {
-       time=ubo.ti.x;
+       time.x=ubo.ti.x;
+       time.y=ubo.ti.y;
        fragTexCoord = inPosition;
 
  
