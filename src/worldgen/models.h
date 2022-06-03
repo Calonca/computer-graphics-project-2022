@@ -27,7 +27,7 @@ struct TerrainCollider : Collider {
         vec3 firstPoint = co->getGlobalPoint(0);
 
         //std::cout<<"First point position: ";
-        MatrixUtils::printVector(firstPoint);
+        //MatrixUtils::printVector(firstPoint);
         std::vector<vec3> triang = models::tile_pos(firstPoint.x,firstPoint.y,firstPoint.z);
         //models::normal_triangletile(firstPoint.x, firstPoint.y, firstPoint.z);
         float force = 0;

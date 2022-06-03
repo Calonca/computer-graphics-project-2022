@@ -44,3 +44,7 @@ mat4 MatrixUtils::LookAtMat(vec3 Pos, vec3 aim, vec3 up) {
     mat4 rollRot = rotate(mat4(1), 0.0f, vec3(0, 0, 1));
     return rollRot * viewMat;
 }
+
+vec3 MatrixUtils::fromGlobalToLocal(mat4 transform, vec3 global) {
+    return vec3(inverse(transform)*vec4(global,1));
+}
