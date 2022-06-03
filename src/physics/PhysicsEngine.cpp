@@ -77,17 +77,15 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                 if (collisionObject.isColliding) {
                     //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 1000.0f,
-                                  collisionObject.getLocalPoint(0));
+                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 1000.0f,collisionObject.getLocalPoint(0));
 
                     glm::vec3 aVel = rb->velocity;
                     glm::vec3 bVel = glm::vec3(0.0f);
                     glm::vec3 rVel = bVel - aVel;
-                    vec3 up = vec3(0, 1, 0);
-                    float nSpd = dot(rVel, up);
+                    vec3 normal = vec3(0,1,0);
+                    float nSpd = dot(rVel, normal);
 
                     float aInvMass = 1 / rb->mass;
-                    float bInvMass = 1 / 100000;
 
                     // Impluse
 
@@ -96,53 +94,41 @@ void PhysicsEngine::SolveCollisions(float dt) {
                     if (nSpd < 0)
                         continue;
 
-                    float j = -(1.0f + rb->bounciness) * nSpd / (aInvMass + bInvMass);
+                    float j = -(1.0f + rb->bounciness) * nSpd / (aInvMass);
 
-                    glm::vec3 impluse = j * up;
+                    glm::vec3 impluse = j * normal;
 
-                    rb->velocity -= impluse * aInvMass;
+                    aVel -= impluse * aInvMass;
                     //std::cout<<"Velocity delta after impulse: "<< MatrixUtils::printVector(-impluse * aInvMass)<< std::endl;
 
                     // Friction
-                    /*
-                    rVel = bVel - aVel;
-                    nSpd = glm::dot(rVel, manifold.Normal);
 
-                    glm::vec3 tangent = rVel - nSpd * manifold.Normal;
+                    rVel = bVel - aVel;
+                    nSpd = glm::dot(rVel, normal);
+
+                    glm::vec3 tangent = -rVel + nSpd * normal;
 
                     if (glm::length(tangent) > 0.0001f) { // safe normalize
                         tangent = glm::normalize(tangent);
                     }
 
-                    scalar fVel = glm::dot(rVel, tangent);
 
-                    scalar aSF = aBody ? aBody->StaticFriction  : 0.0f;
-                    scalar bSF = bBody ? bBody->StaticFriction  : 0.0f;
-                    scalar aDF = aBody ? aBody->DynamicFriction : 0.0f;
-                    scalar bDF = bBody ? bBody->DynamicFriction : 0.0f;
-                    scalar mu  = (scalar)glm::vec2(aSF, bSF).length();
+                    MatrixUtils::printVector(tangent);
 
-                    scalar f  = -fVel / (aInvMass + bInvMass);
+                    float f  = -dot(rVel, tangent) / (aInvMass );
 
                     glm::vec3 friction;
-                    if (abs(f) < j * mu) {
+                    if (abs(f) < j * rb->staticFriction) {
                         friction = f * tangent;
                     }
 
                     else {
-                        mu = glm::length(glm::vec2(aDF, bDF));
-                        friction = -j * tangent * mu;
+                        friction = -j * tangent * rb->dynamicFriction;
+                        friction = vec3(0,0,0);
                     }
+                    friction = -j * tangent * rb->dynamicFriction;
 
-                    if (aBody ? aBody->IsSimulated : false) {
-                        aBody->Velocity = aVel - friction * aInvMass;
-                    }
-
-                    if (bBody ? bBody->IsSimulated : false) {
-                        bBody->Velocity = bVel + friction * bInvMass;
-                    }
-                    */
-
+                    rb->velocity = aVel;// - friction * aInvMass;
 
                     //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;
                 }
@@ -154,29 +140,16 @@ void PhysicsEngine::SolveCollisions(float dt) {
 void PhysicsEngine::ApplyGravity(float dt) {
     for (RigidBody* rb : rbs) {
         if (rb->hasGravity){
-            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,0,0));//Adds gravity to forces
+            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-1,0));//Adds gravity to forces
         }
     }
 }
 
+
+
 void PhysicsEngine::ApplyForces(float dt) {
-    float inertia = 1000;
+    float inertia = 5000;
     for (RigidBody* rb : rbs) {
-
-        //Adds drags, for now dynamic friction is computed as air drag and
-        //static driction is computed as a force that stops sideways motion
-        /*
-        vec3 v = rb->velocity;
-        vec3 friction =  -rb->dynamicFriction*v
-                      * rb->mass //To approximate area
-                      *
-                      (v*v);//Component wise multiplication
-        rb->addLocalMoment(friction,vec3(0,0,0));*/
-
-        //std::cout << length(rb->force) <<std::endl;
-
-        //vec3 fwd = mat4(rb->rot) * glm::vec4(0, 0, -1, 1);
-        //std::cout<<"Resulting force: "<< MatrixUtils::printVector(rb->force)<< std::endl;
 
         vec3 resultingForce = vec3(0,0,0);
 
@@ -187,7 +160,7 @@ void PhysicsEngine::ApplyForces(float dt) {
             //std::cout<<"force: ";
             //MatrixUtils::printVector(moment.force);
             if (moment.isGlobal)
-                resultingForce += vec3(inverse(rb->transform)*vec4(moment.force,1));
+                resultingForce += MatrixUtils::fromGlobalToLocal(rb->transform,moment.force);
             else
                 resultingForce += moment.force;
             //std::cout<<"pos: ";
@@ -202,11 +175,16 @@ void PhysicsEngine::ApplyForces(float dt) {
         rb->angularVelocity += angularAcceleration*dt;
 
         //Angular drag
-        const float angularDrag = 0.05f;
+        const float angularDrag = 0.0025f;
         rb->angularVelocity -= angularDrag * rb->angularVelocity;
+        //Adds air friction
+        rb->velocity -= rb->dynamicFriction*rb->velocity;
 
         //Rotation due to angular velocity
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
+        mat4 transformRotation = translate(rb->transform,-vec3(rb->transform[3]));
+        transformRotation = transformRotation * rotate(mat4(1),rb->angularVelocity.r,vec3(0,0,1));
+        //rb->transform = translate(transformRotation,vec3(rb->transform[3]));
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.p*dt,vec3(0,0,1));
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.y*dt,vec3(0,1,0));
 

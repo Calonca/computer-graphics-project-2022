@@ -70,7 +70,7 @@ float getHeight(PerlinNoise &pn, float xoff, float yoff) {
 	xoff *= 0.15;
 	yoff *= 0.15;
     float e = (float)(pn.noise(xoff, 0, yoff) + 2.8 * pn.noise(0.4 * xoff, 0, 0.4 * yoff));//xoff and and yoff defines the frequency of slopes and the multiplication factor 2.5 defines the amplitude or max heights
-    return pow(e, 1.55);
+    return pow(e, 1.55)-5;
 }
 
 

@@ -12,31 +12,31 @@ class Truck// It is an entity
 public:
 
     mat4 transfrom =
-            translate(mat4(1),vec3(0,5,0));//*
+            translate(mat4(1),vec3(0,0,0));//*
             //mat4(quat(vec3(0,glm::radians(-30.0f),0)));
     CollisionObject wheelfl = {
-            {vec3(-1,0,-1)+vec3(transfrom[3])},
+            {vec3(-0.5,0,-1)+vec3(transfrom[3])},
             transfrom,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelfr = {
-            {vec3(1,0,-1)+vec3(transfrom[3])},
+            {vec3(0.5,0,-1)+vec3(transfrom[3])},
             transfrom,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbl = {
-            {vec3(-1,0,1)+vec3(transfrom[3])},
+            {vec3(-0.5,0,1)+vec3(transfrom[3])},
             transfrom,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbr = {
-            {vec3(1,0,1)+vec3(transfrom[3])},
+            {vec3(0.5,0,1)+vec3(transfrom[3])},
             transfrom,
             vec3(0,0,0),
             false
@@ -53,9 +53,9 @@ public:
 		float(1000.0f),    //mass
 		vec3(0,-9.18,0),     // fGravity
         true,           // hasGravity
-		0,             // static friction
-		0,             //dynamic friction
-		0.0f,            //bounciness
+		0.8,             // static friction
+		0.0025f,             //dynamic friction
+		-0.5f,            //bounciness
         {wheelfl,wheelfr,wheelbl,wheelbr},
         vec3(0,0,0)
 	};

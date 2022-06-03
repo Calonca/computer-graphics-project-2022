@@ -30,7 +30,11 @@ public:
     };
 
     static mat4 LookAtMat(vec3 Pos, vec3 aim, vec3 up);
+
+    static vec3 fromGlobalToLocal(mat4 transform, vec3 global);
 };
+
+
 
 
 #endif //CGPROJECT_MATRIXUTILS_H

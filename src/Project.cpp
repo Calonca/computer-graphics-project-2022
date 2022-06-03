@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <glm/gtx/vector_angle.hpp>
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
@@ -559,7 +560,7 @@ private:
     void createInstance() {
     	VkApplicationInfo appInfo{};
        	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    	appInfo.pApplicationName = "Hello Triangle";
+    	appInfo.pApplicationName = "Computer graphics project";
     	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     	appInfo.pEngineName = "No Engine";
     	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -2965,9 +2966,21 @@ private:
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
 				//CamMat = MatrixUtils::LookInDirMat(truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f),
                 //                                   glm::vec3(0,0,0));
-
-                CamMat = inverse(truck.rb.transform*truck.camDelta);
+                vec3 xAxis = vec3(1,0,0);
+                vec3 truckX = translate(truck.rb.transform,-vec3(truck.rb.transform[3]))*vec4(xAxis,1);
+                float angle = acos( dot(normalize(xAxis),normalize(truckX)));
+                //MatrixUtils::printVector(truckX);
+                //std::cout<<angle<<std::endl;
+                /*
+                CamMat = inverse(
+                        translate(mat4(1),vec3(truck.rb.transform[3]))*
+                        truck.camDelta*
+                        rotate(mat4(1),angle,vec3(0,1,0))
+                        );*/
                 //CamMat = inverse(truck.camDelta);
+                CamMat = inverse(truck.rb.transform*
+                        truck.camDelta
+                );
 			}
 			break;
 		case 1:
