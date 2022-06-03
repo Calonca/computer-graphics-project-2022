@@ -124,9 +124,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                     else {
                         friction = -j * tangent * rb->dynamicFriction;
-                        friction = vec3(0,0,0);
                     }
-                    friction = -j * tangent * rb->dynamicFriction;
 
                     rb->velocity = aVel;// - friction * aInvMass;
 
@@ -159,13 +157,16 @@ void PhysicsEngine::ApplyForces(float dt) {
         for (Moment moment : rb->moments){
             //std::cout<<"force: ";
             //MatrixUtils::printVector(moment.force);
+            vec3 force;
             if (moment.isGlobal)
-                resultingForce += MatrixUtils::fromGlobalToLocal(rb->transform,moment.force);
+                force = MatrixUtils::fromGlobalToLocal(rb->getTransform(),moment.force);
             else
-                resultingForce += moment.force;
+                force = moment.force;
+
+            resultingForce += force;
             //std::cout<<"pos: ";
             //MatrixUtils::printVector(moment.point);
-            torque += cross(moment.point,moment.force);
+            torque += cross(moment.point,force);
         }
 
         rb->velocity += (resultingForce / rb->mass) * dt;
@@ -181,15 +182,12 @@ void PhysicsEngine::ApplyForces(float dt) {
         rb->velocity -= rb->dynamicFriction*rb->velocity;
 
         //Rotation due to angular velocity
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
-        mat4 transformRotation = translate(rb->transform,-vec3(rb->transform[3]));
-        transformRotation = transformRotation * rotate(mat4(1),rb->angularVelocity.r,vec3(0,0,1));
-        //rb->transform = translate(transformRotation,vec3(rb->transform[3]));
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.p*dt,vec3(0,0,1));
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.y*dt,vec3(0,1,0));
+        rb->pitch += rb->angularVelocity.x*dt;
+        rb->yaw += rb->angularVelocity.y*dt;
+        rb->roll += rb->angularVelocity.z*dt;
 
         // Translate the Rigidbody based on the velocity in the Rigidbody reference system
-        rb->transform = rb->transform * translate(mat4(1),rb->velocity*dt);
+        rb->pos = (rb->getTransform() * translate(mat4(1),rb->velocity*dt))[3];
 
         //Reset values
         rb->moments = {};

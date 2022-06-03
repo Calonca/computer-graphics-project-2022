@@ -2979,7 +2979,7 @@ private:
 
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = truck.rb.transform[3];
+		static glm::vec3 FollowerPos = truck.rb.getTransform()[3];
 
 		switch (currentView) {
 		case 0:
@@ -2990,11 +2990,10 @@ private:
 			{
 				//glm::vec3 RRCDP = truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f);
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				//CamMat = MatrixUtils::LookInDirMat(truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f),
-                //                                   glm::vec3(0,0,0));
-                vec3 xAxis = vec3(1,0,0);
-                vec3 truckX = translate(truck.rb.transform,-vec3(truck.rb.transform[3]))*vec4(xAxis,1);
-                float angle = acos( dot(normalize(xAxis),normalize(truckX)));
+				//CamMat = MatrixUtils::LookInDirMat(
+                //       truck.rb.pos+vec3(truck.camDelta[3]),
+                //       vec3(0,truck.rb.yaw,0));
+
                 //MatrixUtils::printVector(truckX);
                 //std::cout<<angle<<std::endl;
                 /*
@@ -3004,9 +3003,7 @@ private:
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
                 //CamMat = inverse(truck.camDelta);
-                CamMat = inverse(truck.rb.transform*
-                        truck.camDelta
-                );
+                CamMat = inverse(truck.rb.getTransform()*truck.camDelta);
 			}
 			break;
 		case 1:
@@ -3015,9 +3012,9 @@ private:
 				prevCt = currentView;
 			}
 			{
-				glm::vec3 aim = truck.rb.transform  *
+				glm::vec3 aim = truck.rb.getTransform()  *
 					glm::vec4(truck.FollowerDeltaTarget, 1.0f);
-				CamMat = MatrixUtils::LookAtMat(FollowerPos+vec3(0,2,0),  truck.rb.transform[3], 0);
+				CamMat = MatrixUtils::LookAtMat(FollowerPos+vec3(0,2,0),  truck.rb.getTransform()[3], 0);
 			}
 			break;
 		}
@@ -3035,8 +3032,8 @@ private:
 
             if (model.first=="terrain"){
                 const float tilesize = 1.0f;
-                int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
-                int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
+                int truckPosX = floor(truck.rb.getTransform()[3].x/ tilesize);//Should be divided TileSize
+                int truckPosZ = floor(truck.rb.getTransform()[3].z / tilesize);//Should be divided TileSize
 
                 static float updateTime;
                 static vec2 sTranslation;
@@ -3056,7 +3053,7 @@ private:
             }
 
 			if (model.first=="truck") {
-				glm::mat4 TruckWM = truck.rb.transform;
+				glm::mat4 TruckWM = truck.rb.getTransform();
 
 				ubo.mMat = glm::rotate(TruckWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *

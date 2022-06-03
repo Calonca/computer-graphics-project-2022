@@ -1,7 +1,7 @@
 #include "definitions.h"
 
 void CollisionObject::setTransform(RigidBody *r) {
-    t = r->transform;
+    t = r->getTransform();
 }
 
 CollisionObject::CollisionObject(

@@ -44,10 +44,10 @@ public:
 
 	// Robot Pos
 	RigidBody rb = {
-        transfrom,   //pos
-        //0.0f,
-        //glm::radians(-30.0f),
-        //0.0f,
+        transfrom[3],   //pos
+        0,
+        0,
+        0,
         {},     //force
 		vec3(0,0,0),     //velocity
 		float(1000.0f),    //mass

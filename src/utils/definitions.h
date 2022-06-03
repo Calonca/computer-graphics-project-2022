@@ -67,7 +67,11 @@ struct Moment {
 /// Component used ot hold physics values for entities
 /// </summary>
 struct RigidBody {
-    mat4 transform;
+    vec3 pos;
+    float pitch;
+    float yaw;
+    float roll;
+
     //float lookYaw;
     //float lookPitch;
     //float lookRoll;
@@ -96,6 +100,13 @@ struct RigidBody {
     //The application point is a point in the local reference system
     void addGlobalMoment(vec3 force, vec3 applyPoint){
         moments.push_back({force, applyPoint,true});
+    }
+
+    mat4 getTransform(){
+        return translate(mat4(1),pos)*
+        rotate(mat4(1),roll,vec3(0,0,1))*
+        rotate(mat4(1),yaw,vec3(0,1,0))*
+        rotate(mat4(1),pitch,vec3(1,0,0));
     }
 };
 
