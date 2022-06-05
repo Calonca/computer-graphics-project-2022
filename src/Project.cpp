@@ -3078,21 +3078,7 @@ private:
             vkUnmapMemory(device, terrainUniformBuffersMemory[i]);
 		}
 
-		// updates global uniforms
 		GlobalUniformBufferObject gubo{};
-		gubo.lightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
-		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		gubo.eyePos = EyePos;
-
-		void* data;
-		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0, sizeof(gubo), 0, &data);
-		memcpy(data, &gubo, sizeof(gubo));
-		vkUnmapMemory(device, globalUniformBuffersMemory[currentImage]);
-
-		// updates SkyBox uniforms
-		UniformBufferObject ubo{};
-		ubo.mMat = glm::mat4(1.0f);
-		ubo.nMat = glm::mat4(1.0f);
 
 		static auto startT = std::chrono::high_resolution_clock::now();
 		static float lastT = 0.0f;
@@ -3100,17 +3086,48 @@ private:
 		auto currentT = std::chrono::high_resolution_clock::now();
 		float t = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentT - startT).count();
+
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			change_time += 0.15;
+			std::cout << "  chg time " << change_time << " rot time " << rot << std::endl;
+		}
+		rot = (time + change_time) * 3.5;
+		rot = remainder(rot, 360);
+		gubo.lightDir = glm::vec3(sin(glm::radians(rot)), 0.0f, 0.0f);
+
+		if(rot<15 || rot>190)
+			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+		// updates global uniforms
+		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
+		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		gubo.eyePos = EyePos;
+
+		
+
+		// updates SkyBox uniforms
+		UniformBufferObject ubo{};
+		ubo.mMat = glm::mat4(1.0f);
+		ubo.nMat = glm::mat4(1.0f);
+
+		
 		ubo.ti.x = time;
 		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
 		
-		if (glfwGetKey(window, GLFW_KEY_P)) {
-			change_time += 0.15;
-			std::cout << "  chg time " << change_time << " rot time " << rot <<std::endl;
-		}
-		rot = (time + change_time)*3.5;
-		rot= remainder(rot, 360);
+		
+
 		ubo.ti.y = rot;
 		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
+
+
+		void* data;
+		vkMapMemory(device, globalUniformBuffersMemory[currentImage], 0, sizeof(gubo), 0, &data);
+		memcpy(data, &gubo, sizeof(gubo));
+		vkUnmapMemory(device, globalUniformBuffersMemory[currentImage]);
+
+
+
 		vkMapMemory(device, SkyBoxUniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, SkyBoxUniformBuffersMemory[currentImage]);
