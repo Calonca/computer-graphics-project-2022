@@ -3,11 +3,12 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include "glm/gtc/matrix_transform.hpp"
+#include "Object.h"
 
 extern struct Model g_test;
 
 #pragma once
-class Truck// It is an entity
+class Truck // It is an entity
 {
 public:
 
@@ -63,9 +64,7 @@ public:
 	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f+transfrom[3].y, 0.0f) ;
 
     mat4 camDelta = translate(mat4(1),vec3(0.0f, transfrom[3].y+1.335f, -0.0f));
-	std::vector<Model> modelToLoad = {
-		{"MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", vec3(transfrom[3]), 1, Flat , 2}
-	};
+	Model modelToLoad = {"MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", 1, Flat };
 
 	const float ROT_SPEED = 50000;
 	const float MOVE_SPEED = 9000.75f;

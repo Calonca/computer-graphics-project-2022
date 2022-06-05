@@ -24,7 +24,7 @@ add_executable(${PNAME} src/${CFILE}.cpp
         src/worldgen/PerlinNoise.h
         src/worldgen/PerlinNoise.cpp
         src/worldgen/models.h
-        src/Project.h)
+        src/Project.h src/gameObjects/Object.cpp src/gameObjects/Object.h)
 
 #target_compile_definitions (${PNAME} PUBLIC NDEBUG) #Used to deactivate validation layers messages
 
