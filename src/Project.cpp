@@ -2784,33 +2784,31 @@ private:
         std::vector<Object> sct = sceneToLoad.getAllChildrenWithModels();
         for (int j = 0;j<sct.size();j++) {
             UniformBufferObject ubo{};
-            TerrainUniformBufferObject tubo{};
+            static TerrainUniformBufferObject tubo{};
 
 			glm::vec3 delta;
 
 			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(sct[j].model.scale));
-
 
             if (sct[j].id=="terrain"){
                 const float tilesize = 1.0f;
                 int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
                 int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
 
-                static float updateTime;
-                static vec2 sTranslation;
-                if (time - updateTime > 0.0f) {//Sets it to true each 5 second
-                    sTranslation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
-                    updateTime = time;
-                }
-                tubo.translation = sTranslation;
-
-
-                for(int i=0;i<TILE_NUMBER+1;i++) {
-                    for(int j=0;j<TILE_NUMBER+1;j++) {
-                        tubo.height[i*(TILE_NUMBER+1)+j].x= getHeight(pn, i + tubo.translation.x, j + tubo.translation.y);
+                static float terrainUpdateTime;
+                static bool firstFrame = true;
+                const float updateRate = 0.5f;
+                //Updates the terrain each updateRate;
+                if (time - terrainUpdateTime > updateRate || firstFrame) {
+                    tubo.translation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
+                    terrainUpdateTime = time;
+                    for(int i2=0;i2<TILE_NUMBER+1;i2++) {
+                        for(int j2=0;j2<TILE_NUMBER+1;j2++) {
+                            tubo.height[i2*(TILE_NUMBER+1)+j2].x= getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
+                        }
                     }
+                    firstFrame=false;
                 }
-
             }
 
 			if (sct[j].id=="truck") {
