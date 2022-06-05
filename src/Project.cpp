@@ -297,7 +297,7 @@ struct UniformBufferObject {
 
 struct TerrainUniformBufferObject {
     vec2 translation;//Terrain translation
-    alignas(16) vec4 height[TILE_NUMBER+1][TILE_NUMBER+1];
+    alignas(16) vec4 height[(TILE_NUMBER+1)*(TILE_NUMBER+1)];
 };
 
 
@@ -2062,19 +2062,18 @@ private:
         if (FName == "floor.obj") {
 
             makeModels();
-
-
             for (unsigned int M1_indice : M1_indices) {
                 //Assigns vertexToCopy and indices to MD
                 //In case of vetex with normal and
                 //DeltaPos is 0
                 //DeltaNormal is 3
                 //deltaTextCoords is 6
+                //printf("The index is %d\n",M1_indice);
 
                 vertexToCopy[VD.deltaPos + 0] = M1_vertices[3 * M1_indice + 0];
                 //std::cout << " vtx x " << vertexToCopy[VD.deltaPos + 0];
 
-                vertexToCopy[VD.deltaPos + 1] = M1_vertices[3 * M1_indice + 1];
+                vertexToCopy[VD.deltaPos + 1] = float(M1_indice);
                 //std::cout << " vtx y " << vertexToCopy[VD.deltaPos + 1];
 
                 vertexToCopy[VD.deltaPos + 2] = M1_vertices[3 * M1_indice + 2];
@@ -2084,8 +2083,8 @@ private:
                 vertexToCopy[VD.deltaNormal + 1] = 1;
                 vertexToCopy[VD.deltaNormal + 2] = 0;
 
-                vertexToCopy[VD.deltaTexCoord + 0] = 100;
-                vertexToCopy[VD.deltaTexCoord + 1] = 100;
+                vertexToCopy[VD.deltaTexCoord + 0] = 0;
+                vertexToCopy[VD.deltaTexCoord + 1] = 0;
 
 
 
@@ -2095,13 +2094,12 @@ private:
                 //std::cout << " J " << j << "  MD VERTICE SIZE " << s << " vd size " << VD.size;
                 MD.vertices.resize(s + VD.size);
                 for (int k = 0; k < VD.size; k++) {
-                    MD.vertices[s + k] = M1_vertices[3 * M1_indice + k];
+                    MD.vertices[s + k] = vertexToCopy[k];
+                    //MD.vertices[s + k] = M1_vertices[3 * M1_indice + k];
                     //std::cout << " vtx all " << s + k << " val " << MD.vertices[s + k];
                 }
                 MD.indices.push_back(j);
                 //std::cout << " m1 indices \n" << j;
-
-
 
             }                //0  1 2 3 4 5  1    1 2 3 4 5   2   1 2 3 4 5  2    1 2 3 4 5  3    1 2 3 4 5  0    1 2 3 4 5
             //MD.vertices = {0,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,1,0,0,0,0,0,1,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0};
@@ -3047,7 +3045,7 @@ private:
 
                 for(int i=0;i<TILE_NUMBER+1;i++) {
                     for(int j=0;j<TILE_NUMBER+1;j++) {
-                        tubo.height[i][j].x= getHeight(pn, i + tubo.translation.x, j + tubo.translation.y);
+                        tubo.height[i*(TILE_NUMBER+1)+j].x= getHeight(pn, i + tubo.translation.x, j + tubo.translation.y);
                     }
                 }
 
@@ -3093,7 +3091,7 @@ private:
 		}
 		rot = (time + change_time) * 3.5;
 		rot = remainder(rot, 360);
-		gubo.lightDir = glm::vec3(sin(glm::radians(rot)), 0.0f, 0.0f);
+		gubo.lightDir = glm::vec3(sin(glm::radians(rot)), cos(glm::radians(rot)), 0.0f);
 
 		if(rot<15 || rot>190)
 			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
