@@ -23,6 +23,173 @@ layout(location = 0) out vec3 fragPos;
 layout(location = 1) out vec3 fragNorm;
 layout(location = 2) out vec2 fragTexCoord;
 
+
+vec3 normal(vec3 p1, vec3 p2, vec3 p3){
+	vec3 v1=p1-p2;
+	vec3 v2=p1-p3;
+	return cross(v1,v2);
+}
+
+vec3 vertex_normal(vec3 p){
+int xx=int(p.x);
+int zz=int(p.z);
+		 vec3 p1,p2,p3;
+
+
+if(xx==0 || zz==0 || xx==TILE || zz==TILE)
+{
+
+		if(zz==0){
+			if(xx==0){
+				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
+				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
+				
+				return normal(p1,p2,p3);
+			}
+			
+			else
+			if(xx==TILE){
+					vec3[2] n;
+					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+					p2=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz].x, zz);
+					p3=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz+1].x, zz+1);
+					n[0]=normal(p,p2,p3);
+
+					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+					p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
+					p3=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz+1].x, zz+1);
+					n[1]=normal(p,p2,p3);
+
+					vec3 norm=n[0]+n[1]/2;
+
+				return norm;
+			}
+				
+
+			else{
+				vec3[3] n;
+				p1=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x ,zz+1);
+				p3=p;
+				n[0]=normal(p1,p2,p);
+
+				p1=vec3(xx, tubo.height[(xx)*(TILE+1)+zz+1].x ,zz+1);
+				p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x ,zz+1);
+				p3=p;
+				n[1]=normal(p1,p2,p);
+
+
+				p1=vec3(xx, tubo.height[(xx)*(TILE+1)+zz+1].x ,zz+1);
+				p2=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz].x ,zz);
+				p3=p;
+				n[2]=normal(p1,p2,p);
+				vec3 norm=n[0]+n[1]+n[2]/3;
+				return norm;
+			}
+		
+		}
+		else
+		if(xx==0){
+			if(zz==TILE){
+					vec3[2] n;
+					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+					p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
+					p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
+					n[0]=normal(p,p2,p3);
+
+					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+					p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
+					p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
+					n[1]=normal(p,p2,p3);
+
+					vec3 norm=n[0]+n[1]/2;
+
+				return norm;
+			}
+				
+
+			else{
+				vec3[3] n;
+				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
+				p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
+				n[0]=normal(p,p2,p3);
+
+				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
+				p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
+				n[1]=normal(p,p2,p3);
+
+
+
+				
+				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
+				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
+				n[2]=normal(p1,p2,p);
+				vec3 norm=n[0]+n[1]+n[2]/3;
+				return norm;
+			}
+		
+		}
+
+		else
+		if(xx==TILE && zz==TILE){
+			    p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
+				p2=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz].x, zz);
+				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
+				
+				return normal(p1,p2,p3);
+
+		}
+
+}
+else
+	{
+	 vec3[6] n;
+	 vec3 p1,p2,p3;
+
+	 p1=vec3(xx, tubo.height[xx*(TILE+1)+zz-1].x ,zz-1);
+	 p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz].x  ,zz);
+	 p3=p;
+	 n[0]=normal(p1,p2,p);
+	
+	 p1=vec3(xx-1,  tubo.height[(xx-1)*(TILE+1)+zz].x    ,zz);
+	 p2=vec3(xx-1,  tubo.height[(xx-1)*(TILE+1)+zz+1].x   ,zz+1);
+	 p3=p;
+	 n[1]=normal(p1,p2,p);
+
+
+	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
+	 p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x     ,zz+1);
+	 p3=p;
+	 n[2]=normal(p1,p2,p);
+
+	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
+	 p2=vec3(xx+1,  tubo.height[(xx+1)*(TILE+1)+zz].x   ,zz);
+	 p3=p;
+	 n[3]=normal(p1,p2,p);
+
+	 p1=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz].x   ,zz);
+	 p2=vec3(xx+1,  tubo.height[(xx+1)*(TILE+1)+zz-1].x  ,zz-1);
+	 p3=p;
+	 n[4]=normal(p1,p2,p);
+
+	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz-1].x   ,zz-1);
+	 p2=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz-1].x   ,zz-1);
+	 p3=p;
+	 n[5]=normal(p1,p2,p);
+	 
+	 vec3 norm= n[0]+n[1]+n[2]+n[3]+n[4]+n[5]/6;
+	 return norm;
+	 
+	}
+
+}
+
+
+
 void main() {
 	int xTile = int(inPosition.x);
 	int zTile = int(inPosition.z);
@@ -37,6 +204,6 @@ void main() {
 
 	gl_Position = ubo.mvpMat * translatedPos;
 	fragPos = (ubo.mMat * translatedPos).xyz;
-	fragNorm = mat3(ubo.nMat) * vec3(0,1,0);
+	fragNorm = mat3(ubo.nMat) * vertex_normal(inPosition.xyz);
 	fragTexCoord = translatedPos.xz*0.1;//The texture cordinates are the position of the vertex in the plane multiplied by the texture scaling
 }
