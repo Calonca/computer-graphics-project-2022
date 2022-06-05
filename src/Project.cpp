@@ -2773,9 +2773,12 @@ private:
 				prevCt = currentView;
 			}
 			{
-				glm::vec3 aim = truck.rb.transform  *
-					glm::vec4(truck.FollowerDeltaTarget, 1.0f);
-				CamMat = MatrixUtils::LookAtMat(FollowerPos+vec3(0,2,0),  truck.rb.transform[3], 0);
+				//glm::vec3 aim = truck.rb.transform  * glm::vec4(truck.FollowerDeltaTarget, 1.0f);
+                glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 0.335f, 0.0f);
+                glm::vec3 RFDT =
+                        glm::vec3(glm::rotate(glm::mat4(1), 0.0f, glm::vec3(0,1,0)) *
+                        glm::vec4(FollowerDeltaTarget,1.0f));
+				CamMat = MatrixUtils::LookAtMat(vec3(truck.rb.transform[3])+ vec3(0,10,10),  vec3(truck.rb.transform[3])+RFDT, 0);
 			}
 			break;
 		}
