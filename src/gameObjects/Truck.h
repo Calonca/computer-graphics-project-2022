@@ -7,45 +7,45 @@
 
 extern struct Model g_test;
 
+static mat4 initialTransform = translate(mat4(1), vec3(0, 0, 0));
+
 #pragma once
-class Truck // It is an entity
+class Truck : public Object// It is an entity
 {
 public:
 
-    mat4 transfrom =
-            translate(mat4(1),vec3(0,0,0));//*
-            //mat4(quat(vec3(0,glm::radians(-30.0f),0)));
+
     CollisionObject wheelfl = {
-            {vec3(-0.5,0,-1)+vec3(transfrom[3])},
-            transfrom,
+            {vec3(-0.5,0,-1)+vec3(initialTransform[3])},
+            initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelfr = {
-            {vec3(0.5,0,-1)+vec3(transfrom[3])},
-            transfrom,
+            {vec3(0.5,0,-1)+vec3(initialTransform[3])},
+            initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbl = {
-            {vec3(-0.5,0,1)+vec3(transfrom[3])},
-            transfrom,
+            {vec3(-0.5,0,1)+vec3(initialTransform[3])},
+            initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbr = {
-            {vec3(0.5,0,1)+vec3(transfrom[3])},
-            transfrom,
+            {vec3(0.5,0,1)+vec3(initialTransform[3])},
+            initialTransform,
             vec3(0,0,0),
             false
     };
 
 	// Robot Pos
 	RigidBody rb = {
-        transfrom,   //pos
+            initialTransform,   //pos
         //0.0f,
         //glm::radians(-30.0f),
         //0.0f,
@@ -58,17 +58,20 @@ public:
 		0.005f,             //dynamic friction
 		0.1f,            //bounciness
         {wheelfl,wheelfr,wheelbl,wheelbr},
-        vec3(0,0,0)
+            vec3(0,0,0)
 	};
 
-	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f+transfrom[3].y, 0.0f) ;
+	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f + initialTransform[3].y, 0.0f) ;
 
-    mat4 camDelta = translate(mat4(1),vec3(0.0f, transfrom[3].y+1.335f, -0.0f));
-	Model modelToLoad = {"MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", 1, Flat };
+    mat4 camDelta = translate(mat4(1),vec3(0.0f, initialTransform[3].y + 1.335f, -0.0f));
 
 	const float ROT_SPEED = 50000;
 	const float MOVE_SPEED = 9000.75f;
 	const float MOUSE_RES = 500.0f;
+
+    Truck(const std::string &id, const Model &model, const mat4 &transform);
+    Truck();
+
 
     void UpdatePos(GLFWwindow *window, float deltaT);
 };

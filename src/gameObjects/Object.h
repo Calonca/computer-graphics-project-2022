@@ -33,8 +33,11 @@ public:
     Object(std::string id, mat4 transform);
 
 
-    mat4 getTransform();
-    void addObject(std::string id, Model model, mat4 t);
+    mat4 getTransform() const;
+    Object * addObject(std::string id, Model model, mat4 t);
+
+    void addObject(Object o);
+
 
     std::vector<Object> getAllChildrenWithModels(){
         std::vector<Object> result;
