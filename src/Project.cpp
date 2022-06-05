@@ -3091,7 +3091,7 @@ private:
 		}
 		rot = (time + change_time) * 3.5;
 		rot = remainder(rot, 360);
-		gubo.lightDir = glm::vec3(sin(glm::radians(rot)), cos(glm::radians(rot)), 0.0f);
+		gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)),0.0f);
 
 		if(rot<15 || rot>190)
 			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
