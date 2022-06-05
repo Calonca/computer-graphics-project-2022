@@ -2071,8 +2071,6 @@ private:
                 //DeltaNormal is 3
                 //deltaTextCoords is 6
 
-
-
                 vertexToCopy[VD.deltaPos + 0] = M1_vertices[3 * M1_indice + 0];
                 //std::cout << " vtx x " << vertexToCopy[VD.deltaPos + 0];
 
@@ -2083,7 +2081,7 @@ private:
                 //std::cout << " vtx z " << vertexToCopy[VD.deltaPos + 2];
 
                 vertexToCopy[VD.deltaNormal + 0] = 0;
-                vertexToCopy[VD.deltaNormal + 1] = 0;
+                vertexToCopy[VD.deltaNormal + 1] = 1;
                 vertexToCopy[VD.deltaNormal + 2] = 0;
 
                 vertexToCopy[VD.deltaTexCoord + 0] = 100;

@@ -36,5 +36,5 @@ void main() {
 	gl_Position = ubo.mvpMat * translatedPos;
 	fragPos = (ubo.mMat * translatedPos).xyz;
 	fragNorm = mat3(ubo.nMat) * inNormal;
-	fragTexCoord = inTexCoord;
+	fragTexCoord = translatedPos.xz*0.1;//The texture cordinates are the position of the vertex in the plane
 }
