@@ -67,13 +67,13 @@ void  makeModels() {
 }
 
 float getHeight(PerlinNoise &pn, float xoff, float zoff) {
-    float e = (float)(
-            0.1f*pn.noise(0.15 * xoff, 0, 0.15*zoff) +
+	float e = (float) (
+            0.1f * pn.noise(0.15 * xoff, 0, 0.15 * zoff) +
             //2.8 * pn.noise(0.06 * xoff, 2, 0.06 * zoff)+
             10 * pn.noise(0.02 * xoff, 3, 0.02 * zoff)
             );
     //xoff and and zoff defines the frequency of slopes and the multiplication factor defines the amplitude or max heights
-    return pow(e, 1.55)-15;
+	return pow(e, 1.55)-15;
 }
 
 

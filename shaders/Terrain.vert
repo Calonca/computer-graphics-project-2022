@@ -25,8 +25,8 @@ layout(location = 2) out vec2 fragTexCoord;
 
 
 vec3 normal(vec3 p1, vec3 p2, vec3 p3){
-	vec3 v1=p1-p2;
-	vec3 v2=p1-p3;
+	vec3 v1=p3-p1;
+	vec3 v2=p3-p2;
 	return cross(v1,v2);
 }
 
@@ -148,7 +148,6 @@ if(xx==0 || zz==0 || xx==TILE || zz==TILE)
 else
 	{
 	 vec3[6] n;
-	 vec3 p1,p2,p3;
 
 	 p1=vec3(xx, tubo.height[xx*(TILE+1)+zz-1].x ,zz-1);
 	 p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz].x  ,zz);
@@ -161,8 +160,8 @@ else
 	 n[1]=normal(p1,p2,p);
 
 
-	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
-	 p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x     ,zz+1);
+	 p1=  vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x     ,zz+1);
+	 p2=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
 	 p3=p;
 	 n[2]=normal(p1,p2,p);
 
@@ -176,16 +175,53 @@ else
 	 p3=p;
 	 n[4]=normal(p1,p2,p);
 
-	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz-1].x   ,zz-1);
-	 p2=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz-1].x   ,zz-1);
+	 p1=  vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz-1].x   ,zz-1);
+	 p2= vec3(xx,  tubo.height[(xx)*(TILE+1)+zz-1].x   ,zz-1) ;
 	 p3=p;
 	 n[5]=normal(p1,p2,p);
 	 
-	 vec3 norm= n[0]+n[1]+n[2]+n[3]+n[4]+n[5]/6;
+	 vec3 norm= (n[0]+n[1]+n[2]+n[3]+n[4]+n[5]);
 	 return norm;
 	 
-	}
+}
+	/*
+	vec3[6] n;
 
+	 p1=vec3(xx, 0 ,zz-1);
+	 p2=vec3(xx-1, 0  ,zz);
+	 p3=p;
+	 n[0]=normal(p1,p2,p);
+	
+	 p1=vec3(xx-1,  0    ,zz);
+	 p2=vec3(xx-1,  0   ,zz+1);
+	 p3=p;
+	 n[1]=normal(p1,p2,p);
+
+
+	 p1=vec3(xx, 0   ,zz+1);
+	 p2=vec3(xx-1, 0     ,zz+1);
+	 p3=p;
+	 n[2]=normal(p1,p2,p);
+
+	 p1=vec3(xx, 0   ,zz+1);
+	 p2=vec3(xx+1, 0   ,zz);
+	 p3=p;
+	 n[3]=normal(p1,p2,p);
+
+	 p1=vec3(xx+1, 0  ,zz);
+	 p2=vec3(xx+1,  0  ,zz-1);
+	 p3=p;
+	 n[4]=normal(p1,p2,p);
+
+	 p1=vec3(xx,  0  ,zz-1);
+	 p2=vec3(xx+1, 0  ,zz-1);
+	 p3=p;
+	 n[5]=normal(p1,p2,p);
+	 
+	 vec3 norm= n[0]+n[1]+n[2]+n[3]+n[4]+n[5];
+	 return normalize(norm);
+	 
+*/	 
 }
 
 
@@ -204,6 +240,6 @@ void main() {
 
 	gl_Position = ubo.mvpMat * translatedPos;
 	fragPos = (ubo.mMat * translatedPos).xyz;
-	fragNorm = mat3(ubo.nMat) * vertex_normal(inPosition.xyz);
+	fragNorm = mat3(ubo.nMat) * (vertex_normal(inPosition.xyz));
 	fragTexCoord = translatedPos.xz*0.1;//The texture cordinates are the position of the vertex in the plane multiplied by the texture scaling
 }
