@@ -19,13 +19,13 @@ Object::Object(std::string id, const mat4 transform) : transform(transform), id(
 
 
 Object* Object::addObject(std::string identifier, Model m, mat4 t) {
-    Object o = Object(std::move(identifier), m, t);
-    o.pParent= this;
+    auto* o = new Object(std::move(identifier), m, t);
+    o->pParent= this;
     children.push_back(o);
-    return &children[children.size()-1];
+    return o;
 }
 
-void Object::addObject(Object o) {
+void Object::addObject(Object& o) {
     o.pParent= this;
-    children.push_back(o);
+    children.push_back(&o);
 }

@@ -15,10 +15,11 @@ class Object {
 private:
     mat4 transform;
     void addChildrenToVector(std::vector<Object>& res){
-        for(auto child : children){
-            if (child.model.scale >0) {
-                res.push_back(child);
-                child.addChildrenToVector(res);
+        for(Object* child : children){
+            if (child->model.scale >0) {
+                res.push_back(*child);
+                std::cout<<"Adding child: "<< child->id<<std::endl;
+                child->addChildrenToVector(res);
             }
         }
     };
@@ -26,7 +27,7 @@ public:
     std::string id;
     Object* pParent;
     Model model = {"","",0,Flat};
-    std::vector<Object> children;
+    std::vector<Object*> children;//Std vector makes a copy of the Objects
 
     Object(std::string id, Model model, mat4 transform);
 
@@ -34,9 +35,9 @@ public:
 
 
     mat4 getTransform() const;
-    Object * addObject(std::string id, Model model, mat4 t);
 
-    void addObject(Object o);
+    Object * addObject(std::string id, Model model, mat4 t);
+    void addObject(Object& o);
 
 
     std::vector<Object> getAllChildrenWithModels(){
@@ -49,8 +50,8 @@ public:
         int result = 0;
         result = children.size();
         for(auto child : children){
-            if (child.model.scale >0) {
-                result += child.countChildrenWithModels();
+            if (child->model.scale >0) {
+                result += child->countChildrenWithModels();
             }
         }
         return result;

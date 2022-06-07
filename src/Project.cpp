@@ -1780,8 +1780,13 @@ private:
 
 	void loadModels() {
         sceneToLoad.addObject("terrain", {"floor.obj", "grass.jpg", 1, Terrain}, mat4(1));
-        //Object* pTest1 = sceneToLoad.addObject("walls", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1),vec3(0,0,0)));
-        //pTest1->addObject("walls2", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1),vec3(0,0,-5)));
+
+        ///Test objects
+        //Object* pyramid = sceneToLoad.addObject("pyr", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(0, 0, 0)));
+        //Object* walls = pyramid->addObject("walls", {"Walls.obj", "grass.jpg", 1, Flat}, translate(mat4(1), vec3(10, 0, 0)));
+        //Object* walls2 = walls->addObject("walls2", {"Walls.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(11, 10, 0)));
+
+        ///
         sceneToLoad.addObject(truck);
 
         //std::cout<<"Scene size is :"<<sceneToLoad.countChildrenWithModels()<<std::endl;
