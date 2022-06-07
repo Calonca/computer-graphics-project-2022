@@ -12,8 +12,8 @@ static mat4 initialTransform = translate(mat4(1), vec3(0, 0, 0));
 #pragma once
 class Truck : public Object// It is an entity
 {
-public:
 
+private:
 
     CollisionObject wheelfl = {
             {vec3(-0.5,0,-1)+vec3(initialTransform[3])},
@@ -42,10 +42,10 @@ public:
             vec3(0,0,0),
             false
     };
-
+public:
 	// Robot Pos
 	RigidBody rb = {
-            initialTransform,   //pos
+            nullptr,   //pos
         //0.0f,
         //glm::radians(-30.0f),
         //0.0f,
@@ -69,10 +69,12 @@ public:
 	const float MOVE_SPEED = 3000000.75f;
 	const float MOUSE_RES = 500.0f;
 
-    Truck(const std::string &id, const Model &model, const mat4 &transform);
+    //Truck(const std::string &id, const Model &model, const mat4 &transform);
     Truck();
 
 
     void UpdatePos(GLFWwindow *window, float deltaT);
+
+    //mat4 getTransform() const override;
 };
 

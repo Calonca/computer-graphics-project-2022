@@ -2725,7 +2725,7 @@ private:
 			}
 		}
 
-		//mat4 oldTransform = truck.rb.transform;
+		//mat4 oldTransform = truck.getTransform();
 
         truck.UpdatePos(window, deltaT);
 
@@ -2745,7 +2745,7 @@ private:
 
 		glm::vec3 EyePos;
 		glm::vec3 FollowerTargetPos;
-		static glm::vec3 FollowerPos = truck.rb.transform[3];
+		static glm::vec3 FollowerPos = truck.getTransform()[3];
 
 		switch (currentView) {
 		case 0:
@@ -2754,23 +2754,23 @@ private:
 				prevCt = currentView;
 			}
 			{
-				//glm::vec3 RRCDP = truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f);
+				//glm::vec3 RRCDP = truck.getTransform() * vec4(truck.RobotCamDeltaPos, 1.0f);
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				//CamMat = MatrixUtils::LookInDirMat(truck.rb.transform * vec4(truck.RobotCamDeltaPos, 1.0f),
+				//CamMat = MatrixUtils::LookInDirMat(truck.getTransform() * vec4(truck.RobotCamDeltaPos, 1.0f),
                 //                                   glm::vec3(0,0,0));
                 vec3 xAxis = vec3(1,0,0);
-                vec3 truckX = translate(truck.rb.transform,-vec3(truck.rb.transform[3]))*vec4(xAxis,1);
+                vec3 truckX = translate(truck.getTransform(),-vec3(truck.getTransform()[3]))*vec4(xAxis,1);
                 float angle = acos( dot(normalize(xAxis),normalize(truckX)));
                 //MatrixUtils::printVector(truckX);
                 //std::cout<<angle<<std::endl;
                 /*
                 CamMat = inverse(
-                        translate(mat4(1),vec3(truck.rb.transform[3]))*
+                        translate(mat4(1),vec3(truck.getTransform()[3]))*
                         truck.camDelta*
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
                 //CamMat = inverse(truck.camDelta);
-                CamMat = inverse(truck.rb.transform*
+                CamMat = inverse(truck.getTransform()*
                         truck.camDelta
                 );
 			}
@@ -2781,12 +2781,12 @@ private:
 				prevCt = currentView;
 			}
 			{
-				//glm::vec3 aim = truck.rb.transform  * glm::vec4(truck.FollowerDeltaTarget, 1.0f);
+				//glm::vec3 aim = truck.getTransform()  * glm::vec4(truck.FollowerDeltaTarget, 1.0f);
                 glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 0.335f, 0.0f);
                 glm::vec3 RFDT =
                         glm::vec3(glm::rotate(glm::mat4(1), 0.0f, glm::vec3(0,1,0)) *
                         glm::vec4(FollowerDeltaTarget,1.0f));
-				CamMat = MatrixUtils::LookAtMat(vec3(truck.rb.transform[3])+ vec3(0,10,10),  vec3(truck.rb.transform[3])+RFDT, 0);
+				CamMat = MatrixUtils::LookAtMat(vec3(truck.getTransform()[3])+ vec3(0,10,10),  vec3(truck.getTransform()[3])+RFDT, 0);
 			}
 			break;
 		}
@@ -2804,8 +2804,8 @@ private:
 
             if (o->id=="terrain"){
                 const float tilesize = 1.0f;
-                int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
-                int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
+                int truckPosX = floor(truck.getTransform()[3].x/ tilesize);//Should be divided TileSize
+                int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
 
                 static float terrainUpdateTime;
                 static bool firstFrame = true;
@@ -2824,7 +2824,7 @@ private:
             }
 
 			if (o->id=="truck") {
-				glm::mat4 TruckWM = truck.rb.transform;
+				glm::mat4 TruckWM = truck.getTransform();
 
 				ubo.mMat = glm::rotate(TruckWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
 				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *

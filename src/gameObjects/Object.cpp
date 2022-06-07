@@ -34,3 +34,7 @@ void Object::addObject(Object& o) {
         objs.push_back(&o);
 }
 std::vector<Object*>  Object::objs = {} ;
+
+void Object::setTransform(const mat4 &t) {
+    Object::transform = t;
+}

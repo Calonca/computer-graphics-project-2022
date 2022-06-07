@@ -87,5 +87,8 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 
 }
 
-Truck::Truck(const std::string &id, const Model &model, const mat4 &transform) : Object(id, model, transform) {}
-Truck::Truck() : Object("truck", {"MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", 1, Flat }, initialTransform) {}
+Model m = {"MonsterTruck/Truck.obj", "MonsterTruck/Truck.png", 1, Flat };
+//Truck::Truck(const std::string &id, const Model &model, const mat4 &transform) : Object(id, model, transform) {}
+Truck::Truck() : Object("truck", m, initialTransform) {
+    rb.parent = this;
+}

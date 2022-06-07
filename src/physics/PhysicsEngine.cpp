@@ -159,6 +159,7 @@ void PhysicsEngine::ApplyForces(float dt) {
     //std::cout<<"deltatime is :"<<dt<<std::endl;
     float inertia = 1000;
     for (RigidBody* rb : rbs) {
+        mat4 transform = rb->parent->getTransform();
 
         vec3 resultingForce = vec3(0,0,0);
         vec3 torque = vec3(0,0,0);
@@ -169,7 +170,7 @@ void PhysicsEngine::ApplyForces(float dt) {
             //MatrixUtils::printVector(moment.force);
             vec3 force;
             if (moment.isGlobal)
-                force = MatrixUtils::fromGlobalToLocal(rb->transform,moment.force);
+                force = MatrixUtils::fromGlobalToLocal(transform,moment.force);
             else
                 force = moment.force;
 
@@ -192,12 +193,13 @@ void PhysicsEngine::ApplyForces(float dt) {
         rb->velocity -= rb->dynamicFriction*rb->velocity;
 
         //Rotation due to angular velocity
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.p*dt,vec3(0,0,1));
-        rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.y*dt,vec3(0,1,0));
+        transform = transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
+        transform = transform * rotate(mat4(1),rb->angularVelocity.p*dt,vec3(0,0,1));
+        transform = transform * rotate(mat4(1),rb->angularVelocity.y*dt,vec3(0,1,0));
 
         // Translate the Rigidbody based on the velocity in the Rigidbody reference system
-        rb->transform = rb->transform * translate(mat4(1),rb->velocity*dt);
+        transform = transform * translate(mat4(1),rb->velocity*dt);
+        rb->parent->setTransform(transform);
 
         //Reset values
         rb->moments = {};

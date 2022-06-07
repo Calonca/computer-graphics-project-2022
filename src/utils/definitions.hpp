@@ -5,18 +5,12 @@
 #include <iostream>
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "../gameObjects/Object.hpp"
+
 using namespace glm;
 
-enum PipelineType { Flat, Terrain };
+
 struct RigidBody;
-
-struct Model {
-	const char* ObjFile;
-	const char* TextureFile;
-	float scale;
-	PipelineType pt;
-};
-
 //Collections of points which collision will be tested
 struct CollisionObject{
 private:
@@ -59,14 +53,12 @@ struct Moment {
     bool isGlobal;
 };
 
+class Object;
 /// <summary>
 /// Component used ot hold physics values for entities
 /// </summary>
 struct RigidBody {
-    mat4 transform;
-    //float lookYaw;
-    //float lookPitch;
-    //float lookRoll;
+    Object* parent;
 	std::vector<Moment> moments;
 	vec3 velocity;
 	float mass;//Mass in kg

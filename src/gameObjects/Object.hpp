@@ -1,15 +1,18 @@
 //
 // Created by calonca on 6/5/22.
 //
+#pragma once
+#ifndef CGPROJECT_OBJECT_H
+#define CGPROJECT_OBJECT_H
 
 #include <stdlib.h>
 #include <map>
 #include <vector>
-#include "../utils/definitions.hpp"
+#include <string>
+#include "glm/glm.hpp"
+#include "../utils/Model.h"
 
-#ifndef CGPROJECT_OBJECT_H
-#define CGPROJECT_OBJECT_H
-
+using namespace glm;
 
 class Object {
 private:
@@ -36,7 +39,9 @@ public:
     Object(std::string id, mat4 transform);
 
 
-    mat4 getTransform() const;
+    virtual mat4 getTransform() const;
+
+    void setTransform(const mat4 &t);
 
     Object * addObject(std::string id, Model model, mat4 t);
     void addObject(Object& o);
