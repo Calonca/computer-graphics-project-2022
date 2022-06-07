@@ -40,11 +40,7 @@ void PhysicsEngine::Step(float dt)
         ApplyForces(THRESHOLD);
         accumulator-=THRESHOLD;
     }
-
-
 }
-
-
 
 //Adds forces to rigidbodies based on collisions
 void PhysicsEngine::SolveCollisions() {

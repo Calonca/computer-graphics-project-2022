@@ -125,6 +125,14 @@ struct GlobalUniformBufferObject {
 	alignas(16) glm::vec3 lightDir;
 	alignas(16) glm::vec4 lightColor;
 	alignas(16) glm::vec3 eyePos;
+    alignas(16) glm::vec3 leftSpotlightDir;
+    alignas(16) glm::vec3 leftSpotlightPos;
+    alignas(16) glm::vec3 leftSpotlightColor;
+    alignas(16) glm::vec4 leftSpotlightParams;
+    alignas(16) glm::vec3 rightSpotlightDir;
+    alignas(16) glm::vec3 rightSpotlightPos;
+    alignas(16) glm::vec3 rightSpotlightColor;
+    alignas(16) glm::vec4 rightSpotlightParams;
 };
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
@@ -1789,6 +1797,10 @@ private:
 
         ///
         sceneToLoad.addObject(truck);
+        Object* leftLight = new Object("leftLight",translate(mat4(1),vec3(-0.4,1,-0.5)));
+        Object* rightLight = new Object("rightLight",translate(mat4(1),vec3(0.4,1,-0.5)));
+        truck.addObject(*leftLight);
+        truck.addObject(*rightLight);
 
 
 
@@ -2867,11 +2879,19 @@ private:
 
 		if(rot<15 || rot>190)
 			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
-
+        gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// updates global uniforms
 		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
-		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        gubo.leftSpotlightDir = truck.children[0]->getTransform()[2];//Gets the z axis of the light reference system
+        gubo.leftSpotlightPos = truck.children[0]->getTransform()[3];
+        gubo.leftSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
+        gubo.leftSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
+
+        gubo.rightSpotlightDir = truck.children[1]->getTransform()[2];//Gets the z axis of the light reference system
+        gubo.rightSpotlightPos = truck.children[1]->getTransform()[3];
+        gubo.rightSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
+        gubo.rightSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
 		gubo.eyePos = EyePos;
 
 		
