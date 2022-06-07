@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PerlinNoise.h"
-#include "models.h"
+#include "models.hpp"
 
 #define TILE_NUMBER 60
 

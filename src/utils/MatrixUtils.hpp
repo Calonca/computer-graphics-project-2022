@@ -1,5 +1,5 @@
-#ifndef CGPROJECT_MATRIXUTILS_H
-#define CGPROJECT_MATRIXUTILS_H
+#ifndef CGPROJECT_MATRIXUTILS_HPP
+#define CGPROJECT_MATRIXUTILS_HPP
 
 #include <string>
 #include "glm/glm.hpp"
@@ -37,4 +37,4 @@ public:
 
 
 
-#endif //CGPROJECT_MATRIXUTILS_H
+#endif //CGPROJECT_MATRIXUTILS_HPP

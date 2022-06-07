@@ -12,19 +12,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 # Build project, give it a name and includes list of file to be compiled
 add_executable(${PNAME} src/${CFILE}.cpp
         src/gameObjects/Component.cpp
-        src/gameObjects/Component.h
+        src/gameObjects/Component.hpp
         src/gameObjects/Truck.cpp
-        src/gameObjects/Truck.h
-        src/utils/definitions.h
+        src/gameObjects/Truck.hpp
+        src/utils/definitions.hpp
         src/utils/definitions.cpp
         src/utils/MatrixUtils.cpp
-        src/utils/MatrixUtils.h
+        src/utils/MatrixUtils.hpp
         src/physics/PhysicsEngine.cpp
-        src/physics/PhysicsEngine.h
+        src/physics/PhysicsEngine.hpp
         src/worldgen/PerlinNoise.h
         src/worldgen/PerlinNoise.cpp
-        src/worldgen/models.h
-        src/Project.h src/gameObjects/Object.cpp src/gameObjects/Object.h)
+        src/worldgen/models.hpp
+        src/Project.hpp src/gameObjects/Object.cpp src/gameObjects/Object.hpp)
 
 #target_compile_definitions (${PNAME} PUBLIC NDEBUG) #Used to deactivate validation layers messages
 

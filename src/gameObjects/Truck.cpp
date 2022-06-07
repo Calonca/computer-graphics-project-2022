@@ -1,4 +1,4 @@
-#include "Truck.h"
+#include "Truck.hpp"
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtc/quaternion.hpp"
 
@@ -41,11 +41,11 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_W)) {
-        rb.addLocalMoment(vec3(MOVE_SPEED * glm::vec4(0, 0, -1, 1)),
+        rb.addLocalMoment(vec3(MOVE_SPEED*deltaT * glm::vec4(0, 0, -1, 1)),
                           vec3(0, 0, 0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_S)) {
-        rb.addLocalMoment(vec3(MOVE_SPEED * glm::vec4(0, 0, 1, 1)),
+        rb.addLocalMoment(vec3(MOVE_SPEED*deltaT * glm::vec4(0, 0, 1, 1)),
                           vec3(0, 0, 0));
 	}
 

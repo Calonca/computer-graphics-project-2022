@@ -2,7 +2,7 @@
 // Created by calonca on 5/25/22.
 //
 
-#include "MatrixUtils.h"
+#include "MatrixUtils.hpp"
 
 mat4 MatrixUtils::LookInDirMat(vec3 Pos, vec3 Angs) {
     float alpha = Angs.x;

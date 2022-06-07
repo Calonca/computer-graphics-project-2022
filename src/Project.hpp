@@ -2,8 +2,8 @@
 // Created by calonca on 6/1/22.
 //
 
-#ifndef CGPROJECT_PROJECT_H
-#define CGPROJECT_PROJECT_H
+#ifndef CGPROJECT_PROJECT_HPP
+#define CGPROJECT_PROJECT_HPP
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -217,4 +217,4 @@ std::vector<FontDef> Fonts = {{73,{{0,0,0,0,0,0,21},{116,331,18,61,4,4,21},{379,
 
 
 
-#endif //CGPROJECT_PROJECT_H
+#endif //CGPROJECT_PROJECT_HPP

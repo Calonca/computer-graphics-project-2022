@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <map>
 #include <vector>
-#include "../utils/definitions.h"
+#include "../utils/definitions.hpp"
 
 #ifndef CGPROJECT_OBJECT_H
 #define CGPROJECT_OBJECT_H
@@ -14,16 +14,18 @@
 class Object {
 private:
     mat4 transform;
+    /*
     void addChildrenToVector(std::vector<Object>& res){
         for(Object* child : children){
             if (child->model.scale >0) {
                 res.push_back(*child);
-                std::cout<<"Adding child: "<< child->id<<std::endl;
+                //std::cout<<"Adding child: "<< child->id<<std::endl;
                 child->addChildrenToVector(res);
             }
         }
-    };
+    };*/
 public:
+    static std::vector<Object*> objs;//Contains list of all the objects with children
     std::string id;
     Object* pParent;
     Model model = {"","",0,Flat};
@@ -40,6 +42,7 @@ public:
     void addObject(Object& o);
 
 
+    /*
     std::vector<Object> getAllChildrenWithModels(){
         std::vector<Object> result;
         addChildrenToVector(result);
@@ -56,7 +59,7 @@ public:
         }
         return result;
     };
-
+    */
 
 };
 

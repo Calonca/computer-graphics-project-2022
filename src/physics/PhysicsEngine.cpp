@@ -1,5 +1,5 @@
 #include <numeric>
-#include "PhysicsEngine.h"
+#include "PhysicsEngine.hpp"
 
 void PhysicsEngine::AddRigidBody(RigidBody* rb)
 {
@@ -28,18 +28,26 @@ void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
 }
 
 
+const float THRESHOLD = 0.002f;
+float accumulator = 0.0f;
 
 void PhysicsEngine::Step(float dt)
 {
-    ApplyGravity(dt);
-    SolveCollisions(dt);
-    ApplyForces(dt);
+    accumulator +=dt;
+    while (accumulator > THRESHOLD){
+        ApplyGravity();
+        SolveCollisions();
+        ApplyForces(THRESHOLD);
+        accumulator-=THRESHOLD;
+    }
+
+
 }
 
 
 
 //Adds forces to rigidbodies based on collisions
-void PhysicsEngine::SolveCollisions(float dt) {
+void PhysicsEngine::SolveCollisions() {
     //For each collider check collision objects and set force
 
     //std::cout<<"Testing collison points:"<<std::endl;
@@ -77,7 +85,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                 if (collisionObject.isColliding) {
                     //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 10.0f,collisionObject.getLocalPoint(0));
+                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 15.0f,collisionObject.getLocalPoint(0));
 
                     glm::vec3 aVel = rb->velocity;
                     glm::vec3 bVel = glm::vec3(0.0f);
@@ -98,11 +106,11 @@ void PhysicsEngine::SolveCollisions(float dt) {
 
                     glm::vec3 impluse = j * normal;
 
-                    aVel -= impluse * aInvMass;
+                    aVel -= impluse * aInvMass*0.005f;
                     //std::cout<<"Velocity delta after impulse: "<< MatrixUtils::printVector(-impluse * aInvMass)<< std::endl;
 
                     // Friction
-
+                    /*
                     rVel = bVel - aVel;
                     nSpd = glm::dot(rVel, normal);
 
@@ -126,7 +134,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
                         friction = -j * tangent * rb->dynamicFriction;
                         friction = vec3(0,0,0);
                     }
-                    friction = -j * tangent * rb->dynamicFriction;
+                    friction = -j * tangent * rb->dynamicFriction;*/
 
                     rb->velocity = aVel;// - friction * aInvMass;
 
@@ -137,7 +145,7 @@ void PhysicsEngine::SolveCollisions(float dt) {
     }
 }
 
-void PhysicsEngine::ApplyGravity(float dt) {
+void PhysicsEngine::ApplyGravity() {
     for (RigidBody* rb : rbs) {
         if (rb->hasGravity){
             rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-0.1,0));//Adds gravity to forces
@@ -148,11 +156,11 @@ void PhysicsEngine::ApplyGravity(float dt) {
 
 
 void PhysicsEngine::ApplyForces(float dt) {
+    //std::cout<<"deltatime is :"<<dt<<std::endl;
     float inertia = 1000;
     for (RigidBody* rb : rbs) {
 
         vec3 resultingForce = vec3(0,0,0);
-
         vec3 torque = vec3(0,0,0);
 
         //std::cout<<"Vertos"<<std::endl;
@@ -178,16 +186,13 @@ void PhysicsEngine::ApplyForces(float dt) {
         rb->angularVelocity += angularAcceleration*dt;
 
         //Angular drag
-        const float angularDrag = 0.025f;
+        const float angularDrag = 0.01f;
         rb->angularVelocity -= angularDrag * rb->angularVelocity;
         //Adds air friction
         rb->velocity -= rb->dynamicFriction*rb->velocity;
 
         //Rotation due to angular velocity
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
-        mat4 transformRotation = translate(rb->transform,-vec3(rb->transform[3]));
-        transformRotation = transformRotation * rotate(mat4(1),rb->angularVelocity.r,vec3(0,0,1));
-        //rb->transform = translate(transformRotation,vec3(rb->transform[3]));
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.p*dt,vec3(0,0,1));
         rb->transform = rb->transform * rotate(mat4(1),rb->angularVelocity.y*dt,vec3(0,1,0));
 

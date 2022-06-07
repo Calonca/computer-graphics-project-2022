@@ -1,4 +1,4 @@
-#include "definitions.h"
+#include "definitions.hpp"
 
 void CollisionObject::setTransform(RigidBody *r) {
     t = r->transform;

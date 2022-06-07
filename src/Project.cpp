@@ -14,11 +14,11 @@
 #include <fstream>
 #include <array>
 #include <unordered_map>
-#include "gameObjects/Object.h"
+#include "gameObjects/Object.hpp"
 
 #include "worldgen/PerlinNoise.h"
 
-#include "utils/definitions.h"
+#include "utils/definitions.hpp"
 
 
 #define GLM_FORCE_RADIANS
@@ -30,6 +30,7 @@
 #include "glm/gtx/hash.hpp"
 
 #include <chrono>
+#include <thread>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -88,10 +89,10 @@ std::vector<float> M1_vertices;
 std::vector<uint32_t> M1_indices;
 
 #include "worldgen/models.cpp"
-#include "utils/MatrixUtils.h"
-#include "gameObjects/Truck.h"
-#include "physics/PhysicsEngine.h"
-#include "Project.h"
+#include "utils/MatrixUtils.hpp"
+#include "gameObjects/Truck.hpp"
+#include "physics/PhysicsEngine.hpp"
+#include "Project.hpp"
 
 
 namespace std {
@@ -951,7 +952,7 @@ private:
         terrainUboLayoutBinding.binding = 3;
         terrainUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         terrainUboLayoutBinding.descriptorCount = 1;
-        terrainUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        terrainUboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
         uboLayoutBinding.pImmutableSamplers = nullptr;
 
         std::array<VkDescriptorSetLayoutBinding, 4> bindings = {uboLayoutBinding, samplerLayoutBinding, globalUboLayoutBinding,terrainUboLayoutBinding};
@@ -1789,11 +1790,13 @@ private:
         ///
         sceneToLoad.addObject(truck);
 
+
+
         //std::cout<<"Scene size is :"<<sceneToLoad.countChildrenWithModels()<<std::endl;
-		scene.resize(sceneToLoad.countChildrenWithModels());
-        std::vector<Object> sct = sceneToLoad.getAllChildrenWithModels();
+		scene.resize(Object::objs.size());
+        std::vector<Object*> sct = Object::objs;
 		for (int i = 0;i<sct.size();i++ ) {
-			loadModelWithTexture(sct[i], i);
+			loadModelWithTexture(*sct[i], i);
 		}
 
 
@@ -2317,8 +2320,7 @@ private:
 				descriptorWrites[1].dstSet = PhongDescriptorSets[i];
 				descriptorWrites[1].dstBinding = 1;
 				descriptorWrites[1].dstArrayElement = 0;
-				descriptorWrites[1].descriptorType =
-											VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				descriptorWrites[1].descriptorCount = 1;
 				descriptorWrites[1].pImageInfo = &imageInfo;
 				
@@ -2499,9 +2501,9 @@ private:
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					PhongPipeline);
 
-            std::vector<Object> sct = sceneToLoad.getAllChildrenWithModels();
+            std::vector<Object*> sct = Object::objs;
             for (int j = 0;j<sct.size();j++ ) {
-				if(sct[j].model.pt == Flat) {
+				if(sct[j]->model.pt == Flat) {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -2521,7 +2523,7 @@ private:
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                               TerrainPipeline);
             for (int j = 0;j<sct.size();j++ ) {
-                if(sct[j].model.pt == Terrain) {
+                if(sct[j]->model.pt == Terrain) {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -2620,6 +2622,7 @@ private:
 	}
 
     void mainLoop() {
+        //std::thread t(&PhysicsEngine::StepC, PhysicsEngine(),&physicsEngine);
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             drawFrame();
@@ -2789,16 +2792,17 @@ private:
 		}
 		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
-        std::vector<Object> sct = sceneToLoad.getAllChildrenWithModels();
+        std::vector<Object*> sct = Object::objs;
         for (int j = 0;j<sct.size();j++) {
+            Object* o=sct[j];
             UniformBufferObject ubo{};
             static TerrainUniformBufferObject tubo{};
 
 			glm::vec3 delta;
 
-			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(sct[j].model.scale));
+			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(o->model.scale));
 
-            if (sct[j].id=="terrain"){
+            if (o->id=="terrain"){
                 const float tilesize = 1.0f;
                 int truckPosX = floor(truck.rb.transform[3].x/ tilesize);//Should be divided TileSize
                 int truckPosZ = floor(truck.rb.transform[3].z / tilesize);//Should be divided TileSize
@@ -2819,7 +2823,7 @@ private:
                 }
             }
 
-			if (sct[j].id=="truck") {
+			if (o->id=="truck") {
 				glm::mat4 TruckWM = truck.rb.transform;
 
 				ubo.mMat = glm::rotate(TruckWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;

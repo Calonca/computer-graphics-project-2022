@@ -2,11 +2,11 @@
 // Created by calonca on 5/25/22.
 //
 
-#ifndef CGPROJECT_MODELS_H
-#define CGPROJECT_MODELS_H
+#ifndef CGPROJECT_MODELS_HPP
+#define CGPROJECT_MODELS_HPP
 
-#include "../utils/definitions.h"
-#include "../utils/MatrixUtils.h"
+#include "../utils/definitions.hpp"
+#include "../utils/MatrixUtils.hpp"
 
 #pragma once
 class models
@@ -50,4 +50,4 @@ struct TerrainCollider : Collider {
 
 
 
-#endif //CGPROJECT_MODELS_H
+#endif //CGPROJECT_MODELS_HPP

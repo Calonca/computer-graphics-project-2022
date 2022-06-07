@@ -2,7 +2,7 @@
 // Created by calonca on 6/5/22.
 //
 
-#include "Object.h"
+#include "Object.hpp"
 
 #include <utility>
 
@@ -22,10 +22,15 @@ Object* Object::addObject(std::string identifier, Model m, mat4 t) {
     auto* o = new Object(std::move(identifier), m, t);
     o->pParent= this;
     children.push_back(o);
+    if (o->model.scale>0)
+        objs.push_back(o);
     return o;
 }
 
 void Object::addObject(Object& o) {
     o.pParent= this;
     children.push_back(&o);
+    if (o.model.scale>0)
+        objs.push_back(&o);
 }
+std::vector<Object*>  Object::objs = {} ;
