@@ -86,7 +86,7 @@ void PhysicsEngine::SolveCollisions() {
                     glm::vec3 aVel = rb->velocity;
                     glm::vec3 bVel = glm::vec3(0.0f);
                     glm::vec3 rVel = bVel - aVel;
-                    vec3 normal = vec3(0,1,0);
+                    vec3 normal = collisionObject.normal;
                     float nSpd = dot(rVel, normal);
 
                     float aInvMass = 1 / rb->mass;
@@ -128,10 +128,9 @@ void PhysicsEngine::SolveCollisions() {
 
                     else {
                         friction = -j * tangent * rb->dynamicFriction;
-                        friction = vec3(0,0,0);
-                    }
-                    friction = -j * tangent * rb->dynamicFriction;*/
 
+                    }
+                    */
                     rb->velocity = aVel;// - friction * aInvMass;
 
                     //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;

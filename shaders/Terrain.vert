@@ -1,6 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-const int TILE = 60;
+const int TILE = 120	;
 const float TILESIZE = 1.0f;
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -30,201 +30,80 @@ vec3 normal(vec3 p1, vec3 p2, vec3 p3){
 	return cross(v1,v2);
 }
 
+float getHeight(int heightId){
+	//return tubo.height[heightId/4].x;
+	int tile4 = int(floor(heightId/4));
+	vec4 hvec = tubo.height[tile4];
+	int vecIndex = heightId- tile4*4;
+
+	switch (vecIndex) {
+		case 0:
+		return hvec.x;
+		case 1:
+		return hvec.y;
+		case 2:
+		return hvec.z;
+		case 3:
+		return hvec.w;
+	}
+	return 0;
+}
+
+float clamp(float p, int min,int max){
+	if (p<min)
+		return min;
+	if (p>max)
+		return max;
+	return p;
+}
+
 vec3 vertex_normal(vec3 p){
-int xx=int(p.x);
-int zz=int(p.z);
-		 vec3 p1,p2,p3;
 
+	//Is vertex it's on the edge calculates the normal of a vertex at distance 1 from the edge
+	p.x = clamp(p.x,1,TILE-1);
+	p.z = clamp(p.z,1,TILE-1);
+	p.y = p.x*(TILE+1)+p.y;
 
-if(xx==0 || zz==0 || xx==TILE || zz==TILE)
-{
+	int xx=int(p.x);
+	int zz=int(p.z);
+	vec3 p1, p2, p3;
 
-		if(zz==0){
-			if(xx==0){
-				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
-				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
-				
-				return normal(p1,p2,p3);
-			}
-			
-			else
-			if(xx==TILE){
-					vec3[2] n;
-					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-					p2=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz].x, zz);
-					p3=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz+1].x, zz+1);
-					n[0]=normal(p,p2,p3);
-
-					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-					p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
-					p3=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz+1].x, zz+1);
-					n[1]=normal(p,p2,p3);
-
-					vec3 norm=n[0]+n[1]/2;
-
-				return norm;
-			}
-				
-
-			else{
-				vec3[3] n;
-				p1=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x ,zz+1);
-				p3=p;
-				n[0]=normal(p1,p2,p);
-
-				p1=vec3(xx, tubo.height[(xx)*(TILE+1)+zz+1].x ,zz+1);
-				p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x ,zz+1);
-				p3=p;
-				n[1]=normal(p1,p2,p);
-
-
-				p1=vec3(xx, tubo.height[(xx)*(TILE+1)+zz+1].x ,zz+1);
-				p2=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz].x ,zz);
-				p3=p;
-				n[2]=normal(p1,p2,p);
-				vec3 norm=n[0]+n[1]+n[2]/3;
-				return norm;
-			}
-		
-		}
-		else
-		if(xx==0){
-			if(zz==TILE){
-					vec3[2] n;
-					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-					p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
-					p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
-					n[0]=normal(p,p2,p3);
-
-					p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-					p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
-					p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
-					n[1]=normal(p,p2,p3);
-
-					vec3 norm=n[0]+n[1]/2;
-
-				return norm;
-			}
-				
-
-			else{
-				vec3[3] n;
-				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
-				p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
-				n[0]=normal(p,p2,p3);
-
-				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz-1].x, zz-1);
-				p3=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
-				n[1]=normal(p,p2,p3);
-
-
-
-				
-				p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx+1,tubo.height[(xx+1)*(TILE+1)+zz].x, zz);
-				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz+1].x, zz+1);
-				n[2]=normal(p1,p2,p);
-				vec3 norm=n[0]+n[1]+n[2]/3;
-				return norm;
-			}
-		
-		}
-
-		else
-		if(xx==TILE && zz==TILE){
-			    p1=vec3(xx, tubo.height[xx*(TILE+1)+zz].x ,zz);
-				p2=vec3(xx-1,tubo.height[(xx-1)*(TILE+1)+zz].x, zz);
-				p3=vec3(xx,tubo.height[(xx)*(TILE+1)+zz-1].x, zz-1);
-				
-				return normal(p1,p2,p3);
-
-		}
-
-}
-else
-	{
-	 vec3[6] n;
-
-	 p1=vec3(xx, tubo.height[xx*(TILE+1)+zz-1].x ,zz-1);
-	 p2=vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz].x  ,zz);
-	 p3=p;
-	 n[0]=normal(p1,p2,p);
-	
-	 p1=vec3(xx-1,  tubo.height[(xx-1)*(TILE+1)+zz].x    ,zz);
-	 p2=vec3(xx-1,  tubo.height[(xx-1)*(TILE+1)+zz+1].x   ,zz+1);
-	 p3=p;
-	 n[1]=normal(p1,p2,p);
-
-
-	 p1=  vec3(xx-1, tubo.height[(xx-1)*(TILE+1)+zz+1].x     ,zz+1);
-	 p2=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
-	 p3=p;
-	 n[2]=normal(p1,p2,p);
-
-	 p1=vec3(xx,  tubo.height[(xx)*(TILE+1)+zz+1].x   ,zz+1);
-	 p2=vec3(xx+1,  tubo.height[(xx+1)*(TILE+1)+zz].x   ,zz);
-	 p3=p;
-	 n[3]=normal(p1,p2,p);
-
-	 p1=vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz].x   ,zz);
-	 p2=vec3(xx+1,  tubo.height[(xx+1)*(TILE+1)+zz-1].x  ,zz-1);
-	 p3=p;
-	 n[4]=normal(p1,p2,p);
-
-	 p1=  vec3(xx+1, tubo.height[(xx+1)*(TILE+1)+zz-1].x   ,zz-1);
-	 p2= vec3(xx,  tubo.height[(xx)*(TILE+1)+zz-1].x   ,zz-1) ;
-	 p3=p;
-	 n[5]=normal(p1,p2,p);
-	 
-	 vec3 norm= (n[0]+n[1]+n[2]+n[3]+n[4]+n[5]);
-	 return norm;
-	 
-}
-	/*
 	vec3[6] n;
 
-	 p1=vec3(xx, 0 ,zz-1);
-	 p2=vec3(xx-1, 0  ,zz);
-	 p3=p;
-	 n[0]=normal(p1,p2,p);
-	
-	 p1=vec3(xx-1,  0    ,zz);
-	 p2=vec3(xx-1,  0   ,zz+1);
-	 p3=p;
-	 n[1]=normal(p1,p2,p);
+	p1=vec3(xx, getHeight(xx*(TILE+1)+zz-1), zz-1);
+	p2=vec3(xx-1, getHeight((xx-1)*(TILE+1)+zz), zz);
+	p3=p;
+	n[0]=normal(p1, p2, p);
+
+	p1=vec3(xx-1, getHeight((xx-1)*(TILE+1)+zz), zz);
+	p2=vec3(xx-1, getHeight((xx-1)*(TILE+1)+zz+1), zz+1);
+	p3=p;
+	n[1]=normal(p1, p2, p);
 
 
-	 p1=vec3(xx, 0   ,zz+1);
-	 p2=vec3(xx-1, 0     ,zz+1);
-	 p3=p;
-	 n[2]=normal(p1,p2,p);
+	p1=  vec3(xx-1, getHeight((xx-1)*(TILE+1)+zz+1), zz+1);
+	p2=vec3(xx, getHeight((xx)*(TILE+1)+zz+1), zz+1);
+	p3=p;
+	n[2]=normal(p1, p2, p);
 
-	 p1=vec3(xx, 0   ,zz+1);
-	 p2=vec3(xx+1, 0   ,zz);
-	 p3=p;
-	 n[3]=normal(p1,p2,p);
+	p1=vec3(xx, getHeight((xx)*(TILE+1)+zz+1), zz+1);
+	p2=vec3(xx+1, getHeight((xx+1)*(TILE+1)+zz), zz);
+	p3=p;
+	n[3]=normal(p1, p2, p);
 
-	 p1=vec3(xx+1, 0  ,zz);
-	 p2=vec3(xx+1,  0  ,zz-1);
-	 p3=p;
-	 n[4]=normal(p1,p2,p);
+	p1=vec3(xx+1, getHeight((xx+1)*(TILE+1)+zz), zz);
+	p2=vec3(xx+1, getHeight((xx+1)*(TILE+1)+zz-1), zz-1);
+	p3=p;
+	n[4]=normal(p1, p2, p);
 
-	 p1=vec3(xx,  0  ,zz-1);
-	 p2=vec3(xx+1, 0  ,zz-1);
-	 p3=p;
-	 n[5]=normal(p1,p2,p);
-	 
-	 vec3 norm= n[0]+n[1]+n[2]+n[3]+n[4]+n[5];
-	 return normalize(norm);
-	 
-*/	 
+	p1=  vec3(xx+1, getHeight((xx+1)*(TILE+1)+zz-1), zz-1);
+	p2= vec3(xx, getHeight((xx)*(TILE+1)+zz-1), zz-1);
+	p3=p;
+	n[5]=normal(p1, p2, p);
+
+	vec3 norm= (n[0]+n[1]+n[2]+n[3]+n[4]+n[5]);
+	return norm;
 }
-
-
 
 void main() {
 	int xTile = int(inPosition.x);
@@ -235,7 +114,7 @@ void main() {
 	vec2 translatedXZ = vec2(inPosition.x,inPosition.z)+tubo.translation;
 	int heightIdx = int(inPosition.y);
 	int heightidx2 = (xTile*(TILE+1))+zTile;
-	vec4 translatedPos = vec4(translatedXZ.x,tubo.height[heightIdx].x,translatedXZ.y, 1.0);
+	vec4 translatedPos = vec4(translatedXZ.x,getHeight(heightIdx),translatedXZ.y, 1.0);
 	//translatedPos = vec4(translatedXZ.x,inPosition.y,translatedXZ.y, 1.0);
 
 	gl_Position = ubo.mvpMat * translatedPos;

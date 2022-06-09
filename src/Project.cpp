@@ -2823,9 +2823,14 @@ private:
                 if (time - terrainUpdateTime > updateRate || firstFrame) {
                     tubo.translation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
                     terrainUpdateTime = time;
+
                     for(int i2=0;i2<TILE_NUMBER+1;i2++) {
                         for(int j2=0;j2<TILE_NUMBER+1;j2++) {
-                            tubo.height[i2*(TILE_NUMBER+1)+j2].x= getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
+                            int tileIndex = (i2*(TILE_NUMBER+1)+j2);
+                            int tile4 = floor(tileIndex/4);
+                            int vecIndex = tileIndex- tile4*4;
+                            //tubo.height[tile4][tileIndex%4]= getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
+                            tubo.height[tile4][vecIndex] = getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
                         }
                     }
                     firstFrame=false;
@@ -2870,12 +2875,15 @@ private:
 		}
 		rot = (time + change_time) * 3.5;
 		rot = remainder(rot, 360);
-		gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), 0);
-		//gubo.lightDir = glm::rotate(glm::mat4(1), glm::radians(-rot), glm::vec3(1, 0, 0))[0];
+		//gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), 0);
+		gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
 
-		if(rot<15 || rot>190)
-			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
-        gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        float sinHeight = sin(radians(rot));
+        gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, sinHeight);
+		if(rot<0 || rot>180)
+			gubo.lightColor = vec4(0.0f, 0.0f, 0.0f,1.0f);
+
+
 
 		// updates global uniforms
 		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
