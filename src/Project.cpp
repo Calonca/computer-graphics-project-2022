@@ -81,8 +81,8 @@ struct SingleText {
 };
 
 std::vector<SingleText> SceneText = {
-	{1, {"First Person View", "", "", ""}, 0, 0},
-	{1, {"Third Person View", "", "", ""}, 0, 0},
+        {1, {"Third Person View", "", "", ""}, 0, 0},
+        {1, {"First Person View", "", "", ""}, 0, 0},
 };
 
 std::vector<float> M1_vertices;
@@ -1818,7 +1818,7 @@ private:
 	}
 	
 	void loadModelWithTexture(const Object &M, int i) {
-        loadMesh(M.model.ObjFile, scene[i].MD, phongAndSkyBoxVertices, vec3(M.getTransform()[3]));
+        loadMesh(M.model.ObjFile, scene[i].MD, phongAndSkyBoxVertices, vec3(0,0,0));
 		createVertexBuffer(scene[i].MD);
 		createIndexBuffer(scene[i].MD);
 		
@@ -2755,13 +2755,25 @@ private:
 		Prj[1][1] *= -1;
 
 		glm::vec3 EyePos;
-		glm::vec3 FollowerTargetPos;
 		static glm::vec3 FollowerPos = truck.getTransform()[3];
 
 		switch (currentView) {
-		case 0:
+            case 0:
+                if (currentView != prevCt) {
+                    prevCt = currentView;
+                }
+                {
+                    //glm::vec3 aim = truck.getTransform()  * glm::vec4(truck.thirdPersonCamDelta, 1.0f);
+                    vec3 truckZ = truck.getTransform()[2];
+
+                    CamMat = MatrixUtils::LookAtMat(
+                            vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0),
+                            vec3(truck.getTransform()[3])-truckZ+vec3(0,1,0),
+                            0);
+                }
+                break;
+		case 1:
 			if (currentView != prevCt) {
-				std::cout << "First Person view\n";
 				prevCt = currentView;
 			}
 			{
@@ -2770,34 +2782,20 @@ private:
 				//CamMat = MatrixUtils::LookInDirMat(truck.getTransform() * vec4(truck.RobotCamDeltaPos, 1.0f),
                 //                                   glm::vec3(0,0,0));
                 vec3 xAxis = vec3(1,0,0);
-                vec3 truckX = translate(truck.getTransform(),-vec3(truck.getTransform()[3]))*vec4(xAxis,1);
+                vec3 truckX = truck.getTransform()[1];
                 float angle = acos( dot(normalize(xAxis),normalize(truckX)));
                 //MatrixUtils::printVector(truckX);
                 //std::cout<<angle<<std::endl;
                 /*
                 CamMat = inverse(
                         translate(mat4(1),vec3(truck.getTransform()[3]))*
-                        truck.camDelta*
+                        truck.firstPersonCamDelta*
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
-                //CamMat = inverse(truck.camDelta);
+                //CamMat = inverse(truck.firstPersonCamDelta);
                 CamMat = inverse(truck.getTransform()*
-                        truck.camDelta
+                        truck.firstPersonCamDelta
                 );
-			}
-			break;
-		case 1:
-			if (currentView != prevCt) {
-				std::cout << "Third Person view\n";
-				prevCt = currentView;
-			}
-			{
-				//glm::vec3 aim = truck.getTransform()  * glm::vec4(truck.FollowerDeltaTarget, 1.0f);
-                glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 0.335f, 0.0f);
-                glm::vec3 RFDT =
-                        glm::vec3(glm::rotate(glm::mat4(1), 0.0f, glm::vec3(0,1,0)) *
-                        glm::vec4(FollowerDeltaTarget,1.0f));
-				CamMat = MatrixUtils::LookAtMat(vec3(truck.getTransform()[3])+ vec3(0,10,10),  vec3(truck.getTransform()[3])+RFDT, 0);
 			}
 			break;
 		}
@@ -2811,7 +2809,7 @@ private:
 
 			glm::vec3 delta;
 
-			ubo.mMat = glm::scale(glm::mat4(1), glm::vec3(o->model.scale));
+			ubo.mMat = o->getTransform();
 
             if (o->id=="terrain"){
                 const float tilesize = 1.0f;
@@ -2835,10 +2833,8 @@ private:
             }
 
 			if (o->id=="truck") {
-				glm::mat4 TruckWM = truck.getTransform();
-
-				ubo.mMat = glm::rotate(TruckWM, 1.5708f, glm::vec3(0, 1, 0)) * ubo.mMat;
-				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.FollowerDeltaTarget) *
+				ubo.mMat = ubo.mMat * glm::rotate(mat4(1), 1.5708f, glm::vec3(0, 1, 0)) ;
+				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.thirdPersonCamDelta) *
                                     glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
                                     glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);*/
 			}
@@ -2982,7 +2978,7 @@ private:
 		for (size_t i = 0; i < swapChainImageViews.size(); i++){
 			vkDestroyImageView(device, swapChainImageViews[i], nullptr);
 		}
-		
+
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		
 		for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {

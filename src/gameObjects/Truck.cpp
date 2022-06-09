@@ -21,10 +21,10 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 	}
     const float LOOK_SPEED = 1.2f;
 	if (glfwGetKey(window, GLFW_KEY_UP)) {
-        camDelta = camDelta * rotate(mat4(1), LOOK_SPEED*deltaT,vec3(1,0,0));
+        firstPersonCamDelta = firstPersonCamDelta * rotate(mat4(1), LOOK_SPEED * deltaT, vec3(1, 0, 0));
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-        camDelta = camDelta * rotate(mat4(1),-LOOK_SPEED*deltaT,vec3(1,0,0));
+        firstPersonCamDelta = firstPersonCamDelta * rotate(mat4(1), -LOOK_SPEED * deltaT, vec3(1, 0, 0));
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_A)) {
@@ -67,21 +67,21 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 
     const float CAM_UP_SPEED = 1.0f;
     if (glfwGetKey(window, GLFW_KEY_E)) {
-        camDelta = translate(mat4(1),vec3(0,CAM_UP_SPEED*deltaT,0.9f*CAM_UP_SPEED*deltaT))*
-                camDelta;
+        firstPersonCamDelta = translate(mat4(1), vec3(0, CAM_UP_SPEED * deltaT, 0.9f * CAM_UP_SPEED * deltaT)) *
+                              firstPersonCamDelta;
     }
     if (glfwGetKey(window, GLFW_KEY_Q)) {
-        camDelta = translate(mat4(1),vec3(0,-CAM_UP_SPEED*deltaT,-0.9f*CAM_UP_SPEED*deltaT))*
-                camDelta;
+        firstPersonCamDelta = translate(mat4(1), vec3(0, -CAM_UP_SPEED * deltaT, -0.9f * CAM_UP_SPEED * deltaT)) *
+                              firstPersonCamDelta;
     }
 
     if (glfwGetKey(window, GLFW_KEY_R)) {
-        camDelta = translate(mat4(1),vec3(0,0,-10*CAM_UP_SPEED*deltaT))*
-                   camDelta;
+        firstPersonCamDelta = translate(mat4(1), vec3(0, 0, -10 * CAM_UP_SPEED * deltaT)) *
+                              firstPersonCamDelta;
     }
     if (glfwGetKey(window, GLFW_KEY_F)) {
-        camDelta = translate(mat4(1),vec3(0,0,10*CAM_UP_SPEED*deltaT))*
-                   camDelta;
+        firstPersonCamDelta = translate(mat4(1), vec3(0, 0, 10 * CAM_UP_SPEED * deltaT)) *
+                              firstPersonCamDelta;
     }
     ////
 
