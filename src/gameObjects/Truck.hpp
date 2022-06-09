@@ -61,9 +61,9 @@ public:
             vec3(0,0,0)
 	};
 
-	glm::vec3 FollowerDeltaTarget = glm::vec3(0.0f, 1.335f + initialTransform[3].y, 0.0f) ;
 
-    mat4 camDelta = translate(mat4(1),vec3(0.0f, initialTransform[3].y + 1.335f, -0.0f));
+    vec3 thirdPersonCamDelta = vec3(0.0f, 2, 2.0f) ;
+    mat4 firstPersonCamDelta = translate(mat4(1), vec3(0.0f, initialTransform[3].y + 1.335f, -0.0f));
 
 	const float ROT_SPEED = 500000;
 	const float MOVE_SPEED = 3000000.75f;
