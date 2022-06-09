@@ -81,8 +81,8 @@ struct SingleText {
 };
 
 std::vector<SingleText> SceneText = {
-	{1, {"First Person View", "", "", ""}, 0, 0},
-	{1, {"Third Person View", "", "", ""}, 0, 0},
+        {1, {"Third Person View", "", "", ""}, 0, 0},
+        {1, {"First Person View", "", "", ""}, 0, 0},
 };
 
 std::vector<float> M1_vertices;
@@ -2978,7 +2978,7 @@ private:
 		for (size_t i = 0; i < swapChainImageViews.size(); i++){
 			vkDestroyImageView(device, swapChainImageViews[i], nullptr);
 		}
-		
+
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		
 		for (size_t i = 0; i < swapChainImages.size() * scene.size(); i++) {
