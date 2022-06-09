@@ -98,7 +98,11 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	float close1 = pow((pow(x - t1[0], 2) + pow(y - t1[1], 2) + pow(z - t1[2], 2)), 0.5);
 	float close2 = pow((pow(x - t2[6], 2) + pow(y - t2[7], 2) + pow(z - t2[8], 2)), 0.5);
 	float yy = interpolate_y(x,z,close1, close2, t1,t2);
-	return { { 0,0,0},{0,0,0},{0,0,0},{0,yy,0} };
+	if(close1>close2)
+	
+		return { { t1[0],t1[1],t1[2]},{t1[3],t1[4],t1[5]},{t1[6],t1[7],t1[8]},{0,yy,0}};
+	return { { t2[0],t2[1],t2[2]},{t2[3],t2[4],t2[5]},{t2[6],t2[7],t2[8]},{0,yy,0} };
+
 }
 
 
@@ -138,7 +142,11 @@ float interpolate_y(float x,float z,float close1, float close2, float *t1, float
 vec3 models::normalTriangleTile(float x, float y, float z) {
     vec3 normal;
     vec3 U, V;
-    std::vector<vec3> triangle_vertex = models::tile_pos(x, y, z);
+	std::vector<vec3> triangle_vertex;
+
+
+
+    triangle_vertex = models::tile_pos(x, y, z);
     U[0] = triangle_vertex[1][0] - triangle_vertex[0][0]; //X difference of P1 and P0
     U[1] = triangle_vertex[1][1] - triangle_vertex[0][1]; //Y difference of P1 and P0
     U[2] = triangle_vertex[1][2] - triangle_vertex[0][2]; //Z difference of P1 and P0
@@ -148,10 +156,11 @@ vec3 models::normalTriangleTile(float x, float y, float z) {
     V[1] = triangle_vertex[2][1] - triangle_vertex[0][1]; //Y difference of P2 and P0
     V[2] = triangle_vertex[2][2] - triangle_vertex[0][2]; //Z difference of P2 and P0
 
-    normal[0] = U[1] * V[2] - U[2] * V[1];
-    normal[1] = U[2] * V[0] - U[0] * V[2];
-    normal[2] = U[0] * V[1] - U[1] * V[0];
+	normal = cross(U, V);
     vec3 norm = normalize(normal);
+
+	
+	
 
     return norm;
 }
