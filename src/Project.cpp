@@ -2875,7 +2875,9 @@ private:
 
 		if(rot<15 || rot>190)
 			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
-        gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        
+		
+		gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// updates global uniforms
 		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
