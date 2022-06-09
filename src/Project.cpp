@@ -1932,7 +1932,6 @@ private:
 
             std::cout << FName << " -> V: " << MD.vertices.size()
                       << ", I: " << MD.indices.size() << "\n";
-		
 		}
     }
         void createTextMesh(ModelData &MD, VertexDescriptor &VD) {
@@ -2875,7 +2874,8 @@ private:
 		}
 		rot = (time + change_time) * 3.5;
 		rot = remainder(rot, 360);
-		gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), cos(glm::radians(rot)));
+		gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), 0);
+		//gubo.lightDir = glm::rotate(glm::mat4(1), glm::radians(-rot), glm::vec3(1, 0, 0))[0];
 
 		if(rot<15 || rot>190)
 			gubo.lightDir = glm::vec3(0.0f, 0.0f, 0.0f);
