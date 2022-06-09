@@ -47,15 +47,10 @@ void main() {
 	vec3 DiffColor = texture(texSampler, fragTexCoord).rgb;
 	float AmbFact = 0.01f;
 
-	vec3 Diffuse = Lambert_Diffuse_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor) * gubo.lightColor.rgb;
+	vec3 Diffuse = Lambert_Diffuse_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor);
+	//vec3 Specular = vec3(pow(max(dot(EyeDir, -reflect(gubo.lightDir, Norm)),0.0f), 16.0f));
 	vec3 Ambient = AmbFact * DiffColor;
 
-	vec3 Specular = vec3(pow(max(dot(EyeDir, -reflect(gubo.lightDir, Norm)),0.0f), 64.0f));
+	outColor = vec4((Diffuse + Ambient) * gubo.lightColor.rgb, 1.0f);
 
-	outColor = vec4((Diffuse + Specular + Ambient) * gubo.lightColor.rgb, 1.0f);
-	
-//	outColor = vec4(texture(texSampler, fragTexCoord).rgb * gubo.lightColor.rgb * (max(dot(Norm, gubo.lightDir),0.0f) * 0.9f + 0.1f), 1.0f);
-//	outColor = vec4(texture(texSampler, fragTexCoord).rgb * (max(dot(Norm, gubo.lightDir),0.0f) * 0.9f + 0.1f), 1.0f);
-//	outColor = vec4(vec3(max(dot(Norm, gubo.lightDir),0.0f) * 0.85f + 0.15f), 1.0f);
-//	outColor = vec4((Norm + 1.0f) / 2.0f, 1.0f);
 }
