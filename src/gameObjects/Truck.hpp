@@ -13,6 +13,7 @@ static mat4 initialTransform = translate(mat4(1), vec3(0, 0, 0));
 class Truck : public Object// It is an entity
 {
 
+
 private:
 
     CollisionObject wheelfl = {
@@ -43,6 +44,7 @@ private:
             false
     };
 public:
+
 	// Robot Pos
 	RigidBody rb = {
             nullptr,   //pos
@@ -56,8 +58,8 @@ public:
         true,           // hasGravity
 		0.8,             // static friction
 		0.001f,             //dynamic friction
-		0.1f,            //bounciness
-        {wheelfl,wheelfr,wheelbl,wheelbr},
+		0.0f,            //bounciness
+        {&wheelfl,&wheelfr,&wheelbl,&wheelbr},
             vec3(0,0,0)
 	};
 
@@ -65,13 +67,12 @@ public:
     vec3 thirdPersonCamDelta = vec3(0.0f, 2, 2.0f) ;
     mat4 firstPersonCamDelta = translate(mat4(1), vec3(0.0f, initialTransform[3].y + 1.335f, -0.0f));
 
-	const float ROT_SPEED = 500000;
-	const float MOVE_SPEED = 3000000.75f;
+	const float ROT_SPEED = 30000;
+	const float MOVE_SPEED = 8000000.0f;
 	const float MOUSE_RES = 500.0f;
 
     //Truck(const std::string &id, const Model &model, const mat4 &transform);
     Truck();
-
 
     void UpdatePos(GLFWwindow *window, float deltaT);
 

@@ -1,5 +1,6 @@
 #include <numeric>
 #include "PhysicsEngine.hpp"
+#include "../gameObjects/Truck.hpp"
 
 void PhysicsEngine::AddRigidBody(RigidBody* rb)
 {
@@ -31,111 +32,112 @@ void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
 const float THRESHOLD = 0.002f;
 float accumulator = 0.0f;
 
-void PhysicsEngine::Step(float dt)
+void PhysicsEngine::Step(float dt, GLFWwindow *window)
 {
     accumulator +=dt;
     while (accumulator > THRESHOLD){
         ApplyGravity();
-        SolveCollisions();
+        SolveCollisions(window);
         ApplyForces(THRESHOLD);
         accumulator-=THRESHOLD;
     }
 }
 
 //Adds forces to rigidbodies based on collisions
-void PhysicsEngine::SolveCollisions() {
+void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
     //For each collider check collision objects and set force
-
-    //std::cout<<"Testing collison points:"<<std::endl;
     for(TerrainCollider* collider : colliders){
         for (RigidBody* rb : rbs) {
-            for (CollisionObject collisionObject : rb->co) {
-                collisionObject.setTransform(rb);
-                //PlaneCollider* pl = dynamic_cast<PlaneCollider*>(collider);
-                collider->testCollision(&collisionObject);
-                //Follow orientation
-                /*
-                vec4 forwardDir = rotate(mat4(1), radians(-90.0f), vec3(1, 0, 0))
-                                  *
-                                  vec4(collisionObject.normal, 1);
+            int numColliding = 0;
+            vec3 rbNormal = vec3(0,0,0);
 
-                vec3 pos = rb->transform[3];
-                mat4 rotMat = translate(rb->transform, -pos);
-                vec3 norm2 = rotMat * vec4(collisionObject.normal, 1);//Normal in car reference system
+            for (CollisionObject* collisionObject : rb->co) {
+                collisionObject->setTransform(rb);
+                collider->testCollision(collisionObject);
 
-                glm::vec3 upVec(0, 1, 0);
+                if (collisionObject->isColliding) {
+                    numColliding += 1;
+                    rbNormal += collisionObject->normal;
+                }
 
-                vec3 oldUp = normalize(vec3(rotMat * vec4(0, 1, 0, 1)));
-                vec3 axis = cross(oldUp, norm2);
-                float angle = acos(dot(oldUp, norm2));
+            }
 
-
-                float xRot = 20.0f;
-
-
-                //rb->transform = translate(mat4(1),pos)*
-                //      MatrixUtils::LookAtMat(vec3(0,0,0),vec3(forwardDir),collisionObject->normal);
-                vec3 euler = eulerAngles(quat_cast(rotMat));
-                */
-                //rb->transform = rotate(rb->transform,radians(xRot)-euler.x,vec3(1,0,0));
-
-                if (collisionObject.isColliding) {
-                    //rb->force += normalize(collisionObject->forceAfterCollision)*rb->mass*50000.0f*dt;
-                    rb->addGlobalMoment(collisionObject.forceAfterCollision * rb->mass * 15.0f,collisionObject.getLocalPoint(0));
-
-                    glm::vec3 aVel = rb->velocity;
-                    glm::vec3 bVel = glm::vec3(0.0f);
-                    glm::vec3 rVel = bVel - aVel;
-                    vec3 normal = collisionObject.normal;
-                    float nSpd = dot(rVel, normal);
-
-                    float aInvMass = 1 / rb->mass;
-
-                    // Impluse
-
-                    // This is important for convergence
-                    // a negitive impulse would drive the objects closer together
-                    if (nSpd < 0)
-                        continue;
-
-                    float j = -(1.0f + rb->bounciness) * nSpd / (aInvMass);
-
-                    glm::vec3 impluse = j * normal;
-
-                    aVel -= impluse * aInvMass*0.005f;
-                    //std::cout<<"Velocity delta after impulse: "<< MatrixUtils::printVector(-impluse * aInvMass)<< std::endl;
-
-                    // Friction
-                    /*
-                    rVel = bVel - aVel;
-                    nSpd = glm::dot(rVel, normal);
-
-                    glm::vec3 tangent = -rVel + nSpd * normal;
-
-                    if (glm::length(tangent) > 0.0001f) { // safe normalize
-                        tangent = glm::normalize(tangent);
-                    }
-
-
-                    //MatrixUtils::printVector(tangent);
-
-                    float f  = -dot(rVel, tangent) / (aInvMass );
-
-                    glm::vec3 friction;
-                    if (abs(f) < j * rb->staticFriction) {
-                        friction = f * tangent;
-                    }
-
-                    else {
-                        friction = -j * tangent * rb->dynamicFriction;
-
-                    }
-                    */
-                    rb->velocity = aVel;// - friction * aInvMass;
-
-                    //std::cout<<"Impulse force: "<< MatrixUtils::printVector(collisionObject->forceAfterCollision*50000.0f*dt)<< std::endl;
+            for (CollisionObject* collisionObject : rb->co) {
+                if (collisionObject->isColliding) {
+                    vec3 force = collisionObject->forceAfterCollision;
+                    rb->addGlobalMoment( force * rb->mass * (40.0f / numColliding),
+                                         collisionObject->getLocalPoint(0));
                 }
             }
+            /*
+            //MatrixUtils::printVector(normal);
+            if (window!= nullptr && glfwGetKey(window, GLFW_KEY_J)) {
+                rb ->addGlobalMoment(10000.0f*normal,
+                                    vec3(0,0,0));
+            }*/
+
+            int maxCollider = rb->co.size();
+            if (numColliding > maxCollider - 1) {
+                glm::vec3 aVel = rb->velocity;
+                glm::vec3 bVel = glm::vec3(0.0f);
+                glm::vec3 rVel = bVel - aVel;
+                vec3 normal = normalize(rbNormal);
+                float nSpd = dot(rVel, normal);
+
+                float aInvMass = 1 / rb->mass;
+
+                // Impluse
+
+                // This is important for convergence
+                // a negitive impulse would drive the objects closer together
+                if (nSpd < 0)
+                    continue;
+
+                float j = -(1.0f + rb->bounciness) * nSpd / (aInvMass);
+
+                glm::vec3 impluse = j * normal;
+
+                //MatrixUtils::printVector(normal);
+
+                aVel -= impluse * aInvMass;
+                //std::cout<<"Velocity delta after impulse: "<< MatrixUtils::printVector(-impluse * aInvMass)<< std::endl;
+
+                // Friction
+
+                rVel = bVel - aVel;
+                //MatrixUtils::printVector(rVel);
+                nSpd = glm::dot(rVel, normal);
+                //std::cout<<"f is :"<<nSpd<<std::endl;
+
+                glm::vec3 tangent = -rVel + nSpd * normal;
+                //MatrixUtils::printVector(tangent);
+                //std::cout<<"tan len is :"<<length(tangent)<<std::endl;
+
+                if (length(tangent) > 0.0001f) { // safe normalize
+                    tangent = glm::normalize(tangent);
+                }
+
+
+                //MatrixUtils::printVector(tangent);
+
+                float f  = -dot(rVel, tangent) / (aInvMass );
+                //std::cout<<"f is :"<<f<<std::endl;
+
+                glm::vec3 friction;
+                if (abs(f) < j * rb->staticFriction) {
+                    friction = f * tangent;
+
+                }
+
+                else {
+                    friction = -j * tangent * rb->dynamicFriction;
+                    //std::cout<<"Dyn friction"<<std::endl;
+                }
+
+                rb->velocity = aVel - friction * aInvMass;
+
+            }
+
         }
     }
 }
@@ -143,7 +145,7 @@ void PhysicsEngine::SolveCollisions() {
 void PhysicsEngine::ApplyGravity() {
     for (RigidBody* rb : rbs) {
         if (rb->hasGravity){
-            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-0.1,0));//Adds gravity to forces
+            rb->addGlobalMoment(rb->mass * rb->fGravity,vec3(0,-0.05,0));//Adds gravity to forces
         }
     }
 }
@@ -152,7 +154,7 @@ void PhysicsEngine::ApplyGravity() {
 
 void PhysicsEngine::ApplyForces(float dt) {
     //std::cout<<"deltatime is :"<<dt<<std::endl;
-    float inertia = 1000;
+    float inertia = 700;
     for (RigidBody* rb : rbs) {
         mat4 transform = rb->parent->getTransform();
 
@@ -185,7 +187,9 @@ void PhysicsEngine::ApplyForces(float dt) {
         const float angularDrag = 0.01f;
         rb->angularVelocity -= angularDrag * rb->angularVelocity;
         //Adds air friction
-        rb->velocity -= rb->dynamicFriction*rb->velocity;
+        vec3 diffVel = 0.0001f*(rb->velocity*rb->velocity* normalize(rb->velocity));
+        diffVel.y =0;
+        rb->velocity -= diffVel;
 
         //Rotation due to angular velocity
         transform = transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));

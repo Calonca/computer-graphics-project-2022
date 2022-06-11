@@ -6,7 +6,8 @@
 
 void Truck::UpdatePos(GLFWwindow* window, float deltaT)
 {
-    rb.angularVelocity.y = 0;
+    rb.angularVelocity.y -= 0.06f*rb.angularVelocity.y;
+
 	if (glfwGetKey(window, GLFW_KEY_LEFT)) {
         rb.addLocalMoment(vec3( 10*ROT_SPEED * glm::vec4(0, 0, 1, 1) ),
                      vec3(-1,0,0));

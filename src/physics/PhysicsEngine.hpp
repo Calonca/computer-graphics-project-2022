@@ -9,6 +9,7 @@
 #include <functional>
 #include <thread>
 #include <chrono>
+#include <GLFW/glfw3.h>
 
 #pragma once
 class PhysicsEngine
@@ -30,7 +31,7 @@ public:
 	void RemoveRigidBody(RigidBody* rb);
 
     void ApplyGravity();
-    void SolveCollisions();
+    void SolveCollisions(GLFWwindow *window);
 
     void AddCollider(TerrainCollider* collider);
     void RemoveCollider(TerrainCollider* c);
@@ -39,7 +40,7 @@ public:
 	/// Applies the forces and calculates the values of physical quantities after the dt in
 	/// </summary>
 	/// <param name="dt">physics step time</param>
-	void Step(float dt);
+    void Step(float dt, GLFWwindow *window);
 
     //Used to test step on another thread
     void StepC(PhysicsEngine* p){
@@ -56,7 +57,7 @@ public:
 
             const float TIMESTEP = 0.003f;//in seconds
             float timeDiff = TIMESTEP-deltaT;
-            p->Step(timeDiff);
+            p->Step(timeDiff, nullptr);
             if (timeDiff<0)
                 std::cout<<"Physics is too slow, increase the timestep by "<<timeDiff<<" seconds"<<std::endl;
             std::this_thread::sleep_for (std::chrono::milliseconds (int(1000*timeDiff)));

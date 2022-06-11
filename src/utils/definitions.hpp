@@ -70,7 +70,7 @@ struct RigidBody {
 	float dynamicFriction;
 	float bounciness;
 
-    std::vector<CollisionObject> co;
+    std::vector<CollisionObject*> co;
     vec3 angularVelocity;
 
     //Adds a force to the object at the application point in the Rigidbody reference system.

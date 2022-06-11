@@ -38,11 +38,8 @@ struct TerrainCollider : Collider {
         if (firstPoint.y < triang[3][1]) {
             co->isColliding = true;
             force = abs(firstPoint.y - triang[3][1]);
-            //std::cout << "val yyy  " << triang[3][1];
 
-            //std::cout << "force" << force<<std::endl;
-
-            co->forceAfterCollision = { 0,force,0 };
+            co->forceAfterCollision = co->normal*force;
         }
 
     }

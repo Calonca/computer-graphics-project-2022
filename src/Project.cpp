@@ -2741,7 +2741,7 @@ private:
         truck.UpdatePos(window, deltaT);
 
 		//Physics
-		physicsEngine.Step(deltaT);
+        physicsEngine.Step(deltaT, window);
 
 		//std::cout << round(lookYaw * 180.f / 3.1416f) << "\t" << round(lookPitch * 180.f / 3.1416f) << "\t" <<  round(lookRoll * 180.f / 3.1416f) << "\n";
 
