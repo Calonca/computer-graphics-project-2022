@@ -2873,10 +2873,10 @@ private:
 			change_time += 0.15;
 			std::cout << "  chg time " << change_time << " rot time " << rot << std::endl;
 		}
-		rot = ( change_time) * 3.5;
+		rot = ( time+change_time) * 3.5;
 		rot =  remainder(rot, 360);
-		//gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), 0);
-		gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
+		gubo.lightDir = glm::vec3(cos(glm::radians(rot)), sin(glm::radians(rot)), 0);
+		//gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
 
         float sinHeight = sin(radians(rot));
         gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, sinHeight);

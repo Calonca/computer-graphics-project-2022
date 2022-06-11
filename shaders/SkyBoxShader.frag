@@ -18,7 +18,7 @@ float b1,b2;
 float fog(float density)
 {
 	const float LOG2 = -1.442695;
-	float dist = gl_FragCoord.z / gl_FragCoord.w * 0.1;
+	float dist = 3.5;//gl_FragCoord.z / gl_FragCoord.w * 0.1;
 	float d = density * dist;
 	return 1.0 - clamp(exp2(d * d * LOG2), 0.0, 1.0);
 }
@@ -55,8 +55,8 @@ void main() {
 
 
 
-//const vec4 fogColor = vec4(0.47, 0.5, 0.67, 0.0);
-	//vec4 color  = mix(outColor, fogColor, fog(0.55));
-	//outColor = vec4(fog(0.55)*fogColor.xyz, 1.0);
+const vec4 fogColor = vec4(0.47, 0.5, 0.67, 0.0);
+	vec4 color  = mix(outColor, fogColor, fog(0.55));
+	//outColor = color;
 	
 }
