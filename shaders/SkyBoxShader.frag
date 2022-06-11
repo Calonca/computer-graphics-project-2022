@@ -11,6 +11,20 @@ layout(binding = 1) uniform samplerCube skybox;
 
 float b1,b2;
 
+
+
+
+
+float fog(float density)
+{
+	const float LOG2 = -1.442695;
+	float dist = gl_FragCoord.z / gl_FragCoord.w * 0.1;
+	float d = density * dist;
+	return 1.0 - clamp(exp2(d * d * LOG2), 0.0, 1.0);
+}
+
+
+
 void main() {
 	vec4 col=texture(skybox,fragTexCoord);
 
@@ -39,5 +53,10 @@ void main() {
 	if(col.x>0.7 && col.y>0.7 && col.z<0.1 && time.y>=0 && time.y<=180){
 		outColor = vec4(0.9f,0.7f,0.2f,1.0f);}
 
+
+
+//const vec4 fogColor = vec4(0.47, 0.5, 0.67, 0.0);
+	//vec4 color  = mix(outColor, fogColor, fog(0.55));
+	//outColor = vec4(fog(0.55)*fogColor.xyz, 1.0);
 	
 }

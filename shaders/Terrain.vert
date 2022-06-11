@@ -22,6 +22,7 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 0) out vec3 fragPos;
 layout(location = 1) out vec3 fragNorm;
 layout(location = 2) out vec2 fragTexCoord;
+layout(location=3) out vec4 posi;
 
 
 vec3 normal(vec3 p1, vec3 p2, vec3 p3){
@@ -121,4 +122,6 @@ void main() {
 	fragPos = (ubo.mMat * translatedPos).xyz;
 	fragNorm = mat3(ubo.nMat) * (vertex_normal(inPosition.xyz));
 	fragTexCoord = translatedPos.xz*0.1;//The texture cordinates are the position of the vertex in the plane multiplied by the texture scaling
+
+	posi=vec4(inPosition,1.0f);
 }
