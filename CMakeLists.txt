@@ -21,8 +21,6 @@ add_executable(${PNAME} src/${CFILE}.cpp
         src/utils/MatrixUtils.hpp
         src/physics/PhysicsEngine.cpp
         src/physics/PhysicsEngine.hpp
-        src/worldgen/PerlinNoise.h
-        src/worldgen/PerlinNoise.cpp
         src/worldgen/models.hpp
         src/Project.hpp src/gameObjects/Object.cpp src/gameObjects/Object.hpp src/utils/Model.h)
 

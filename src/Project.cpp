@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <glm/gtx/vector_angle.hpp>
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
@@ -11,12 +10,9 @@
 #include <set>
 #include <cstdint>
 #include <algorithm>
-#include <fstream>
 #include <array>
-#include <unordered_map>
-#include "gameObjects/Object.hpp"
 
-#include "worldgen/PerlinNoise.h"
+#include "gameObjects/Object.hpp"
 
 #include "utils/definitions.hpp"
 
@@ -117,7 +113,6 @@ struct UniformBufferObject {
 
 struct TerrainUniformBufferObject {
     vec2 translation;//Terrain translation
-    alignas(16) vec4 height[(TILE_NUMBER+1)*(TILE_NUMBER+1)];
 };
 
 
@@ -2763,7 +2758,6 @@ private:
                     prevCt = currentView;
                 }
                 {
-                    //glm::vec3 aim = truck.getTransform()  * glm::vec4(truck.thirdPersonCamDelta, 1.0f);
                     vec3 truckZ = truck.getTransform()[2];
 
                     CamMat = MatrixUtils::LookAtMat(
@@ -2824,15 +2818,6 @@ private:
                     tubo.translation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
                     terrainUpdateTime = time;
 
-                    for(int i2=0;i2<TILE_NUMBER+1;i2++) {
-                        for(int j2=0;j2<TILE_NUMBER+1;j2++) {
-                            int tileIndex = (i2*(TILE_NUMBER+1)+j2);
-                            int tile4 = floor(tileIndex/4);
-                            int vecIndex = tileIndex- tile4*4;
-                            //tubo.height[tile4][tileIndex%4]= getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
-                            tubo.height[tile4][vecIndex] = getHeight(pn, i2 + tubo.translation.x, j2 + tubo.translation.y);
-                        }
-                    }
                     firstFrame=false;
                 }
             }
@@ -2878,7 +2863,7 @@ private:
 		gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
 
         float sinHeight = sin(radians(rot));
-        gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, sinHeight);
+        gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, 1.0f);
 		if(rot<0 || rot>180)
 			gubo.lightColor = vec4(0.0f, 0.0f, 0.0f,1.0f);
 

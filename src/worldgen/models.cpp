@@ -1,47 +1,33 @@
 #pragma once
 
-#include "PerlinNoise.h"
 #include "models.hpp"
 
-#define TILE_NUMBER 120
+#define TILE_NUMBER 400
 
 float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working. Do not change.
 int tile = TILE_NUMBER;        // No of square tiles row wise(or column). Used to form the terrain
 int tiles = (tile + 1) * (1 + tile); //total tiles(tile * tile)
 
-float getHeight(PerlinNoise &pn, float xoff, float zoff);
+float getHeight(float xoff, float zoff);
 float interpolate_y(float x, float z, float close1, float close2, float* t1, float* t2);
-static PerlinNoise pn;
+
 
 //Create Terrain with perlin noise
 void  makeModels() {
 
 	M1_vertices.resize(3 * tiles);
-    pn = PerlinNoise();
 	float startx = 0;
 	float startz=0;
 	double terrain[50000];
 	float yoff = 0;
 	int c = 0;
 
-	/*for (int a = 0; a < tile + 1; a++) {
-		float xoff = 0;
-
-		for (int b = 0; b < tile + 1; b++) {
-            terrain[c] = getHeight(pn, xoff, yoff);
-			xoff += 0.15;
-			c++;
-		}
-
-		yoff += 0.15;
-	}*/
-
 	for (int i = 0; i < tiles; i++) {
 
 		M1_vertices[i * 3 + 0] =startx+ (i / (tile + 1)) * tile_len; // x of the vertex 0,0,0  (i/(tile+1))*tile_len
 		M1_vertices[i * 3 + 2] = startz + (i % (tile + 1)) * tile_len;// z of the vertex 0,1,2
 		
-		M1_vertices[i * 3 + 1] =  (float)getHeight(pn, M1_vertices[i * 3 + 0], M1_vertices[i * 3 + 2]); // y of the vertex 0
+		M1_vertices[i * 3 + 1] =  (float) getHeight(M1_vertices[i * 3 + 0], M1_vertices[i * 3 + 2]); // y of the vertex 0
 		//std::cout << " val noise " << terrain[i];
 		
 
@@ -66,15 +52,49 @@ void  makeModels() {
 	}
 }
 
-float getHeight(PerlinNoise &pn, float xoff, float zoff) {
-	float e = (float) (
-            0.1f * pn.noise(0.15 * xoff, 0, 0.15 * zoff) +
-            //2.8 * pn.noise(0.06 * xoff, 2, 0.06 * zoff)+
-            10 * pn.noise(0.02 * xoff, 3, 0.02 * zoff)
-            );
-    //xoff and and zoff defines the frequency of slopes and the multiplication factor defines the amplitude or max heights
-	return pow(e, 1.55)-15;
+//https://www.shadertoy.com/view/4djSRW
+float hash(vec2 p)
+{
+    vec3 p3  = fract(vec3(p.x,p.y,p.x) * 0.1031f);
+    p3 += dot(p3, vec3(p3.y,p3.z,p3.y) + 33.33f);
+    return fract((p3.x + p3.y) * p3.z);
 }
+
+
+//https://github.com/Rudraksha20/CIS565-GPU-Final-Project-Vulkan-Procedural-Terrain
+float noise(vec2 p){
+    vec2 ip = floor(p);
+    vec2 u = fract(p);
+    u = u*u*(3.0f-(2.0f*u));
+
+    float res = mix(
+            mix(hash(ip), hash(ip + vec2(1.0, 0.0)), u.x),
+            mix(hash(ip + vec2(0.0, 1.0)), hash(ip + vec2(1.0, 1.0)), u.x), u.y);
+    return res*res;
+}
+
+// http://flafla2.github.io/2014/08/09/perlinnoise.html
+float smoothNoise(vec2 p){
+    float total = 0.0;
+    float ampl = 100;
+    float freq = 1/ampl;
+    float maxVal = 0.0;
+    for (int i = 0; i < 4; i++) {
+        total += noise(p * freq) * ampl;
+        maxVal += ampl;
+        ampl *= 0.5;
+        freq *= 2.0;
+
+    }
+    return total / maxVal;
+}
+
+float getHeight(float xoff, float zoff) {
+    vec2 p = vec2(xoff, zoff);
+    return smoothNoise(p)*50-13;
+}
+
+
 
 
 std::vector<vec3> models::tile_pos(float x ,float y,float z) {
@@ -83,14 +103,14 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	float xx =floor( x );
 	float zz = floor(z );
 	
-	float t1[9] = { xx,getHeight(pn,xx,zz),zz,
-		xx,getHeight(pn,xx,zz+1),zz+1,
-		xx+1,getHeight(pn,xx+1,zz),zz
+	float t1[9] = {xx, getHeight(xx, zz), zz,
+                   xx, getHeight(xx, zz + 1), zz + 1,
+		xx+1, getHeight(xx + 1, zz), zz
 	};
 
-	float t2[9] = { xx+1,getHeight(pn,xx+1,zz),zz,
-		xx,getHeight(pn,xx,zz + 1),zz + 1,
-		xx + 1,getHeight(pn,xx + 1,zz+1),zz+1
+	float t2[9] = { xx+1, getHeight(xx + 1, zz), zz,
+                    xx, getHeight(xx, zz + 1), zz + 1,
+		xx + 1, getHeight(xx + 1, zz + 1), zz + 1
 	};
 	
 
@@ -104,7 +124,6 @@ std::vector<vec3> models::tile_pos(float x ,float y,float z) {
 	return { { t2[0],t2[1],t2[2]},{t2[3],t2[4],t2[5]},{t2[6],t2[7],t2[8]},{0,yy,0} };
 
 }
-
 
 float interpolate_y(float x,float z,float close1, float close2, float *t1, float *t2) {
 	vec3 p1, p2, p3;
@@ -121,7 +140,7 @@ float interpolate_y(float x,float z,float close1, float close2, float *t1, float
 		float con = nor[0] * p1[0] + nor[1] * p1[1] + nor[2] * p1[2];
 		float yy = (con - nor[0] * x - nor[2] * z) / nor[1];
 
-	//	std::cout << " y" << yy <<" \t orig1 y"<<t1[1] << std::endl;
+
 		return yy;
 	}
 
