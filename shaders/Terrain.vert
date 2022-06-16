@@ -121,7 +121,7 @@ void main() {
 	gl_Position = ubo.mvpMat * translatedPos;
 	fragPos = (ubo.mMat * translatedPos).xyz;
 	fragNorm = mat3(ubo.nMat) * (vertex_normal(inPosition.xyz));
-	fragTexCoord = translatedPos.xz*0.1;//The texture cordinates are the position of the vertex in the plane multiplied by the texture scaling
+	fragTexCoord = translatedPos.xz*0.2;//The texture cordinates are the position of the vertex in the plane multiplied by the texture scaling
 
 	posi=vec4(inPosition,1.0f);
 }

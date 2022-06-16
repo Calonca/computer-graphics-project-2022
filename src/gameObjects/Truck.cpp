@@ -66,7 +66,7 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
         //lookYaw += m_dx * ROT_SPEED / MOUSE_RES;
     }
 
-    const float CAM_UP_SPEED = 1.0f;
+    const float CAM_UP_SPEED = 10.0f;
     if (glfwGetKey(window, GLFW_KEY_E)) {
         firstPersonCamDelta = translate(mat4(1), vec3(0, CAM_UP_SPEED * deltaT, 0.9f * CAM_UP_SPEED * deltaT)) *
                               firstPersonCamDelta;
