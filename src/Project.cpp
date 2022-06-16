@@ -1789,14 +1789,14 @@ private:
         //Object* pyramid = sceneToLoad.addObject("pyr", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(0, 0, 0)));
         //Object* walls = pyramid->addObject("walls", {"Walls.obj", "grass2.jpg", 1, Flat}, translate(mat4(1), vec3(10, 0, 0)));
         //Object* walls2 = walls->addObject("walls2", {"Walls.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(11, 10, 0)));
-
         ///
+		Object* tre = sceneToLoad.addObject("pyr", { "tree.obj", "grass2.jpg", 1, Flat }, translate(mat4(1), vec3(0, 0, 0)));
+
         sceneToLoad.addObject(truck);
         Object* leftLight = new Object("leftLight",translate(mat4(1),vec3(-0.4,1,-0.5)));
         Object* rightLight = new Object("rightLight",translate(mat4(1),vec3(0.4,1,-0.5)));
         truck.addObject(*leftLight);
         truck.addObject(*rightLight);
-
 
 
         //std::cout<<"Scene size is :"<<sceneToLoad.countChildrenWithModels()<<std::endl;
