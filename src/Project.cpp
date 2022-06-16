@@ -2749,9 +2749,8 @@ private:
 			0.1f, 150.0f);
 		Prj[1][1] *= -1;
 
-		glm::vec3 EyePos;
-		static glm::vec3 FollowerPos = truck.getTransform()[3];
 
+		glm::vec3 EyePos;
 		switch (currentView) {
             case 0:
                 if (currentView != prevCt) {
@@ -2760,8 +2759,9 @@ private:
                 {
                     vec3 truckZ = truck.getTransform()[2];
 
+                    EyePos = vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0);
                     CamMat = MatrixUtils::LookAtMat(
-                            vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0),
+                            EyePos,
                             vec3(truck.getTransform()[3])-truckZ+vec3(0,1,0),
                             0);
                 }
@@ -2787,13 +2787,13 @@ private:
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
                 //CamMat = inverse(truck.firstPersonCamDelta);
-                CamMat = inverse(truck.getTransform()*
-                        truck.firstPersonCamDelta
-                );
+                mat4 camTr = truck.getTransform()*truck.firstPersonCamDelta;
+                CamMat = inverse(camTr);
+                EyePos = camTr[3];
 			}
 			break;
 		}
-		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
+		//EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
         std::vector<Object*> sct = Object::objs;
         for (int j = 0;j<sct.size();j++) {
