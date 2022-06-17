@@ -256,6 +256,7 @@ private:
   	VkPipelineLayout TerrainPipelineLayout;
 	VkPipeline PhongPipeline;
 	VkPipeline TerrainPipeline;
+    VkPipeline shadowPipeline;
 	//// For the first uniform (per object)
 	//We should have multiple buffers, because multiple frames may be in flight at the same time
     // and we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it
@@ -706,10 +707,8 @@ private:
 	void createSwapChain() {
 		SwapChainSupportDetails swapChainSupport =
 				querySwapChainSupport(physicalDevice);
-		VkSurfaceFormatKHR surfaceFormat =
-				chooseSwapSurfaceFormat(swapChainSupport.formats);
-		VkPresentModeKHR presentMode =
-				chooseSwapPresentMode(swapChainSupport.presentModes);
+		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 		
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -853,8 +852,7 @@ private:
 
 		VkAttachmentReference colorAttachmentResolveRef{};
 		colorAttachmentResolveRef.attachment = 2;
-		colorAttachmentResolveRef.layout =
-						VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = findDepthFormat();
@@ -864,13 +862,11 @@ private:
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout =
-						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentReference depthAttachmentRef{};
 		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = 
-						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     	VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
@@ -884,8 +880,7 @@ private:
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout =
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		
 		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -1791,8 +1786,8 @@ private:
 	Object* treeContainer8 = new Object("treeContainer", mat4(1));
 	Object* treeContainer9 = new Object("treeContainer", mat4(1));
 	std::vector<Object*> treeContainer;
-	
-	
+
+
 
 	int treeGridLength = 40;
 	void loadModels() {
@@ -1834,7 +1829,7 @@ private:
 					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
 			}
 		}
-		
+
 		for (int i = 2; i < 6; i++) {
 			for (int j = -6; j < -2; j++) {
 				int x = treeGridLength * i;
@@ -1863,12 +1858,12 @@ private:
 				int x = treeGridLength * i;
 
 				int z = treeGridLength * j;
-				
+
 				treeContainer5->addObject("tre"//+std::to_string(x)+ std::to_string(z),
 					,{"tree.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(x, getHeight(x, z), z)));
 			}
 		}
-		
+
 		for (int i = 2; i < 6; i++) {
 			for (int j = -2; j < 2; j++) {
 				int x = treeGridLength * i;
@@ -1879,7 +1874,7 @@ private:
 					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
 			}
 		}
-		
+
 		for (int i = -6; i < -2; i++) {
 			for (int j = 2; j < 6; j++) {
 				int x = treeGridLength * i;
@@ -1912,7 +1907,7 @@ private:
 			}
 		}
 
-		
+
 		//pushback all treeContainer objects into vector
 		treeContainer.push_back(treeContainer1);
 		treeContainer.push_back(treeContainer2);
@@ -1923,8 +1918,8 @@ private:
 		treeContainer.push_back(treeContainer7);
 		treeContainer.push_back(treeContainer8);
 		treeContainer.push_back(treeContainer9);
-		
-		
+
+
 
         sceneToLoad.addObject(truck);
         Object* leftLight = new Object("leftLight",translate(mat4(1),vec3(-0.4,1,-0.5)));
@@ -2055,19 +2050,19 @@ private:
 						vertexToCopy[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
 						vertexToCopy[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
 					}
-						int j = MD.vertices.size() / VD.size;
-						int s = MD.vertices.size();
-						MD.vertices.resize(s + VD.size);
-						for (int k = 0; k < VD.size; k++) {
-							MD.vertices[s + k] = vertexToCopy[k];
-						}
-						MD.indices.push_back(j);
+                    int j = MD.vertices.size() / VD.size;
+                    int s = MD.vertices.size();
+                    MD.vertices.resize(s + VD.size);
+                    for (int k = 0; k < VD.size; k++) {
+                        MD.vertices[s + k] = vertexToCopy[k];
+                    }
+                    MD.indices.push_back(j);
 				}
             }
 
             std::cout << FName << " -> V: " << MD.vertices.size()
                       << ", I: " << MD.indices.size() << "\n";
-			
+
 		}
     }
         void createTextMesh(ModelData &MD, VertexDescriptor &VD) {
@@ -2494,6 +2489,9 @@ private:
 		}
 	}
 
+
+
+
 	void createSkyBoxDescriptorSets() {
 		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(),
 												   SkyBoxDescriptorSetLayout);
@@ -2601,7 +2599,7 @@ private:
 	}
 
     void createCommandBuffers() {
-    	commandBuffers.resize(swapChainFramebuffers.size());
+        commandBuffers.resize(swapChainFramebuffers.size());
     	
     	VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -2617,7 +2615,7 @@ private:
 		}
 		
 		for (size_t i = 0; i < commandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
+            VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = 0; // Optional
 			beginInfo.pInheritanceInfo = nullptr; // Optional
@@ -2626,7 +2624,65 @@ private:
 						VK_SUCCESS) {
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
-			
+            /*
+            //Create shadow map command buffer
+            VkClearValue clear_values[1];
+            clear_values[0].depthStencil.depth = 1.0f;
+            clear_values[0].depthStencil.stencil = 0;
+
+            VkRenderPassBeginInfo rp_begin;
+            rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            rp_begin.pNext = NULL;
+            rp_begin.renderPass = shadow_map_render_pass;
+            rp_begin.framebuffer = shadow_map_framebuffer;
+            rp_begin.renderArea.offset.x = 0;
+            rp_begin.renderArea.offset.y = 0;
+            rp_begin.renderArea.extent.width = SHADOW_MAP_WIDTH;
+            rp_begin.renderArea.extent.height = SHADOW_MAP_HEIGHT;
+            rp_begin.clearValueCount = 1;
+            rp_begin.pClearValues = clear_values;
+
+            vkCmdBeginRenderPass(commandBuffers[i],
+                                 &rp_begin,
+                                 VK_SUBPASS_CONTENTS_INLINE);
+
+            VkViewport viewport;
+            viewport.height = SHADOW_MAP_HEIGHT;
+            viewport.width = SHADOW_MAP_WIDTH;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            viewport.x = 0;
+            viewport.y = 0;
+            vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+
+            VkRect2D scissor;
+            scissor.extent.width = SHADOW_MAP_WIDTH;
+            scissor.extent.height = SHADOW_MAP_HEIGHT;
+            scissor.offset.x = 0;
+            scissor.offset.y = 0;
+            vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+            //...
+            //... binds command buffer and desciptor sets for shadow map
+            vkCmdBindPipeline(commandBuffers[i],
+                              VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              shadowPipeline);
+
+            const VkDeviceSize offsets[1] = { 0 };
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertex_buf, offsets);
+
+            vkCmdBindDescriptorSets(commandBuffers[i],
+                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    PhongPipelineLayout,
+                                    0, 1,
+                                    shadow_map_descriptor_set,
+                                    0, NULL);
+
+            vkCmdDraw(shadow_map_cmd_buf, ...);
+
+            vkCmdEndRenderPass(commandBuffers[i]);
+            //...*/
+
+            //Render scene
 			VkRenderPassBeginInfo renderPassInfo{};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = renderPass; 
@@ -2818,7 +2874,23 @@ private:
 		VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
-		
+        /*
+        //
+        VkPipelineStageFlags shadow_map_wait_stages = 0;
+        VkSubmitInfo submit_info = { };
+        submit_info.pNext = NULL;
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.waitSemaphoreCount = 0;
+        submit_info.pWaitSemaphores = NULL;
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores = &signal_sem;
+        submit_info.pWaitDstStageMask = 0;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &shadow_map_cmd_buf;
+
+        vkQueueSubmit(queue, 1, &submit_info, NULL);
+        //*/
+
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
@@ -2849,7 +2921,208 @@ private:
 		
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
-	
+
+    const int SHADOW_MAP_WIDTH = 1024;
+    const int SHADOW_MAP_HEIGHT = 1024;
+
+    VkImage image;//Image containing shadow map
+    void createShadowMapImage(){
+        VkImageCreateInfo image_info = {};
+        image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_info.pNext = NULL;
+        image_info.imageType = VK_IMAGE_TYPE_2D;
+        image_info.format = VK_FORMAT_D32_SFLOAT;
+        image_info.extent.width = SHADOW_MAP_WIDTH;
+        image_info.extent.height = SHADOW_MAP_HEIGHT;
+        image_info.extent.depth = 1;
+        image_info.mipLevels = 1;
+        image_info.arrayLayers = 1;
+        image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+        image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | //We need to render to this image in the first pass
+                           VK_IMAGE_USAGE_SAMPLED_BIT;                   //We need to sample from this image in the second pass
+        image_info.queueFamilyIndexCount = 0;
+        image_info.pQueueFamilyIndices = NULL;
+        image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        image_info.flags = 0;
+
+        vkCreateImage(device, &image_info, NULL, &image);
+    }
+
+    VkImageView shadow_map_view;
+    void createImageView ()
+    {
+        VkImageViewCreateInfo view_info = {};
+        view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        view_info.pNext = NULL;
+        view_info.image = image;
+        view_info.format = VK_FORMAT_D32_SFLOAT;
+        view_info.components.r = VK_COMPONENT_SWIZZLE_R;
+        view_info.components.g = VK_COMPONENT_SWIZZLE_G;
+        view_info.components.b = VK_COMPONENT_SWIZZLE_B;
+        view_info.components.a = VK_COMPONENT_SWIZZLE_A;
+        view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        view_info.subresourceRange.baseMipLevel = 0;
+        view_info.subresourceRange.levelCount = 1;
+        view_info.subresourceRange.baseArrayLayer = 0;
+        view_info.subresourceRange.layerCount = 1;
+        view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        view_info.flags = 0;
+
+        vkCreateImageView(device, &view_info, NULL, &shadow_map_view);
+    }
+
+    const float LIGHT_NEAR = 1;
+    const float LIGHT_FAR = 100;
+
+    glm::mat4 compute_view_matrix_for_rotation(glm::vec3 origin, glm::vec3 rot)
+    {
+        glm::mat4 mat(1.0);
+        float rx = radians(rot.x);
+        float ry = radians(rot.y);
+        float rz = radians(rot.z);
+        mat = glm::rotate(mat, -rx, glm::vec3(1, 0, 0));
+        mat = glm::rotate(mat, -ry, glm::vec3(0, 1, 0));
+        mat = glm::rotate(mat, -rz, glm::vec3(0, 0, 1));
+        mat = glm::translate(mat, -origin);
+        return mat;
+    }
+
+    mat4 createShadowsMapProjection(){
+        //Y axis is inversed, Z range is halved
+        glm::mat4 clip = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
+                                   0.0f,-1.0f, 0.0f, 0.0f,
+                                   0.0f, 0.0f, 0.5f, 0.0f,
+                                   0.0f, 0.0f, 0.5f, 1.0f);
+
+        glm::mat4 light_projection = clip *
+                                     glm::perspective(glm::radians(45.0f),
+                                                      (float) SHADOW_MAP_WIDTH / SHADOW_MAP_HEIGHT,
+                                                      LIGHT_NEAR, LIGHT_FAR);
+        return light_projection;
+    }
+
+
+    static VkRenderPass shadow_map_render_pass;
+    //Used to render the scene to the shadow map
+    static VkRenderPass create_shadow_map_render_pass(VkDevice device)
+    {
+        VkAttachmentDescription attachments[2];
+
+        // Depth attachment (shadow map)
+        attachments[0].format = VK_FORMAT_D32_SFLOAT;
+        attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+        attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        attachments[0].flags = 0;
+
+        // Attachment references from subpasses
+        VkAttachmentReference depth_ref;
+        depth_ref.attachment = 0;
+        depth_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        // Subpass 0: shadow map rendering
+        VkSubpassDescription subpass[1];
+        subpass[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass[0].flags = 0;
+        subpass[0].inputAttachmentCount = 0;
+        subpass[0].pInputAttachments = NULL;
+        subpass[0].colorAttachmentCount = 0;
+        subpass[0].pColorAttachments = NULL;
+        subpass[0].pResolveAttachments = NULL;
+        subpass[0].pDepthStencilAttachment = &depth_ref;
+        subpass[0].preserveAttachmentCount = 0;
+        subpass[0].pPreserveAttachments = NULL;
+
+        // Create render pass
+        VkRenderPassCreateInfo rp_info;
+        rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        rp_info.pNext = NULL;
+        rp_info.attachmentCount = 1;
+        rp_info.pAttachments = attachments;
+        rp_info.subpassCount = 1;
+        rp_info.pSubpasses = subpass;
+        rp_info.dependencyCount = 0;
+        rp_info.pDependencies = NULL;
+        rp_info.flags = 0;
+
+        VkResult result = vkCreateRenderPass(device, &rp_info, NULL, &shadow_map_render_pass);
+
+        if (result != VK_SUCCESS) {
+            PrintVkError(result);
+            throw std::runtime_error("failed to create shadow map render pass!");
+        }
+
+        return shadow_map_render_pass;
+    }
+
+    //Creates the framebuffer for the shadow map
+    void shadowMapFrameBuffer(){
+        VkFramebufferCreateInfo fb_info;
+        fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        fb_info.pNext = NULL;
+        fb_info.renderPass = shadow_map_render_pass;
+        fb_info.attachmentCount = 1;
+        fb_info.pAttachments = &shadow_map_view;
+        fb_info.width = SHADOW_MAP_WIDTH;
+        fb_info.height = SHADOW_MAP_HEIGHT;
+        fb_info.layers = 1;
+        fb_info.flags = 0;
+
+        VkFramebuffer shadow_map_fb;
+        vkCreateFramebuffer(device, &fb_info, NULL, &shadow_map_fb);
+
+    }
+
+    void createShadowsMapPipeline(){
+        VkVertexInputBindingDescription vi_binding[1];
+        VkVertexInputAttributeDescription vi_attribs[1];
+
+        // Vertex attribute binding 0, location 0: position
+        vi_binding[0].binding = 0;
+        vi_binding[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        vi_binding[0].stride = 2 * sizeof(glm::vec3)+sizeof(glm::vec2);//We have vertex, normal and uv
+
+        vi_attribs[0].binding = 0;
+        vi_attribs[0].location = 0;
+        vi_attribs[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+        vi_attribs[0].offset = 0;
+
+        VkPipelineVertexInputStateCreateInfo vi;
+        vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vi.pNext = NULL;
+        vi.flags = 0;
+        vi.vertexBindingDescriptionCount = 1;
+        vi.pVertexBindingDescriptions = vi_binding;
+        vi.vertexAttributeDescriptionCount = 1;
+        vi.pVertexAttributeDescriptions = vi_attribs;
+        //...
+        auto vertShaderCode = readFile((SHADER_PATH + "shadowmap.vert.spv").c_str());
+        VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+
+        VkPipelineShaderStageCreateInfo shader_stages[1];
+
+        shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shader_stages[0].pNext = NULL;
+        shader_stages[0].pSpecializationInfo = NULL;
+        shader_stages[0].flags = 0;
+        shader_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+        shader_stages[0].pName = "main";
+        shader_stages[0].module = vertShaderModule;
+        //...
+        VkGraphicsPipelineCreateInfo pipelineInfo{};
+
+        pipelineInfo.pStages = shader_stages;
+        pipelineInfo.stageCount = 1;
+        //...
+        pipelineInfo.pVertexInputState = &vi;
+
+    }
+
 	void updateUniformBuffer(uint32_t currentImage) {
 		// Inputs
 		static auto startTime = std::chrono::high_resolution_clock::now();
@@ -2966,33 +3239,11 @@ private:
                     firstFrame=false;
                 }
             }
-	
-
-			/*if (o->id == "tre")
-			{
-				
-				const float tilesize = 1.0f;
-				int truckPosX = floor(truck.getTransform()[3].x / tilesize);//Should be divided TileSize
-				int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
-				
-				mat4 tmp = { {1,0,0,0},{0,1,0,0},{0,0,1,0},{truckPosX,0,0,1} };
-			//	treeContainer->setTransform(tmp);
-
-
-				//movetree(truckPosX,truckPosZ,o);
-			
-			}*/
-			
-			
 
 			if (o->id=="truck") {
-				ubo.mMat = ubo.mMat * glm::rotate(mat4(1), 1.5708f, glm::vec3(0, 1, 0)) ;
 				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.thirdPersonCamDelta) *
                                     glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
                                     glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);*/
-
-				
-
 			}
 
 			ubo.mvpMat = Prj * CamMat * ubo.mMat;
@@ -3022,7 +3273,6 @@ private:
 
 		if (glfwGetKey(window, GLFW_KEY_P)) {
 			change_time += 0.15;
-			std::cout << "  chg time " << change_time << " rot time " << rot << std::endl;
 		}
 		rot = ( time+change_time) * 3.5;
 		rot =  remainder(rot, 360);
@@ -3262,12 +3512,12 @@ private:
 		else 		if (a < (fxmax / 2) && b > (fzmax / 2)) { closex = fxmin; closez = fzmax; }
 		else 		{ closex = fxmax; closez = fzmax; }
 
-		
+
 
 		int treePosX, treePosZ;
 		treePosX = o->getTransform()[3].x;
 		treePosZ= o->getTransform()[3].z;
-		
+
 		if (treePosX == -closex && treePosZ == -closez) {
 			//print "closerrrrrrrr"
 		//	std::cout << " x pos far" << treePosX << " y pos far" << treePosZ;
@@ -3275,7 +3525,7 @@ private:
 			 p = o;
 		}
 
-		
+
 		if (closex==treePosX  && closez == treePosZ) {
 			//print "closerrrrrrrr"
 			//std::cout << " x pos" << treePosX << " y pos " << treePosZ;
@@ -3289,7 +3539,7 @@ private:
 			return;
 		}
 		*/
-		
+
 		//make the current treeContiner as treeContainer5 if truck is present inside it
 		int shrt=1;
 		int t = treeGridLength * 2;
@@ -3302,13 +3552,13 @@ private:
 				small = distance; shrt = i;
 			}
 		}
-		
+
 		std::cout << "grid no " << shrt << std::endl;
 
 		if (shrt == 0) {
 			treeContainer5 = treeContainer1;
 			for (int i = 0; i < 9; i++) {
-			
+
 				for (Object* obs:treeContainer[i]->children)
 				{
 					pos.x = obs->getTransform()[3].x-t;
@@ -3331,7 +3581,7 @@ private:
 						}
 				}
 			}
-    
+
 			else
 				if (shrt == 2) {
 					treeContainer5 = treeContainer3;
@@ -3345,7 +3595,7 @@ private:
 							}
 					}
 				}
-	
+
 			else
 					if (shrt == 3) {
 						treeContainer5 = treeContainer4;
@@ -3400,7 +3650,7 @@ private:
 							}
 					}
 				}
-		
+
 				else
 					if (shrt == 8) {
 						treeContainer5 = treeContainer8;
@@ -3418,10 +3668,10 @@ private:
 }
 
 };
-	
+
 
 	//// To put in the right place
-	
+
 
 
 int main() {

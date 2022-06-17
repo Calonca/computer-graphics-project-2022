@@ -41,6 +41,8 @@ public:
 
     virtual mat4 getTransform() const;
 
+    virtual mat4 getLocalTransform() const;
+
     void setTransform(const mat4 &t);
 
     Object * addObject(std::string id, Model model, mat4 t);

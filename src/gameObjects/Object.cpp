@@ -13,6 +13,10 @@ mat4 Object::getTransform() const {
         return transform;
 }
 
+mat4 Object::getLocalTransform() const {
+    return transform;
+}
+
 Object::Object(std::string id, const Model model, const mat4 transform) : transform(transform), id(std::move(id)),
                                                                                    model(model) {}
 Object::Object(std::string id, const mat4 transform) : transform(transform), id(std::move(id)) {}
