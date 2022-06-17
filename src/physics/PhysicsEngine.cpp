@@ -134,8 +134,8 @@ void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
                     //std::cout<<"Dyn friction"<<std::endl;
                 }
 
-                rb->velocity = aVel - friction * aInvMass;
-
+                rb->velocity = aVel;// - friction * aInvMass;
+                rb->velocity.x = 0;
             }
 
         }
@@ -190,6 +190,9 @@ void PhysicsEngine::ApplyForces(float dt) {
         vec3 diffVel = 0.0001f*(rb->velocity*rb->velocity* normalize(rb->velocity));
         diffVel.y =0;
         rb->velocity -= diffVel;
+        //print rb->velocity;
+        printf("%f %f %f\n",rb->velocity.x,rb->velocity.y,rb->velocity.z);
+
 
         //Rotation due to angular velocity
         transform = transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));
