@@ -1781,16 +1781,150 @@ private:
 		 	throw std::runtime_error("failed to create texture sampler!");
 		}
 	}
+	Object* treeContainer1 = new Object("treeContainer", mat4(1));
+	Object* treeContainer2 = new Object("treeContainer", mat4(1));
+	Object* treeContainer3 = new Object("treeContainer", mat4(1));
+	Object* treeContainer4 = new Object("treeContainer", mat4(1));
+	Object* treeContainer5 = new Object("treeContainer", mat4(1));
+	Object* treeContainer6 = new Object("treeContainer", mat4(1));
+	Object* treeContainer7 = new Object("treeContainer", mat4(1));
+	Object* treeContainer8 = new Object("treeContainer", mat4(1));
+	Object* treeContainer9 = new Object("treeContainer", mat4(1));
+	std::vector<Object*> treeContainer;
+	
+	
 
+	int treeGridLength = 40;
 	void loadModels() {
         sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, Terrain}, mat4(1));
+		sceneToLoad.addObject(*treeContainer1);
+		sceneToLoad.addObject(*treeContainer2);
+		sceneToLoad.addObject(*treeContainer3);
+		sceneToLoad.addObject(*treeContainer4);
+		sceneToLoad.addObject(*treeContainer5);
+		sceneToLoad.addObject(*treeContainer6);
+		sceneToLoad.addObject(*treeContainer7);
+		sceneToLoad.addObject(*treeContainer8);
+		sceneToLoad.addObject(*treeContainer9);
 
         ///Test objects
         //Object* pyramid = sceneToLoad.addObject("pyr", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(0, 0, 0)));
         //Object* walls = pyramid->addObject("walls", {"Walls.obj", "grass2.jpg", 1, Flat}, translate(mat4(1), vec3(10, 0, 0)));
         //Object* walls2 = walls->addObject("walls2", {"Walls.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(11, 10, 0)));
         ///
-		Object* tre = sceneToLoad.addObject("pyr", { "tree.obj", "grass2.jpg", 1, Flat }, translate(mat4(1), vec3(0, 0, 0)));
+		//add 10 tree objects inside treeContainer
+		for (int i = -6; i < -2; i++) {
+			for (int j = -6; j < -2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer1->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+
+		for (int i = -2; i < 2; i++) {
+			for (int j = -6; j < -2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer2->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+		
+		for (int i = 2; i < 6; i++) {
+			for (int j = -6; j < -2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer3->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+
+
+		for (int i = -6; i < -2; i++) {
+			for (int j = -2; j < 2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer4->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+
+		for (int i = -2; i < 2; i++) {
+			for (int j = -2; j < 2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+				
+				treeContainer5->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					,{"tree.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+		
+		for (int i = 2; i < 6; i++) {
+			for (int j = -2; j < 2; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer6->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+		
+		for (int i = -6; i < -2; i++) {
+			for (int j = 2; j < 6; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer7->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+		for (int i = -2; i < 2; i++) {
+			for (int j = 2; j < 6; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer8->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+
+		for (int i = 2; i < 6; i++) {
+			for (int j = 2; j < 6; j++) {
+				int x = treeGridLength * i;
+
+				int z = treeGridLength * j;
+
+				treeContainer9->addObject("tre"//+std::to_string(x)+ std::to_string(z),
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+			}
+		}
+
+		
+		//pushback all treeContainer objects into vector
+		treeContainer.push_back(treeContainer1);
+		treeContainer.push_back(treeContainer2);
+		treeContainer.push_back(treeContainer3);
+		treeContainer.push_back(treeContainer4);
+		treeContainer.push_back(treeContainer5);
+		treeContainer.push_back(treeContainer6);
+		treeContainer.push_back(treeContainer7);
+		treeContainer.push_back(treeContainer8);
+		treeContainer.push_back(treeContainer9);
+		
+		
 
         sceneToLoad.addObject(truck);
         Object* leftLight = new Object("leftLight",translate(mat4(1),vec3(-0.4,1,-0.5)));
@@ -1912,21 +2046,28 @@ private:
                     vertexToCopy[VD.deltaNormal + 0] = attrib.normals[3 * index.normal_index + 0];
                     vertexToCopy[VD.deltaNormal + 1] = attrib.normals[3 * index.normal_index + 1];
                     vertexToCopy[VD.deltaNormal + 2] = attrib.normals[3 * index.normal_index + 2];
-                    vertexToCopy[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
-                    vertexToCopy[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
-
-                    int j = MD.vertices.size() / VD.size;
-                    int s = MD.vertices.size();
-                    MD.vertices.resize(s + VD.size);
-                    for (int k = 0; k < VD.size; k++) {
-                        MD.vertices[s + k] = vertexToCopy[k];
-                    }
-                    MD.indices.push_back(j);
-                }
+                   //if tex coord empty assign 0
+					if (attrib.texcoords.size() == 0) {
+						vertexToCopy[VD.deltaTexCoord + 0] = 0;
+						vertexToCopy[VD.deltaTexCoord + 1] = 0;
+					}
+					else {
+						vertexToCopy[VD.deltaTexCoord + 0] = attrib.texcoords[2 * index.texcoord_index + 0];
+						vertexToCopy[VD.deltaTexCoord + 1] = 1 - attrib.texcoords[2 * index.texcoord_index + 1];
+					}
+						int j = MD.vertices.size() / VD.size;
+						int s = MD.vertices.size();
+						MD.vertices.resize(s + VD.size);
+						for (int k = 0; k < VD.size; k++) {
+							MD.vertices[s + k] = vertexToCopy[k];
+						}
+						MD.indices.push_back(j);
+				}
             }
 
             std::cout << FName << " -> V: " << MD.vertices.size()
                       << ", I: " << MD.indices.size() << "\n";
+			
 		}
     }
         void createTextMesh(ModelData &MD, VertexDescriptor &VD) {
@@ -2734,7 +2875,11 @@ private:
 		//mat4 oldTransform = truck.getTransform();
 
         truck.UpdatePos(window, deltaT);
+		const float tilesize = 1.0f;
+		int truckPosX = floor(truck.getTransform()[3].x / tilesize);//Should be divided TileSize
+		int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
 
+		movetree(truckPosX, truckPosZ);
 		//Physics
         physicsEngine.Step(deltaT, window);
 
@@ -2821,12 +2966,33 @@ private:
                     firstFrame=false;
                 }
             }
+	
+
+			/*if (o->id == "tre")
+			{
+				
+				const float tilesize = 1.0f;
+				int truckPosX = floor(truck.getTransform()[3].x / tilesize);//Should be divided TileSize
+				int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
+				
+				mat4 tmp = { {1,0,0,0},{0,1,0,0},{0,0,1,0},{truckPosX,0,0,1} };
+			//	treeContainer->setTransform(tmp);
+
+
+				//movetree(truckPosX,truckPosZ,o);
+			
+			}*/
+			
+			
 
 			if (o->id=="truck") {
 				ubo.mMat = ubo.mMat * glm::rotate(mat4(1), 1.5708f, glm::vec3(0, 1, 0)) ;
 				/*FollowerTargetPos = TruckWM * glm::translate(glm::mat4(1), truck.thirdPersonCamDelta) *
                                     glm::rotate(glm::mat4(1), truck.lookPitch, glm::vec3(1, 0, 0)) *
                                     glm::vec4(0.0f, 0.0f, truck.followerDist, 1.0f);*/
+
+				
+
 			}
 
 			ubo.mvpMat = Prj * CamMat * ubo.mMat;
@@ -3063,15 +3229,185 @@ private:
         glfwTerminate();
     }
 
+	Object* p=NULL;
+	void movetree(int truckPosX, int truckPosZ){
+	/*
+		int t = treeGridLength * 10;
+		int a = (truckPosX % t);
+		int b = (truckPosZ % t);
+		int fxmin = truckPosX - a;//grid start x
+		int fzmin = truckPosZ - b;//grid start z
+		int fxmax = fxmin + t;
+		int fzmax = fzmin + t;
+		int closex, closez;
+		if (a < (fxmax / 2) && b < (fzmax / 2)) {
+			closex = fxmin; closez = fzmin;
+		}
+		else 		if (a > (fxmax / 2) && b < (fzmax / 2)) { closex = fxmax; closez = fzmin; }
+		else 		if (a < (fxmax / 2) && b > (fzmax / 2)) { closex = fxmin; closez = fzmax; }
+		else 		{ closex = fxmax; closez = fzmax; }
 
+		
 
+		int treePosX, treePosZ;
+		treePosX = o->getTransform()[3].x;
+		treePosZ= o->getTransform()[3].z;
+		
+		if (treePosX == -closex && treePosZ == -closez) {
+			//print "closerrrrrrrr"
+		//	std::cout << " x pos far" << treePosX << " y pos far" << treePosZ;
+			//o->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { 0,0,0,1 }));
+			 p = o;
+		}
 
+		
+		if (closex==treePosX  && closez == treePosZ) {
+			//print "closerrrrrrrr"
+			//std::cout << " x pos" << treePosX << " y pos " << treePosZ;
+			//o->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {0,0,0,1}));
+			return;
+		}
+		else
+			if(a>t||b>t)
+		 {
+			p->setTransform(mat4({ 1,0,0, 0 }, { 0,1,0, 0 }, { 0,0,1, 0 }, { closex,getHeight(closex,closez),closez, 1 }));
+			return;
+		}
+		*/
+		
+		//make the current treeContiner as treeContainer5 if truck is present inside it
+		int shrt=1;
+		int t = treeGridLength * 2;
+		float small = 10000;
+		vec2 pos;
+		for (int i = 0; i < 9;i++) {
+			//calculate distance between truck and treeContainer
+			float distance = sqrt(pow(truckPosX - treeContainer[i]->children[5]->getTransform()[3].x, 2) + pow(truckPosZ - treeContainer[i]->children[5]->getTransform()[3].z, 2));
+			if (distance < small) {
+				small = distance; shrt = i;
+			}
+		}
+		
+		std::cout << "grid no " << shrt << std::endl;
 
+		if (shrt == 0) {
+			treeContainer5 = treeContainer1;
+			for (int i = 0; i < 9; i++) {
+			
+				for (Object* obs:treeContainer[i]->children)
+				{
+					pos.x = obs->getTransform()[3].x-t;
+					pos.y = obs->getTransform()[3].z-t;
 
+					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1}));
+				}
+			}
+		}
+		else
+			if (shrt == 1) {
+				treeContainer5 = treeContainer2;
+				for (int i = 0; i < 9; i++) {
+						for (Object* obs : treeContainer[i]->children)
+						{
+							pos.x = obs->getTransform()[3].x ;
+							pos.y = obs->getTransform()[3].z - t;
 
-//// To put in the right place
+							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+						}
+				}
+			}
+    
+			else
+				if (shrt == 2) {
+					treeContainer5 = treeContainer3;
+					for (int i = 0; i < 9; i++) {
+							for (Object* obs : treeContainer[i]->children)
+							{
+								pos.x = obs->getTransform()[3].x + t;
+								pos.y = obs->getTransform()[3].z - t;
+
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+							}
+					}
+				}
+	
+			else
+					if (shrt == 3) {
+						treeContainer5 = treeContainer4;
+						for (int i = 0; i < 9; i++) {
+								for (Object* obs : treeContainer[i]->children)
+								{
+									pos.x = obs->getTransform()[3].x - t;
+									pos.y = obs->getTransform()[3].z ;
+
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+								}
+						}
+					}
+
+			else
+						if (shrt == 5) {
+							treeContainer5 = treeContainer5;
+							for (int i = 0; i < 9; i++) {
+									for (Object* obs : treeContainer[i]->children)
+									{
+										pos.x = obs->getTransform()[3].x + t;
+										pos.y = obs->getTransform()[3].z ;
+
+										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+									}
+							}
+						}
+		else
+			if (shrt == 6) {
+				treeContainer5 = treeContainer6;
+				for (int i = 0; i < 9; i++) {
+					for (Object* obs : treeContainer[i]->children)
+					{
+						pos.x = obs->getTransform()[3].x - t;
+						pos.y = obs->getTransform()[3].z + t;
+
+						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+					}
+			}
+		}
+
+			else
+				if (shrt == 7) {
+					treeContainer5 = treeContainer7;
+					for (int i = 0; i < 9; i++) {
+							for (Object* obs : treeContainer[i]->children)
+							{
+								pos.x = obs->getTransform()[3].x ;
+								pos.y = obs->getTransform()[3].z + t;
+
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+							}
+					}
+				}
+		
+				else
+					if (shrt == 8) {
+						treeContainer5 = treeContainer8;
+						for (int i = 0; i < 9; i++) {
+								for (Object* obs : treeContainer[i]->children)
+								{
+									pos.x = obs->getTransform()[3].x + t;
+									pos.y = obs->getTransform()[3].z + t;
+
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+								}
+						}
+					}
+
+}
 
 };
+	
+
+	//// To put in the right place
+	
+
 
 int main() {
     CGProject app;
