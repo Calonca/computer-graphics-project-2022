@@ -1783,7 +1783,7 @@ private:
 	}
 
 	void loadModels() {
-        sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, Terrain}, mat4(1));
+        sceneToLoad.addObject("terrain", {"floor.obj", "grass3.jpg", 1, Terrain}, mat4(1));
 
         ///Test objects
         //Object* pyramid = sceneToLoad.addObject("pyr", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(0, 0, 0)));
@@ -2863,10 +2863,25 @@ private:
 		gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
 
         float sinHeight = sin(radians(rot));
-        gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, 1.0f);
-		if(rot<0 || rot>180)
-			gubo.lightColor = vec4(0.0f, 0.0f, 0.0f,1.0f);
+        //Up color
+        //  x×(1−a)+y×a
+        vec4 upColor = mix( vec4(212, 108, 34,256.0f)/256.0f,  // sunset and sunrise
+                            vec4(247, 245, 173,256.0f)/256.0f, // up
+                            max(sinHeight,0.0f) );
 
+        //Down value is 0 at sunset and 1 when the sun is down
+        //Todo find a better way to do this
+        float down1 = sqrt(sqrt(sqrt(-sinHeight)));
+        //print down1
+        //printf("down1 %f\n",down1);
+        //float down2 = pow(-sinHeight,1/16);
+        //printf("down2 %f\n",down2);
+        float downValue = max(0.0f,down1);
+
+
+        gubo.lightColor = mix( upColor,  // normally upcolor
+                               vec4(0,0,0,1), // below
+                               downValue );
 
 
 		// updates global uniforms
