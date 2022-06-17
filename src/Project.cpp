@@ -2894,9 +2894,8 @@ private:
 			0.1f, 150.0f);
 		Prj[1][1] *= -1;
 
-		glm::vec3 EyePos;
-		static glm::vec3 FollowerPos = truck.getTransform()[3];
 
+		glm::vec3 EyePos;
 		switch (currentView) {
             case 0:
                 if (currentView != prevCt) {
@@ -2905,8 +2904,9 @@ private:
                 {
                     vec3 truckZ = truck.getTransform()[2];
 
+                    EyePos = vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0);
                     CamMat = MatrixUtils::LookAtMat(
-                            vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0),
+                            EyePos,
                             vec3(truck.getTransform()[3])-truckZ+vec3(0,1,0),
                             0);
                 }
@@ -2932,13 +2932,13 @@ private:
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
                 //CamMat = inverse(truck.firstPersonCamDelta);
-                CamMat = inverse(truck.getTransform()*
-                        truck.firstPersonCamDelta
-                );
+                mat4 camTr = truck.getTransform()*truck.firstPersonCamDelta;
+                CamMat = inverse(camTr);
+                EyePos = camTr[3];
 			}
 			break;
 		}
-		EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
+		//EyePos = -glm::vec3(CamMat * glm::vec4(0, 0, 0, 1));
 		// Updates unifoms for the objects
         std::vector<Object*> sct = Object::objs;
         for (int j = 0;j<sct.size();j++) {
@@ -3029,10 +3029,25 @@ private:
 		gubo.lightDir = rotate(glm::mat4(1), glm::radians(-rot), vec3(1, 0, 0))[2];
 
         float sinHeight = sin(radians(rot));
-        gubo.lightColor = vec4(sinHeight, sinHeight, sinHeight, 1.0f);
-		if(rot<0 || rot>180)
-			gubo.lightColor = vec4(0.0f, 0.0f, 0.0f,1.0f);
+        //Up color
+        //  x×(1−a)+y×a
+        vec4 upColor = mix( vec4(212, 108, 34,256.0f)/256.0f,  // sunset and sunrise
+                            vec4(247, 245, 173,256.0f)/256.0f, // up
+                            max(sinHeight,0.0f) );
 
+        //Down value is 0 at sunset and 1 when the sun is down
+        //Todo find a better way to do this
+        float down1 = sqrt(sqrt(sqrt(-sinHeight)));
+        //print down1
+        //printf("down1 %f\n",down1);
+        //float down2 = pow(-sinHeight,1/16);
+        //printf("down2 %f\n",down2);
+        float downValue = max(0.0f,down1);
+
+
+        gubo.lightColor = mix( upColor,  // normally upcolor
+                               vec4(0,0,0,1), // below
+                               downValue );
 
 
 		// updates global uniforms
