@@ -12,7 +12,8 @@ inline float hash2to1(vec2 p)
 }
 
 //https://www.shadertoy.com/view/4djSRW
-inline vec2 hash22(vec2 p)
+//Generates two pseudorandom number between 0 and 1 based on the input values
+inline vec2 hash2to2(vec2 p)
 {
     vec3 p3 = fract(vec3(p.x,p.y,p.x) * vec3(.1031, .1030, .0973));
     p3 += dot(p3, vec3(p3.y,p3.z,p3.y)+33.33f);
