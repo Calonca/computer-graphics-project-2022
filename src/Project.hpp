@@ -12,7 +12,7 @@
 
 class Project;
 
-///Structs for the Terrain
+///Structs for the TerrainPipe
 struct VertexDescriptor {
     bool hasPos;
     bool hasNormal;

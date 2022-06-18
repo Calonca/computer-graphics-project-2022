@@ -8,24 +8,24 @@ void PhysicsEngine::AddRigidBody(RigidBody* rb)
 	rbs.push_back(rb);
 }
 
-void PhysicsEngine::AddCollider(TerrainCollider* c) {
+void PhysicsEngine::AddCollider(Collider* c) {
     if (!c) return;
     colliders.push_back(c);
 }
 
-void PhysicsEngine::RemoveCollider(TerrainCollider *c) {
+void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
+{
+    if (!rb) return;
+    auto iterator = std::find(rbs.begin(), rbs.end(), rb);
+    if (iterator != rbs.end())
+        rbs.erase(iterator);
+}
+
+void PhysicsEngine::RemoveCollider(Collider *c) {
     if (!c) return;
     auto iterator = std::find(colliders.begin(), colliders.end(), c);
     if (iterator != colliders.end())
         colliders.erase(iterator);
-}
-
-void PhysicsEngine::RemoveRigidBody(RigidBody* rb)
-{
-	if (!rb) return;
-	auto iterator = std::find(rbs.begin(), rbs.end(), rb);
-	if (iterator != rbs.end())
-		rbs.erase(iterator);
 }
 
 
@@ -46,7 +46,8 @@ void PhysicsEngine::Step(float dt, GLFWwindow *window)
 //Adds forces to rigidbodies based on collisions
 void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
     //For each collider check collision objects and set force
-    for(TerrainCollider* collider : colliders){
+    for(Collider* collider : colliders){
+        //TerrainCollider* collider = dynamic_cast<TerrainCollider*>(pParentC);
         for (RigidBody* rb : rbs) {
             int numColliding = 0;
             vec3 rbNormal = vec3(0,0,0);
@@ -77,7 +78,7 @@ void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
             }*/
 
             int maxCollider = rb->co.size();
-            if (numColliding > maxCollider - 1) {
+            if (numColliding > 3) {
                 glm::vec3 aVel = rb->velocity;
                 glm::vec3 bVel = glm::vec3(0.0f);
                 glm::vec3 rVel = bVel - aVel;
@@ -105,6 +106,8 @@ void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
                 // Friction
 
                 rVel = bVel - aVel;
+
+                /*
                 //MatrixUtils::printVector(rVel);
                 nSpd = glm::dot(rVel, normal);
                 //std::cout<<"f is :"<<nSpd<<std::endl;
@@ -133,7 +136,7 @@ void PhysicsEngine::SolveCollisions(GLFWwindow *window) {
                     friction = -j * tangent * rb->dynamicFriction;
                     //std::cout<<"Dyn friction"<<std::endl;
                 }
-
+                */
                 rb->velocity = aVel;// - friction * aInvMass;
                 rb->velocity.x = 0;
             }
@@ -156,7 +159,7 @@ void PhysicsEngine::ApplyForces(float dt) {
     //std::cout<<"deltatime is :"<<dt<<std::endl;
     float inertia = 700;
     for (RigidBody* rb : rbs) {
-        mat4 transform = rb->parent->getTransform();
+        mat4 transform = rb->parent->getGlobalTransform();
 
         vec3 resultingForce = vec3(0,0,0);
         vec3 torque = vec3(0,0,0);
@@ -191,8 +194,7 @@ void PhysicsEngine::ApplyForces(float dt) {
         diffVel.y =0;
         rb->velocity -= diffVel;
         //print rb->velocity;
-        printf("%f %f %f\n",rb->velocity.x,rb->velocity.y,rb->velocity.z);
-
+        //printf("Velocity %f %f %f\n",rb->velocity.x,rb->velocity.y,rb->velocity.z);
 
         //Rotation due to angular velocity
         transform = transform * rotate(mat4(1),rb->angularVelocity.r*dt,vec3(1,0,0));

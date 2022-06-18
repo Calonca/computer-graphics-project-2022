@@ -25,6 +25,8 @@ add_executable(${PNAME} src/${CFILE}.cpp
         src/worldgen/Terrain.hpp
         src/worldgen/Terrain.cpp
         src/worldgen/Noise.hpp
+        src/worldgen/Tree.hpp
+        src/worldgen/Tree.cpp
         src/Project.hpp
         )
 

@@ -6,20 +6,40 @@
 
 #include <utility>
 
-mat4 Object::getTransform() const {
-    if (pParent!= nullptr)
-        return pParent->getTransform()*transform;
+mat4 Object::getGlobalTransform() const {
+    return globalTransform;
+}
+
+mat4 getTransform(Object* o) {
+    if (o->pParent!= nullptr)
+        return getTransform(o->pParent)*o->getLocalTransform();
     else
-        return transform;
+        return o->getLocalTransform();
+}
+
+void Object::setRecursiveGlobalTransform() {
+    if (pParent!= nullptr)
+        globalTransform = pParent->globalTransform*localTransform;
+    else globalTransform = localTransform;
+
+    for (Object *child : children) {
+        child->setRecursiveGlobalTransform();
+    }
+
 }
 
 mat4 Object::getLocalTransform() const {
-    return transform;
+    return localTransform;
 }
 
-Object::Object(std::string id, const Model model, const mat4 transform) : transform(transform), id(std::move(id)),
-                                                                                   model(model) {}
-Object::Object(std::string id, const mat4 transform) : transform(transform), id(std::move(id)) {}
+Object::Object(std::string id, const Model model, const mat4 localTransform) : localTransform(localTransform), id(std::move(id)),
+                                                                                   model(model) {
+    globalTransform = localTransform;
+}
+
+Object::Object(std::string id, const mat4 localTransform) : localTransform(localTransform), id(std::move(id)) {
+    globalTransform = localTransform;
+}
 
 
 Object* Object::addObject(std::string identifier, Model m, mat4 t) {
@@ -28,6 +48,7 @@ Object* Object::addObject(std::string identifier, Model m, mat4 t) {
     children.push_back(o);
     if (o->model.scale>0)
         objs.push_back(o);
+    o->setRecursiveGlobalTransform();
     return o;
 }
 
@@ -36,9 +57,11 @@ void Object::addObject(Object& o) {
     children.push_back(&o);
     if (o.model.scale>0)
         objs.push_back(&o);
+    o.setRecursiveGlobalTransform();
 }
 std::vector<Object*>  Object::objs = {} ;
 
 void Object::setTransform(const mat4 &t) {
-    Object::transform = t;
+    localTransform = t;
+    setRecursiveGlobalTransform();
 }

@@ -1,7 +1,7 @@
 #include "definitions.hpp"
 
 void CollisionObject::setTransform(RigidBody *r) {
-    t = r->parent->getTransform();
+    t = r->parent->getGlobalTransform();
 }
 
 CollisionObject::CollisionObject(

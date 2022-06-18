@@ -22,6 +22,10 @@ public:
     vec3 normal;
     CollisionObject(std::vector<vec3> points, const mat4 &t, const vec3 &forceAfterCollision, bool isColliding);
 
+    vec3 getGlobalPosition(){
+        return t[3];
+    }
+
     vec3 getGlobalPoint (unsigned int i){
         if (i<0 || i>=points.size())
         {
@@ -93,8 +97,10 @@ struct RigidBody {
 struct Collider {
     //Function tha when given an object containing points
     // returns a force
-    void testCollision(CollisionObject *co) {
+    virtual void testCollision(CollisionObject *co) {
         co->isColliding= false;
+        //Print not implemented
+        std::cout<<"Collider::testCollision not implemented"<<std::endl;
     }
 };
 

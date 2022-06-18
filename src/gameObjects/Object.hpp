@@ -16,7 +16,10 @@ using namespace glm;
 
 class Object {
 private:
-    mat4 transform;
+    mat4 localTransform;
+    mat4 globalTransform;
+    virtual void setRecursiveGlobalTransform();
+
     /*
     void addChildrenToVector(std::vector<Object>& res){
         for(Object* child : children){
@@ -34,13 +37,11 @@ public:
     Model model = {"","",0,Flat};
     std::vector<Object*> children;//Std vector makes a copy of the Objects
 
-    Object(std::string id, Model model, mat4 transform);
+    Object(std::string id, Model model, mat4 localTransform);
 
-    Object(std::string id, mat4 transform);
+    Object(std::string id, mat4 localTransform);
 
-
-    virtual mat4 getTransform() const;
-
+    virtual mat4 getGlobalTransform() const;
     virtual mat4 getLocalTransform() const;
 
     void setTransform(const mat4 &t);

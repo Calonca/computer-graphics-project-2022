@@ -16,7 +16,7 @@ class PhysicsEngine
 {
 private:
 	std::vector<RigidBody*> rbs;
-    std::vector<TerrainCollider*> colliders;
+    std::vector<Collider*> colliders;
 
 public:
 	/// <summary>
@@ -33,8 +33,8 @@ public:
     void ApplyGravity();
     void SolveCollisions(GLFWwindow *window);
 
-    void AddCollider(TerrainCollider* collider);
-    void RemoveCollider(TerrainCollider* c);
+    void AddCollider(Collider* collider);
+    void RemoveCollider(Collider* c);
 
 	/// <summary>
 	/// Applies the forces and calculates the values of physical quantities after the dt in

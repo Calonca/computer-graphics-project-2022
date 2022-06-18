@@ -13,10 +13,10 @@ struct VertAndIndices{
     std::vector<uint32_t> indices;
 };
 
-class Terrain
+class Terrain : public Collider
 {
 public:
-    static const int TILE_NUMBER = 400;
+    static const int TILE_NUMBER = 300;
     static VertAndIndices makeModels();
     static float getHeight(float xoff, float zoff);
     //void makeModels(std::vector<float> M1_vertices, std::vector<uint32_t> M1_indices);
@@ -26,33 +26,10 @@ public:
 
     static float interpolate_y(float x, float z, float close1, float close2, float* t1, float* t2);
     //static vec3 interpolate(float close1, float close2,);
-};
 
-struct TerrainCollider : Collider {
     //Function that when given an object containing points
     // returns a force
-    void testCollision(CollisionObject *co) {
-
-        vec3 firstPoint = co->getGlobalPoint(0);
-
-        //std::cout<<"First point position: ";
-        //MatrixUtils::printVector(firstPoint);
-        std::vector<vec3> triang = Terrain::tile_pos(firstPoint.x, firstPoint.y, firstPoint.z);
-        //Terrain::normal_triangletile(firstPoint.x, firstPoint.y, firstPoint.z);
-        float force = 0;
-        co->forceAfterCollision = { 0,0,0 };
-        co->isColliding = false;
-        co->normal = Terrain::normalTriangleTile(firstPoint.x, firstPoint.y, firstPoint.z);
-
-        if (firstPoint.y < triang[3][1]) {
-            co->isColliding = true;
-            force = abs(firstPoint.y - triang[3][1]);
-
-            co->forceAfterCollision = co->normal*force;
-        }
-
-    }
+    void testCollision(CollisionObject *co);
 };
-
 
 #endif //CGPROJECT_TERRAIN_HPP

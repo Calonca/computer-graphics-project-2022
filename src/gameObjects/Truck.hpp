@@ -7,38 +7,57 @@
 
 extern struct Model g_test;
 
-static mat4 initialTransform = translate(mat4(1), vec3(0, 0, 0));
+static mat4 initialTransform = translate(mat4(1), vec3(10, -10, 0));
 
 #pragma once
 class Truck : public Object// It is an entity
 {
-
-
 private:
 
+    static std::vector<vec3> addSidePoints(){
+        std::vector<vec3> points;
+        //Front and back
+        for (float xPos = -0.3f;xPos < 0.3f;xPos +=0.1f) {
+            points.emplace_back(xPos, 1, 1);
+            points.emplace_back(xPos, 1, -1);
+        }
+        //Sides
+        for (float zPos = -0.8f; zPos < 0.8f; zPos +=0.2f) {
+            points.emplace_back(0.5, 1, zPos);
+            points.emplace_back(-0.5, 1, zPos);
+        }
+        return points;
+    };
+    CollisionObject sidePoints = {
+            addSidePoints(),
+            initialTransform,
+            vec3(0,0,0),
+            false
+    };
+
     CollisionObject wheelfl = {
-            {vec3(-0.5,0,-1)+vec3(initialTransform[3])},
+            {vec3(-0.5,0,-1)},
             initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelfr = {
-            {vec3(0.5,0,-1)+vec3(initialTransform[3])},
+            {vec3(0.5,0,-1)},
             initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbl = {
-            {vec3(-0.5,0,1)+vec3(initialTransform[3])},
+            {vec3(-0.5,0,1)},
             initialTransform,
             vec3(0,0,0),
             false
     };
 
     CollisionObject wheelbr = {
-            {vec3(0.5,0,1)+vec3(initialTransform[3])},
+            {vec3(0.5,0,1)},
             initialTransform,
             vec3(0,0,0),
             false
@@ -59,13 +78,13 @@ public:
 		0.8,             // static friction
 		0.001f,             //dynamic friction
 		0.0f,            //bounciness
-        {&wheelfl,&wheelfr,&wheelbl,&wheelbr},
+        {&sidePoints,&wheelfl,&wheelfr,&wheelbl,&wheelbr},
             vec3(0,0,0)
 	};
 
 
     vec3 thirdPersonCamDelta = vec3(0.0f, 2, 2.0f) ;
-    mat4 firstPersonCamDelta = translate(mat4(1), vec3(0.0f, initialTransform[3].y + 1.335f, -0.0f));
+    mat4 firstPersonCamDelta = translate(mat4(1), vec3(0.0f, 1.335f, -0.0f));
 
 	const float ROT_SPEED = 30000;
 	const float MOVE_SPEED = 8000000.0f;
@@ -107,6 +126,6 @@ public:
         return rot;
     }
 
-    //mat4 getTransform() const override;
+    //mat4 getGlobalTransform() const override;
 };
 

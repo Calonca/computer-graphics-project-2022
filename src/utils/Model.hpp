@@ -1,7 +1,7 @@
 #ifndef CGPROJECT_MODEL_HPP
 #define CGPROJECT_MODEL_HPP
 
-enum PipelineType { Flat, Terrain };
+enum PipelineType { Flat, TerrainPipe };
 struct Model {
     const char* ObjFile;
     const char* TextureFile;

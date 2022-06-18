@@ -86,6 +86,7 @@ std::vector<SingleText> SceneText = {
 #include "gameObjects/Truck.hpp"
 #include "physics/PhysicsEngine.hpp"
 #include "Project.hpp"
+#include "worldgen/Tree.hpp"
 
 namespace std {
 	template<> struct hash<std::vector<float>> {
@@ -1787,7 +1788,7 @@ private:
 
 	int treeGridLength = 40;
 	void loadModels() {
-        sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, Terrain}, mat4(1));
+        sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, TerrainPipe}, mat4(1));
 		sceneToLoad.addObject(*treeContainer1);
 		sceneToLoad.addObject(*treeContainer2);
 		sceneToLoad.addObject(*treeContainer3);
@@ -1810,9 +1811,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer1->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer1->addObject(*t);
+            }
 		}
 
 		for (int i = -2; i < 2; i++) {
@@ -1821,9 +1823,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer2->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer2->addObject(*t);
+            }
 		}
 
 		for (int i = 2; i < 6; i++) {
@@ -1832,9 +1835,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer3->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer3->addObject(*t);
+            }
 		}
 
 
@@ -1844,9 +1848,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer4->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer4->addObject(*t);
+            }
 		}
 
 		for (int i = -2; i < 2; i++) {
@@ -1855,9 +1860,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer5->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					,{"tree.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer5->addObject(*t);
+            }
 		}
 
 		for (int i = 2; i < 6; i++) {
@@ -1866,9 +1872,11 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer6->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer6->addObject(*t);
+
+            }
 		}
 
 		for (int i = -6; i < -2; i++) {
@@ -1877,9 +1885,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer7->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer7->addObject(*t);
+            }
 		}
 		for (int i = -2; i < 2; i++) {
 			for (int j = 2; j < 6; j++) {
@@ -1887,9 +1896,10 @@ private:
 
 				int z = treeGridLength * j;
 
-				treeContainer8->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-			}
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer8->addObject(*t);
+            }
 		}
 
 		for (int i = 2; i < 6; i++) {
@@ -1897,9 +1907,9 @@ private:
 				int x = treeGridLength * i;
 
 				int z = treeGridLength * j;
-
-				treeContainer9->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+                physicsEngine.AddCollider(t);
+                treeContainer9->addObject(*t);
 			}
 		}
 
@@ -2716,7 +2726,7 @@ private:
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                               TerrainPipeline);
             for (int j = 0;j<sct.size();j++ ) {
-                if(sct[j]->model.pt == Terrain) {
+                if(sct[j]->model.pt == TerrainPipe) {
 					VkBuffer vertexBuffers[] = {scene[j].MD.vertexBuffer};
 					VkDeviceSize offsets[] = {0};
 					vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -2804,14 +2814,13 @@ private:
 		}
 	}
 
-    TerrainCollider planeCollider = {};
 
+    Terrain terrainCollider = {};
 	void initClasses() {
 		RigidBody* rb = &truck.rb;
 		physicsEngine.AddRigidBody(rb);
 
-        //float planeY = 0.0f;
-        physicsEngine.AddCollider(&planeCollider);
+        physicsEngine.AddCollider(&terrainCollider);
 	}
 
     void mainLoop() {
@@ -3135,12 +3144,12 @@ private:
 			}
 		}
 
-		//mat4 oldTransform = truck.getTransform();
+		//mat4 oldTransform = truck.getGlobalTransform();
 
         truck.UpdatePos(window, deltaT);
 		const float tilesize = 1.0f;
-		int truckPosX = floor(truck.getTransform()[3].x / tilesize);//Should be divided TileSize
-		int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
+		int truckPosX = floor(truck.getGlobalTransform()[3].x / tilesize);//Should be divided TileSize
+		int truckPosZ = floor(truck.getGlobalTransform()[3].z / tilesize);//Should be divided TileSize
 
 		movetree(truckPosX, truckPosZ);
 		//Physics
@@ -3165,12 +3174,12 @@ private:
                     prevCt = currentView;
                 }
                 {
-                    vec3 truckZ = truck.getTransform()[2];
+                    vec3 truckZ = truck.getGlobalTransform()[2];
 
-                    EyePos = vec3(truck.getTransform()[3])+truck.thirdPersonCamDelta.z*truckZ+vec3(0,truck.thirdPersonCamDelta.y,0);
+                    EyePos = vec3(truck.getGlobalTransform()[3]) + truck.thirdPersonCamDelta.z * truckZ + vec3(0, truck.thirdPersonCamDelta.y, 0);
                     CamMat = MatrixUtils::LookAtMat(
                             EyePos,
-                            vec3(truck.getTransform()[3])-truckZ+vec3(0,1,0),
+                            vec3(truck.getGlobalTransform()[3]) - truckZ + vec3(0, 1, 0),
                             0);
                 }
                 break;
@@ -3179,23 +3188,23 @@ private:
 				prevCt = currentView;
 			}
 			{
-				//glm::vec3 RRCDP = truck.getTransform() * vec4(truck.RobotCamDeltaPos, 1.0f);
+				//glm::vec3 RRCDP = truck.getGlobalTransform() * vec4(truck.RobotCamDeltaPos, 1.0f);
 				//std::cout << RRCDP.x << " " << RRCDP.z << "\n";
-				//CamMat = MatrixUtils::LookInDirMat(truck.getTransform() * vec4(truck.RobotCamDeltaPos, 1.0f),
+				//CamMat = MatrixUtils::LookInDirMat(truck.getGlobalTransform() * vec4(truck.RobotCamDeltaPos, 1.0f),
                 //                                   glm::vec3(0,0,0));
                 vec3 xAxis = vec3(1,0,0);
-                vec3 truckX = truck.getTransform()[1];
+                vec3 truckX = truck.getGlobalTransform()[1];
                 float angle = acos( dot(normalize(xAxis),normalize(truckX)));
                 //MatrixUtils::printVector(truckX);
                 //std::cout<<angle<<std::endl;
                 /*
                 CamMat = inverse(
-                        translate(mat4(1),vec3(truck.getTransform()[3]))*
+                        translate(mat4(1),vec3(truck.getGlobalTransform()[3]))*
                         truck.firstPersonCamDelta*
                         rotate(mat4(1),angle,vec3(0,1,0))
                         );*/
                 //CamMat = inverse(truck.firstPersonCamDelta);
-                mat4 camTr = truck.getTransform()*truck.firstPersonCamDelta;
+                mat4 camTr = truck.getGlobalTransform() * truck.firstPersonCamDelta;
                 CamMat = inverse(camTr);
                 EyePos = camTr[3];
 			}
@@ -3211,19 +3220,19 @@ private:
 
 			glm::vec3 delta;
 
-			ubo.mMat = o->getTransform();
+			ubo.mMat = o->getGlobalTransform();
 
             if (o->id=="terrain"){
                 const float tilesize = 1.0f;
-                int truckPosX = floor(truck.getTransform()[3].x/ tilesize);//Should be divided TileSize
-                int truckPosZ = floor(truck.getTransform()[3].z / tilesize);//Should be divided TileSize
+                int truckPosX = floor(truck.getGlobalTransform()[3].x / tilesize);//Should be divided TileSize
+                int truckPosZ = floor(truck.getGlobalTransform()[3].z / tilesize);//Should be divided TileSize
 
                 static float terrainUpdateTime;
                 static bool firstFrame = true;
                 const float updateRate = 0.5f;
                 //Updates the terrain each updateRate;
                 if (time - terrainUpdateTime > updateRate || firstFrame) {
-                    tubo.translation = vec2(truckPosX,truckPosZ)-vec2(Terrain::TILE_NUMBER/2, Terrain::TILE_NUMBER/2);
+                    tubo.translation = vec2(truckPosX,truckPosZ)-vec2(Terrain::TILE_NUMBER / 2, Terrain::TILE_NUMBER / 2);
                     terrainUpdateTime = time;
 
                     firstFrame=false;
@@ -3292,13 +3301,13 @@ private:
 
 		// updates global uniforms
 		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
-        gubo.leftSpotlightDir = truck.children[0]->getTransform()[2];//Gets the z axis of the light reference system
-        gubo.leftSpotlightPos = truck.children[0]->getTransform()[3];
+        gubo.leftSpotlightDir = truck.children[0]->getGlobalTransform()[2];//Gets the z axis of the light reference system
+        gubo.leftSpotlightPos = truck.children[0]->getGlobalTransform()[3];
         gubo.leftSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
         gubo.leftSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
 
-        gubo.rightSpotlightDir = truck.children[1]->getTransform()[2];//Gets the z axis of the light reference system
-        gubo.rightSpotlightPos = truck.children[1]->getTransform()[3];
+        gubo.rightSpotlightDir = truck.children[1]->getGlobalTransform()[2];//Gets the z axis of the light reference system
+        gubo.rightSpotlightPos = truck.children[1]->getGlobalTransform()[3];
         gubo.rightSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
         gubo.rightSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
 		gubo.eyePos = EyePos;
@@ -3489,7 +3498,7 @@ private:
 	/*
 		int t = treeGridLength * 10;
 		int a = (truckPosX % t);
-		int b = (truckPosZ % t);
+		int b = (truckPosZ % t);`
 		int fxmin = truckPosX - a;//grid start x
 		int fzmin = truckPosZ - b;//grid start z
 		int fxmax = fxmin + t;
@@ -3506,7 +3515,7 @@ private:
 
 		int treePosX, treePosZ;
 		treePosX = o->getTransform()[3].x;
-		treePosZ= o->getTransform()[3].z;
+		treePosZ= o->getGlobalTransform()[3].z;
 
 		if (treePosX == -closex && treePosZ == -closez) {
 			//print "closerrrrrrrr"
@@ -3537,13 +3546,14 @@ private:
 		vec2 pos;
 		for (int i = 0; i < 9;i++) {
 			//calculate distance between truck and treeContainer
-			float distance = sqrt(pow(truckPosX - treeContainer[i]->children[5]->getTransform()[3].x, 2) + pow(truckPosZ - treeContainer[i]->children[5]->getTransform()[3].z, 2));
+			float distance = sqrt(pow(truckPosX - treeContainer[i]->children[5]->getGlobalTransform()[3].x, 2) + pow(truckPosZ -
+                                                                                                                     treeContainer[i]->children[5]->getGlobalTransform()[3].z, 2));
 			if (distance < small) {
 				small = distance; shrt = i;
 			}
 		}
 
-		std::cout << "grid no " << shrt << std::endl;
+		//std::cout << "grid no " << shrt << std::endl;
 
 		if (shrt == 0) {
 			treeContainer5 = treeContainer1;
@@ -3551,10 +3561,10 @@ private:
 
 				for (Object* obs:treeContainer[i]->children)
 				{
-					pos.x = obs->getTransform()[3].x-t;
-					pos.y = obs->getTransform()[3].z-t;
+					pos.x = obs->getGlobalTransform()[3].x - t;
+					pos.y = obs->getGlobalTransform()[3].z - t;
 
-					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1}));
+					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1}));
 				}
 			}
 		}
@@ -3564,10 +3574,10 @@ private:
 				for (int i = 0; i < 9; i++) {
 						for (Object* obs : treeContainer[i]->children)
 						{
-							pos.x = obs->getTransform()[3].x ;
-							pos.y = obs->getTransform()[3].z - t;
+							pos.x = obs->getGlobalTransform()[3].x ;
+							pos.y = obs->getGlobalTransform()[3].z - t;
 
-							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 						}
 				}
 			}
@@ -3578,10 +3588,10 @@ private:
 					for (int i = 0; i < 9; i++) {
 							for (Object* obs : treeContainer[i]->children)
 							{
-								pos.x = obs->getTransform()[3].x + t;
-								pos.y = obs->getTransform()[3].z - t;
+								pos.x = obs->getGlobalTransform()[3].x + t;
+								pos.y = obs->getGlobalTransform()[3].z - t;
 
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 							}
 					}
 				}
@@ -3592,10 +3602,10 @@ private:
 						for (int i = 0; i < 9; i++) {
 								for (Object* obs : treeContainer[i]->children)
 								{
-									pos.x = obs->getTransform()[3].x - t;
-									pos.y = obs->getTransform()[3].z ;
+									pos.x = obs->getGlobalTransform()[3].x - t;
+									pos.y = obs->getGlobalTransform()[3].z ;
 
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 								}
 						}
 					}
@@ -3606,10 +3616,10 @@ private:
 							for (int i = 0; i < 9; i++) {
 									for (Object* obs : treeContainer[i]->children)
 									{
-										pos.x = obs->getTransform()[3].x + t;
-										pos.y = obs->getTransform()[3].z ;
+										pos.x = obs->getGlobalTransform()[3].x + t;
+										pos.y = obs->getGlobalTransform()[3].z ;
 
-										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 									}
 							}
 						}
@@ -3619,10 +3629,10 @@ private:
 				for (int i = 0; i < 9; i++) {
 					for (Object* obs : treeContainer[i]->children)
 					{
-						pos.x = obs->getTransform()[3].x - t;
-						pos.y = obs->getTransform()[3].z + t;
+						pos.x = obs->getGlobalTransform()[3].x - t;
+						pos.y = obs->getGlobalTransform()[3].z + t;
 
-						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 					}
 			}
 		}
@@ -3633,10 +3643,10 @@ private:
 					for (int i = 0; i < 9; i++) {
 							for (Object* obs : treeContainer[i]->children)
 							{
-								pos.x = obs->getTransform()[3].x ;
-								pos.y = obs->getTransform()[3].z + t;
+								pos.x = obs->getGlobalTransform()[3].x ;
+								pos.y = obs->getGlobalTransform()[3].z + t;
 
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 							}
 					}
 				}
@@ -3647,10 +3657,10 @@ private:
 						for (int i = 0; i < 9; i++) {
 								for (Object* obs : treeContainer[i]->children)
 								{
-									pos.x = obs->getTransform()[3].x + t;
-									pos.y = obs->getTransform()[3].z + t;
+									pos.x = obs->getGlobalTransform()[3].x + t;
+									pos.y = obs->getGlobalTransform()[3].z + t;
 
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
 								}
 						}
 					}

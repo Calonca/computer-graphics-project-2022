@@ -77,7 +77,7 @@ std::vector<vec3> Terrain::tile_pos(float x , float y, float z) {
 	return { { t2[0],t2[1],t2[2]},{t2[3],t2[4],t2[5]},{t2[6],t2[7],t2[8]},{0,yy,0} };
 
 }
-float Terrain::interpolate_y(float x,float z,float close1, float close2, float *t1, float *t2) {
+float Terrain::interpolate_y(float x, float z, float close1, float close2, float *t1, float *t2) {
 	vec3 p1, p2, p3;
 
 
@@ -133,4 +133,29 @@ vec3 Terrain::normalTriangleTile(float x, float y, float z) {
     vec3 norm = normalize(normal);
 
     return norm;
+}
+
+void Terrain::testCollision(CollisionObject *co) {
+
+    vec3 firstPoint = co->getGlobalPoint(0);
+
+    //std::cout<<"First point position: ";
+    //MatrixUtils::printVector(firstPoint);
+    std::vector<vec3> triang = Terrain::tile_pos(firstPoint.x, firstPoint.y, firstPoint.z);
+    //TerrainPipe::normal_triangletile(firstPoint.x, firstPoint.y, firstPoint.z);
+    float force = 0;
+    co->forceAfterCollision = { 0,0,0 };
+    co->isColliding = false;
+    co->normal = Terrain::normalTriangleTile(firstPoint.x, firstPoint.y, firstPoint.z);
+
+    float dist = firstPoint.y - triang[3][1];
+    //float dist = firstPoint.y - getHeight(firstPoint.x, firstPoint.z);
+    if (dist<0.0f) {
+        co->isColliding = true;
+        force += exp(abs(dist))/10;
+        force += -dist;
+        //force += abs(1/(dist+0.5))/10;
+        co->forceAfterCollision = co->normal*force;
+    }
+
 }
