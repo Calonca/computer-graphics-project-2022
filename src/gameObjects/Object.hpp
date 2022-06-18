@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 #include "glm/glm.hpp"
-#include "../utils/Model.h"
+#include "../utils/Model.hpp"
 
 using namespace glm;
 

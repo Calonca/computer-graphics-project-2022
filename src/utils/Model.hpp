@@ -1,9 +1,5 @@
-//
-// Created by calonca on 6/7/22.
-//
-
-#ifndef CGPROJECT_MODEL_H
-#define CGPROJECT_MODEL_H
+#ifndef CGPROJECT_MODEL_HPP
+#define CGPROJECT_MODEL_HPP
 
 enum PipelineType { Flat, Terrain };
 struct Model {
@@ -13,4 +9,4 @@ struct Model {
     PipelineType pt;
 };
 
-#endif //CGPROJECT_MODEL_H
+#endif //CGPROJECT_MODEL_HPP

@@ -102,8 +102,7 @@ public:
                 );
         wheelFRObj->setTransform(
                 translate(mat4(1),vec3(sideDist, height, -frontDist))*
-                rotate(mat4(1), radians(-rot), vec3(0, 1, 0))*
-                rotate180Y
+                rotate(mat4(1), radians(-rot+180), vec3(0, 1, 0))
                 );
         return rot;
     }

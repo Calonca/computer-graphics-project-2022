@@ -3,7 +3,7 @@
 #include <vector>
 #include "../utils/MatrixUtils.hpp"
 #include <iostream>
-#include "../worldgen/models.hpp"
+#include "../worldgen/Terrain.hpp"
 
 
 #include <functional>

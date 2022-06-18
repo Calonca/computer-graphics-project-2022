@@ -81,15 +81,11 @@ std::vector<SingleText> SceneText = {
         {1, {"First Person View", "", "", ""}, 0, 0},
 };
 
-std::vector<float> M1_vertices;
-std::vector<uint32_t> M1_indices;
-
-#include "worldgen/models.cpp"
+#include "worldgen/Terrain.hpp"
 #include "utils/MatrixUtils.hpp"
 #include "gameObjects/Truck.hpp"
 #include "physics/PhysicsEngine.hpp"
 #include "Project.hpp"
-
 
 namespace std {
 	template<> struct hash<std::vector<float>> {
@@ -1815,7 +1811,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer1->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1826,7 +1822,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer2->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1837,7 +1833,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer3->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1849,7 +1845,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer4->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1860,7 +1856,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer5->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					,{"tree.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					,{"tree.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1871,7 +1867,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer6->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1882,7 +1878,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer7->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 		for (int i = -2; i < 2; i++) {
@@ -1892,7 +1888,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer8->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1903,7 +1899,7 @@ private:
 				int z = treeGridLength * j;
 
 				treeContainer9->addObject("tre"//+std::to_string(x)+ std::to_string(z),
-					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, getHeight(x, z), z)));
+					, { "tree.obj", "Colors.png", 1, Flat }, translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
 			}
 		}
 
@@ -1993,8 +1989,8 @@ private:
 
         if (FName == "floor.obj") {
 
-            makeModels();
-            for (unsigned int M1_indice : M1_indices) {
+            VertAndIndices vAndI = Terrain::makeModels();
+            for (unsigned int M1_indice : vAndI.indices) {
                 //Assigns vertexToCopy and indices to MD
                 //In case of vetex with normal and
                 //DeltaPos is 0
@@ -2002,14 +1998,9 @@ private:
                 //deltaTextCoords is 6
                 //printf("The index is %d\n",M1_indice);
 
-                vertexToCopy[VD.deltaPos + 0] = M1_vertices[3 * M1_indice + 0];
-                //std::cout << " vtx x " << vertexToCopy[VD.deltaPos + 0];
-
+                vertexToCopy[VD.deltaPos + 0] = vAndI.vertices[3 * M1_indice + 0];
                 vertexToCopy[VD.deltaPos + 1] = float(M1_indice);
-                //std::cout << " vtx y " << vertexToCopy[VD.deltaPos + 1];
-
-                vertexToCopy[VD.deltaPos + 2] = M1_vertices[3 * M1_indice + 2];
-                //std::cout << " vtx z " << vertexToCopy[VD.deltaPos + 2];
+                vertexToCopy[VD.deltaPos + 2] = vAndI.vertices[3 * M1_indice + 2];
 
                 vertexToCopy[VD.deltaNormal + 0] = 0;
                 vertexToCopy[VD.deltaNormal + 1] = 1;
@@ -2017,7 +2008,6 @@ private:
 
                 vertexToCopy[VD.deltaTexCoord + 0] = 0;
                 vertexToCopy[VD.deltaTexCoord + 1] = 0;
-
 
 
                 int j = MD.vertices.size() / VD.size;
@@ -3233,7 +3223,7 @@ private:
                 const float updateRate = 0.5f;
                 //Updates the terrain each updateRate;
                 if (time - terrainUpdateTime > updateRate || firstFrame) {
-                    tubo.translation = vec2(truckPosX,truckPosZ)-vec2(TILE_NUMBER/2, TILE_NUMBER/2);
+                    tubo.translation = vec2(truckPosX,truckPosZ)-vec2(Terrain::TILE_NUMBER/2, Terrain::TILE_NUMBER/2);
                     terrainUpdateTime = time;
 
                     firstFrame=false;
@@ -3535,7 +3525,7 @@ private:
 		else
 			if(a>t||b>t)
 		 {
-			p->setTransform(mat4({ 1,0,0, 0 }, { 0,1,0, 0 }, { 0,0,1, 0 }, { closex,getHeight(closex,closez),closez, 1 }));
+			p->setTransform(mat4({ 1,0,0, 0 }, { 0,1,0, 0 }, { 0,0,1, 0 }, { closex,Terrain::getHeight(closex,closez),closez, 1 }));
 			return;
 		}
 		*/
@@ -3564,7 +3554,7 @@ private:
 					pos.x = obs->getTransform()[3].x-t;
 					pos.y = obs->getTransform()[3].z-t;
 
-					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1}));
+					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1}));
 				}
 			}
 		}
@@ -3577,7 +3567,7 @@ private:
 							pos.x = obs->getTransform()[3].x ;
 							pos.y = obs->getTransform()[3].z - t;
 
-							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 						}
 				}
 			}
@@ -3591,7 +3581,7 @@ private:
 								pos.x = obs->getTransform()[3].x + t;
 								pos.y = obs->getTransform()[3].z - t;
 
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 							}
 					}
 				}
@@ -3605,7 +3595,7 @@ private:
 									pos.x = obs->getTransform()[3].x - t;
 									pos.y = obs->getTransform()[3].z ;
 
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 								}
 						}
 					}
@@ -3619,7 +3609,7 @@ private:
 										pos.x = obs->getTransform()[3].x + t;
 										pos.y = obs->getTransform()[3].z ;
 
-										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 									}
 							}
 						}
@@ -3632,7 +3622,7 @@ private:
 						pos.x = obs->getTransform()[3].x - t;
 						pos.y = obs->getTransform()[3].z + t;
 
-						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 					}
 			}
 		}
@@ -3646,7 +3636,7 @@ private:
 								pos.x = obs->getTransform()[3].x ;
 								pos.y = obs->getTransform()[3].z + t;
 
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 							}
 					}
 				}
@@ -3660,7 +3650,7 @@ private:
 									pos.x = obs->getTransform()[3].x + t;
 									pos.y = obs->getTransform()[3].z + t;
 
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,getHeight(pos.x,pos.y),pos.y ,1 }));
+									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { pos.x,Terrain::getHeight(pos.x,pos.y),pos.y ,1 }));
 								}
 						}
 					}

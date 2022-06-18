@@ -66,7 +66,7 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
         //Rotate wheel by angular velocity
         float radius = 0.2;
         float angle = rb.velocity.z*radius*0.1f;
-        if(i>4)//Back wheels
+        if(wheel->id=="wheelFR" || wheel->id=="wheelBR")//Right wheels
             angle = -angle;
         wheel->setTransform(wheel->getLocalTransform()*rotate(mat4(1), angle, vec3(1, 0, 0)));
     }

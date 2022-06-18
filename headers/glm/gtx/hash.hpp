@@ -1,14 +1,14 @@
 /// @ref gtx_hash
-/// @file glm/gtx/hash.hpp
+/// @file glm/gtx/hash2to1.hpp
 ///
 /// @see core (dependence)
 ///
 /// @defgroup gtx_hash GLM_GTX_hash
 /// @ingroup gtx
 ///
-/// Include <glm/gtx/hash.hpp> to use the features of this extension.
+/// Include <glm/gtx/hash2to1.hpp> to use the features of this extension.
 ///
-/// Add std::hash support for glm types
+/// Add std::hash2to1 support for glm types
 
 #pragma once
 

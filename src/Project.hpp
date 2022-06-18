@@ -12,7 +12,7 @@
 
 class Project;
 
-///Structs for the models
+///Structs for the Terrain
 struct VertexDescriptor {
     bool hasPos;
     bool hasNormal;
