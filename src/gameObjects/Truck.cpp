@@ -37,7 +37,8 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
         rb.addLocalMoment(vec3( ROT_SPEED * glm::vec4(0, 0, -1, 1) ),
                      vec3(1,0,0));
 
-        wheelAngle = rotateWheels(wheelAngle, -30.0f);
+        float targetRotation = rb.velocity.z < 0 ? -30.0f : 30.0f;
+        wheelAngle = rotateWheels(wheelAngle, targetRotation, deltaT);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D)) {
         rotating = true;
@@ -45,11 +46,12 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
                      vec3(-1,0,0));
         rb.addLocalMoment(vec3( ROT_SPEED * glm::vec4(0, 0, 1, 1) ),
                      vec3(1,0,0));
-        wheelAngle = rotateWheels(wheelAngle, 30.0f);
+        float targetRotation = rb.velocity.z < 0 ? 30.0f : -30.0f;
+        wheelAngle = rotateWheels(wheelAngle, targetRotation, deltaT);
     }
 
     if (!rotating) {
-        wheelAngle = rotateWheels(wheelAngle, 0.0f);
+        wheelAngle = rotateWheels(wheelAngle, 0.0f, deltaT);
     }
 
 	if (glfwGetKey(window, GLFW_KEY_W)) {
@@ -65,7 +67,7 @@ void Truck::UpdatePos(GLFWwindow* window, float deltaT)
         Object* wheel = children[i];
         //Rotate wheel by angular velocity
         float radius = 0.2;
-        float angle = rb.velocity.z*radius*0.1f;
+        float angle = rb.velocity.z*radius*0.02f;
         if(wheel->id=="wheelFR" || wheel->id=="wheelBR")//Right wheels
             angle = -angle;
         wheel->setTransform(wheel->getLocalTransform()*rotate(mat4(1), angle, vec3(1, 0, 0)));
@@ -131,4 +133,36 @@ Truck::Truck() : Object("truck", m, initialTransform) {
 
     addObject("wheelBL",wheel, translate(mat4(1),vec3(-sideDist, height, backDist)) );
     addObject("wheelBR",wheel, translate(mat4(1),vec3(sideDist, height, backDist)) * rotate180Y );
+}
+
+float Truck::rotateWheels(float initalRotation, float targetRotation, float deltaTime) {
+    if (abs(targetRotation-initalRotation) < 0.01) {
+        return initalRotation;
+    }
+
+    float rot;
+    if (targetRotation > initalRotation) {
+        rot = initalRotation+5.0f;
+    } else {
+        rot = initalRotation-5.0f;
+    }
+    //rot *= deltaTime;
+
+    Object* wheelFLObj =  children[2];
+    Object* wheelFRObj =  children[3];
+
+    float height = 0.4f;
+    float sideDist = 0.5f;
+    float frontDist = 0.7f;
+    mat4 rotate180Y = rotate(mat4(1), radians(180.0f), vec3(0, 1, 0));
+
+    wheelFLObj->setTransform(
+            translate(mat4(1),vec3(-sideDist, height, -frontDist))*
+            rotate(mat4(1), radians(-rot), vec3(0, 1, 0))
+    );
+    wheelFRObj->setTransform(
+            translate(mat4(1),vec3(sideDist, height, -frontDist))*
+            rotate(mat4(1), radians(-rot+180), vec3(0, 1, 0))
+    );
+    return rot;
 }

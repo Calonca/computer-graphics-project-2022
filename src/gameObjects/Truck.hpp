@@ -95,36 +95,7 @@ public:
 
     void UpdatePos(GLFWwindow *window, float deltaT);
 
-    inline float rotateWheels(float initalRotation,float targetRotation) {
-        if (abs(targetRotation-initalRotation) < 0.01) {
-            return initalRotation;
-        }
-
-        float rot;
-        if (targetRotation > initalRotation) {
-            rot = initalRotation+5.0f;
-        } else {
-            rot = initalRotation-5.0f;
-        }
-
-        Object* wheelFLObj =  children[2];
-        Object* wheelFRObj =  children[3];
-
-        float height = 0.4f;
-        float sideDist = 0.5f;
-        float frontDist = 0.7f;
-        mat4 rotate180Y = rotate(mat4(1), radians(180.0f), vec3(0, 1, 0));
-
-        wheelFLObj->setTransform(
-                translate(mat4(1),vec3(-sideDist, height, -frontDist))*
-                rotate(mat4(1), radians(-rot), vec3(0, 1, 0))
-                );
-        wheelFRObj->setTransform(
-                translate(mat4(1),vec3(sideDist, height, -frontDist))*
-                rotate(mat4(1), radians(-rot+180), vec3(0, 1, 0))
-                );
-        return rot;
-    }
+    float rotateWheels(float initalRotation, float targetRotation, float deltaTime);
 
     //mat4 getGlobalTransform() const override;
 };
