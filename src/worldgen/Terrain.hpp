@@ -16,7 +16,7 @@ struct VertAndIndices{
 class Terrain : public Collider
 {
 public:
-    static const int TILE_NUMBER = 300;
+    static const int TILE_NUMBER = 400;
     static VertAndIndices makeModels();
     static float getHeight(float xoff, float zoff);
     //void makeModels(std::vector<float> M1_vertices, std::vector<uint32_t> M1_indices);

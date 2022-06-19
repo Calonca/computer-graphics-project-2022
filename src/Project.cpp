@@ -3316,17 +3316,12 @@ private:
 
 		// updates SkyBox uniforms
 		UniformBufferObject ubo{};
-		ubo.mMat = glm::mat4(1.0f);
-		ubo.nMat = glm::mat4(1.0f);
-
+		ubo.mMat = glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
 		
 		ubo.ti.x = time;
-		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat));
-		
-		
+        ubo.ti.y = rot;
 
-		ubo.ti.y = rot;
-		ubo.mvpMat = ubo.mvpMat * glm::rotate(glm::mat4(1), glm::radians(rot), glm::vec3(-1, 0, 0));
+		ubo.mvpMat = Prj * glm::mat4(glm::mat3(CamMat))*ubo.mMat;
 
 
 		void* data;

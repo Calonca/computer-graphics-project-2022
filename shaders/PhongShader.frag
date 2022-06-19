@@ -115,7 +115,6 @@ void main() {
 	vec3 color = ((diffuse+specular)*gubo.lightColor.xyz)+ (ambient_light*AmbFact*3*DiffColor);
 	//vec3 color =  (ambient_light*AmbFact*8*DiffColor);
 
-
 	//Adding fog
 	float distance = length(fragPos - gubo.eyePos);
 	color  = applySeaFog(color.rgb,0.55,distance,-EyeDir,gubo.lightDir);
