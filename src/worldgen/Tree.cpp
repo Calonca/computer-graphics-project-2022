@@ -12,7 +12,6 @@ Tree::Tree(mat4 transform,bool t) : Object("tree", treeL, transform) {
 
 }
 
-
 void Tree::testCollision(CollisionObject *co) {
     vec3 colliderPos = getGlobalTransform()[3];
     vec3 objectPos = co->getGlobalPosition();
