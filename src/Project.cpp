@@ -1784,8 +1784,6 @@ private:
 	Object* treeContainer9 = new Object("treeContainer", mat4(1));
 	std::vector<Object*> treeContainer;
 
-
-
 	int treeGridLength = 40;
 	void loadModels() {
         sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, TerrainPipe}, mat4(1));
@@ -1812,9 +1810,12 @@ private:
 				int z = treeGridLength * j;
 
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
+
                 physicsEngine.AddCollider(t);
                 treeContainer1->addObject(*t);
-            }
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer1->addObject(*t1);
+			}
 		}
 
 		for (int i = -2; i < 2; i++) {
@@ -1826,6 +1827,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer2->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer2->addObject(*t1);				
             }
 		}
 
@@ -1838,6 +1841,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer3->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer3->addObject(*t1);
             }
 		}
 
@@ -1851,6 +1856,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer4->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer4->addObject(*t1);
             }
 		}
 
@@ -1863,6 +1870,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer5->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer5->addObject(*t1);
             }
 		}
 
@@ -1875,6 +1884,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer6->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer6->addObject(*t1);
 
             }
 		}
@@ -1888,6 +1899,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer7->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer7->addObject(*t1);
             }
 		}
 		for (int i = -2; i < 2; i++) {
@@ -1899,6 +1912,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer8->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer8->addObject(*t1);
             }
 		}
 
@@ -1910,6 +1925,8 @@ private:
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
                 physicsEngine.AddCollider(t);
                 treeContainer9->addObject(*t);
+				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
+				treeContainer9->addObject(*t1);
 			}
 		}
 

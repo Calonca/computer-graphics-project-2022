@@ -37,6 +37,9 @@ Object::Object(std::string id, const Model model, const mat4 localTransform) : l
     globalTransform = localTransform;
 }
 
+
+
+
 Object::Object(std::string id, const mat4 localTransform) : localTransform(localTransform), id(std::move(id)) {
     globalTransform = localTransform;
 }
@@ -51,6 +54,9 @@ Object* Object::addObject(std::string identifier, Model m, mat4 t) {
     o->setRecursiveGlobalTransform();
     return o;
 }
+
+
+
 
 void Object::addObject(Object& o) {
     o.pParent= this;
