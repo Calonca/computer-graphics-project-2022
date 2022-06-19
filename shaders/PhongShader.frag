@@ -39,6 +39,32 @@ vec3 Lambert_Diffuse_BRDF(vec3 L, vec3 N, vec3 V, vec3 C) {
 	return C*refFactor;
 }
 
+vec3 spot_light_dir(vec3 fragPosition,vec3 lightPos) {
+	vec3 surfaceToLight = lightPos - fragPosition;
+	return normalize(surfaceToLight);
+}
+
+vec3 spot_light_color(vec3 fragPosition,vec3 lightDir,vec3 lightPos,vec3 lightColor,vec4 lightParameters) {
+	vec3 d = lightDir;
+	float beta = lightParameters.z;
+	float g = lightParameters.w;
+	float cosIn = lightParameters.x;
+	float cosOut = lightParameters.y;
+
+	vec3 surfaceToLight = lightPos - fragPosition;
+
+	float decay = pow(g/length(surfaceToLight),beta);
+	decay = clamp(decay, 0, 1);
+
+	float coneDimming = (dot(spot_light_dir(fragPosition,lightPos),d)-cosOut)
+	/
+	(cosIn-cosOut);
+
+	coneDimming = clamp(coneDimming,0,1);
+
+	return decay*coneDimming*lightColor;
+}
+
 vec3 Phong_Specular_BRDF(vec3 L, vec3 N, vec3 V, vec3 C, float gamma)  {
 	// Phong Specular BRDF model
 	// additional parameter:
@@ -99,10 +125,21 @@ void main() {
 	vec3 Norm = normalize(fragNorm);
 	vec3 EyeDir = normalize(gubo.eyePos - fragPos);
 
+	vec3 leftLightDir = spot_light_dir(fragPos,gubo.leftSpotlightPos);
+	vec3 leftLightColor = spot_light_color(fragPos,gubo.leftSpotlightDir,gubo.leftSpotlightPos,gubo.leftSpotlightColor,gubo.leftSpotlightParams);//Light color for each pixel
+
+	vec3 rightLightDir = spot_light_dir(fragPos,gubo.rightSpotlightPos);
+	vec3 rightLightColor = spot_light_color(fragPos,gubo.rightSpotlightDir,gubo.rightSpotlightPos,gubo.rightSpotlightColor,gubo.rightSpotlightParams);//Light color for each pixel
+
 	vec3 DiffColor = texture(texSampler, fragTexCoord).rgb;
 	float AmbFact = 0.01f;
 
-	vec3 diffuse = Lambert_Diffuse_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor);
+	vec3 diffuse = vec3(0.0);
+	diffuse += Lambert_Diffuse_BRDF(leftLightDir, Norm, EyeDir, DiffColor) * leftLightColor;
+	diffuse += Lambert_Diffuse_BRDF(rightLightDir, Norm, EyeDir, DiffColor) * rightLightColor;
+	diffuse += Lambert_Diffuse_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor) * gubo.lightColor.rgb;
+
+
 	//vec3 Specular = vec3(pow(max(dot(EyeDir, -reflect(gubo.lightDir, Norm)),0.0f), 16.0f));
 	vec3 Ambient = AmbFact * DiffColor;
 
@@ -110,9 +147,9 @@ void main() {
 	vec3 topColor = vec3(0.3f, 0.3f, 1.0f);
 	vec3 bottomColor = vec3(0.3f,1.0f,0.3f);
 	vec3 ambient_light = ((dot(Norm,HemiDir)+1.0f)/2)*topColor + ((1.0f-dot(Norm,HemiDir))/2)*bottomColor;
-	vec3 specular = Phong_Specular_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor, 64.0f);
+	vec3 specular = Phong_Specular_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor, 64.0f)*gubo.lightColor.rgb;
 
-	vec3 color = ((diffuse+specular)*gubo.lightColor.xyz)+ (ambient_light*AmbFact*3*DiffColor);
+	vec3 color = (diffuse+specular+ (ambient_light*AmbFact*3*DiffColor));
 	//vec3 color =  (ambient_light*AmbFact*8*DiffColor);
 
 	//Adding fog

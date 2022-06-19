@@ -1806,7 +1806,6 @@ private:
 		for (int i = -6; i < -2; i++) {
 			for (int j = -6; j < -2; j++) {
 				int x = treeGridLength * i;
-
 				int z = treeGridLength * j;
 
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
@@ -1821,7 +1820,6 @@ private:
 		for (int i = -2; i < 2; i++) {
 			for (int j = -6; j < -2; j++) {
 				int x = treeGridLength * i;
-
 				int z = treeGridLength * j;
 
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
@@ -3315,17 +3313,17 @@ private:
                                vec4(0,0,0,1), // below
                                downValue );
 
-
+        float lightOn = sinHeight<0.0f ? 1.0f : 0.0f;
 		// updates global uniforms
 		//gubo.lightDir = glm::vec3(cos(glm::radians(-135.0f)), sin(glm::radians(-135.0f)), 0.0f);
         gubo.leftSpotlightDir = truck.children[0]->getGlobalTransform()[2];//Gets the z axis of the light reference system
         gubo.leftSpotlightPos = truck.children[0]->getGlobalTransform()[3];
-        gubo.leftSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
+        gubo.leftSpotlightColor = glm::vec3(5*lightOn);
         gubo.leftSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
 
         gubo.rightSpotlightDir = truck.children[1]->getGlobalTransform()[2];//Gets the z axis of the light reference system
         gubo.rightSpotlightPos = truck.children[1]->getGlobalTransform()[3];
-        gubo.rightSpotlightColor = glm::vec3(0.9f, 0.9f, 0.9f);
+        gubo.rightSpotlightColor = glm::vec3(5*lightOn);
         gubo.rightSpotlightParams = glm::vec4(cos(glm::radians(22.5f)), cos(glm::radians(30.0f)), 1.0, 1.8f);
 		gubo.eyePos = EyePos;
 
