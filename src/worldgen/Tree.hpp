@@ -15,6 +15,8 @@ private:
 public:
     Tree(mat4 transform);
 
+    Tree(mat4 transform,bool t);
+
     void testCollision(CollisionObject *co);
 
 };

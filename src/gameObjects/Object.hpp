@@ -41,12 +41,16 @@ public:
 
     Object(std::string id, mat4 localTransform);
 
+
+    Object(std::string id, Model model, Model model1,mat4 localTransform);
+
     virtual mat4 getGlobalTransform() const;
     virtual mat4 getLocalTransform() const;
 
     void setTransform(const mat4 &t);
 
     Object * addObject(std::string id, Model model, mat4 t);
+
     void addObject(Object& o);
 
 

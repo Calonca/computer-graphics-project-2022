@@ -2,11 +2,16 @@
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-Model treeM = { "tree.obj", "Colors.png", 1, Flat };
+Model treeM = { "tree_trunk.obj", "tree_trunk.jpg", 1, Flat };
+Model treeL = { "tree_leaf.obj", "tree_leaf.jpg", 1, Flat };
+
 //Truck::Truck(const std::string &id, const Model &model, const mat4 &transform) : Object(id, model, transform) {}
-Tree::Tree(mat4 transform) : Object("tree", treeM, transform) {
+Tree::Tree(mat4 transform) : Object("tree", treeM, transform){
+}
+Tree::Tree(mat4 transform,bool t) : Object("tree", treeL, transform) {
 
 }
+
 
 void Tree::testCollision(CollisionObject *co) {
     vec3 colliderPos = getGlobalTransform()[3];
