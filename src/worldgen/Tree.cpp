@@ -7,9 +7,7 @@ Model treeL = { "tree_leaf.obj", "tree_leaf.jpg", 1, Flat };
 
 //Truck::Truck(const std::string &id, const Model &model, const mat4 &transform) : Object(id, model, transform) {}
 Tree::Tree(mat4 transform) : Object("tree", treeM, transform){
-}
-Tree::Tree(mat4 transform,bool t) : Object("tree", treeL, transform) {
-
+    addObject("truck",treeL, mat4(1));
 }
 
 void Tree::testCollision(CollisionObject *co) {

@@ -1773,29 +1773,14 @@ private:
 		 	throw std::runtime_error("failed to create texture sampler!");
 		}
 	}
-	Object* treeContainer1 = new Object("treeContainer", mat4(1));
-	Object* treeContainer2 = new Object("treeContainer", mat4(1));
-	Object* treeContainer3 = new Object("treeContainer", mat4(1));
-	Object* treeContainer4 = new Object("treeContainer", mat4(1));
-	Object* treeContainer5 = new Object("treeContainer", mat4(1));
-	Object* treeContainer6 = new Object("treeContainer", mat4(1));
-	Object* treeContainer7 = new Object("treeContainer", mat4(1));
-	Object* treeContainer8 = new Object("treeContainer", mat4(1));
-	Object* treeContainer9 = new Object("treeContainer", mat4(1));
-	std::vector<Object*> treeContainer;
 
-	int treeGridLength = 40;
+    Object* treeContainer = new Object("tc",mat4(1));
+    int treeGridLength = sqrt(200);
+    float treeDist = 40;
 	void loadModels() {
         sceneToLoad.addObject("terrain", {"floor.obj", "grass6.jpg", 1, TerrainPipe}, mat4(1));
-		sceneToLoad.addObject(*treeContainer1);
-		sceneToLoad.addObject(*treeContainer2);
-		sceneToLoad.addObject(*treeContainer3);
-		sceneToLoad.addObject(*treeContainer4);
-		sceneToLoad.addObject(*treeContainer5);
-		sceneToLoad.addObject(*treeContainer6);
-		sceneToLoad.addObject(*treeContainer7);
-		sceneToLoad.addObject(*treeContainer8);
-		sceneToLoad.addObject(*treeContainer9);
+
+        sceneToLoad.addObject(*treeContainer);
 
         ///Test objects
         //Object* pyramid = sceneToLoad.addObject("pyr", {"pyramid.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(0, 0, 0)));
@@ -1803,144 +1788,16 @@ private:
         //Object* walls2 = walls->addObject("walls2", {"Walls.obj", "Colors.png", 1, Flat}, translate(mat4(1), vec3(11, 10, 0)));
         ///
 		//add 10 tree objects inside treeContainer
-		for (int i = -6; i < -2; i++) {
-			for (int j = -6; j < -2; j++) {
-				int x = treeGridLength * i;
-				int z = treeGridLength * j;
+		for (int j = 0; j < treeGridLength; j++) {
+			for (int i = 0; i < treeGridLength; i++) {
+                float x = i*treeDist;
+                float z = j*treeDist;
 
                 Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-
+                treeContainer->addObject(*t);
                 physicsEngine.AddCollider(t);
-                treeContainer1->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer1->addObject(*t1);
 			}
 		}
-
-		for (int i = -2; i < 2; i++) {
-			for (int j = -6; j < -2; j++) {
-				int x = treeGridLength * i;
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer2->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer2->addObject(*t1);				
-            }
-		}
-
-		for (int i = 2; i < 6; i++) {
-			for (int j = -6; j < -2; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer3->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer3->addObject(*t1);
-            }
-		}
-
-
-		for (int i = -6; i < -2; i++) {
-			for (int j = -2; j < 2; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer4->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer4->addObject(*t1);
-            }
-		}
-
-		for (int i = -2; i < 2; i++) {
-			for (int j = -2; j < 2; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer5->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer5->addObject(*t1);
-            }
-		}
-
-		for (int i = 2; i < 6; i++) {
-			for (int j = -2; j < 2; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer6->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer6->addObject(*t1);
-
-            }
-		}
-
-		for (int i = -6; i < -2; i++) {
-			for (int j = 2; j < 6; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer7->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer7->addObject(*t1);
-            }
-		}
-		for (int i = -2; i < 2; i++) {
-			for (int j = 2; j < 6; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer8->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer8->addObject(*t1);
-            }
-		}
-
-		for (int i = 2; i < 6; i++) {
-			for (int j = 2; j < 6; j++) {
-				int x = treeGridLength * i;
-
-				int z = treeGridLength * j;
-                Tree* t = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)));
-                physicsEngine.AddCollider(t);
-                treeContainer9->addObject(*t);
-				Tree* t1 = new Tree(translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z)), 0);
-				treeContainer9->addObject(*t1);
-			}
-		}
-
-
-		//pushback all treeContainer objects into vector
-		treeContainer.push_back(treeContainer1);
-		treeContainer.push_back(treeContainer2);
-		treeContainer.push_back(treeContainer3);
-		treeContainer.push_back(treeContainer4);
-		treeContainer.push_back(treeContainer5);
-		treeContainer.push_back(treeContainer6);
-		treeContainer.push_back(treeContainer7);
-		treeContainer.push_back(treeContainer8);
-		treeContainer.push_back(treeContainer9);
-
-
 
         sceneToLoad.addObject(truck);
         Object* leftLight = new Object("leftLight",translate(mat4(1),vec3(-0.4,1,-0.5)));
@@ -3166,7 +3023,7 @@ private:
 		int truckPosX = floor(truck.getGlobalTransform()[3].x / tilesize);//Should be divided TileSize
 		int truckPosZ = floor(truck.getGlobalTransform()[3].z / tilesize);//Should be divided TileSize
 
-		movetree(truckPosX, truckPosZ);
+		movetree(truck.getGlobalTransform()[3].x, truck.getGlobalTransform()[3].z);
 		//Physics
         physicsEngine.Step(deltaT, window);
 
@@ -3503,177 +3360,57 @@ private:
         glfwTerminate();
     }
 
-	Object* p=NULL;
-	void movetree(int truckPosX, int truckPosZ){
-	/*
-		int t = treeGridLength * 10;
-		int a = (truckPosX % t);
-		int b = (truckPosZ % t);`
-		int fxmin = truckPosX - a;//grid start x
-		int fzmin = truckPosZ - b;//grid start z
-		int fxmax = fxmin + t;
-		int fzmax = fzmin + t;
-		int closex, closez;
-		if (a < (fxmax / 2) && b < (fzmax / 2)) {
-			closex = fxmin; closez = fzmin;
-		}
-		else 		if (a > (fxmax / 2) && b < (fzmax / 2)) { closex = fxmax; closez = fzmin; }
-		else 		if (a < (fxmax / 2) && b > (fzmax / 2)) { closex = fxmin; closez = fzmax; }
-		else 		{ closex = fxmax; closez = fzmax; }
+	void movetree(float truckPosX, float truckPosZ){
 
-
-
-		int treePosX, treePosZ;
-		treePosX = o->getTransform()[3].x;
-		treePosZ= o->getGlobalTransform()[3].z;
-
-		if (treePosX == -closex && treePosZ == -closez) {
-			//print "closerrrrrrrr"
-		//	std::cout << " x pos far" << treePosX << " y pos far" << treePosZ;
-			//o->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, { 0,0,0,1 }));
-			 p = o;
-		}
-
-
-		if (closex==treePosX  && closez == treePosZ) {
-			//print "closerrrrrrrr"
-			//std::cout << " x pos" << treePosX << " y pos " << treePosZ;
-			//o->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {0,0,0,1}));
-			return;
-		}
-		else
-			if(a>t||b>t)
-		 {
-			p->setTransform(mat4({ 1,0,0, 0 }, { 0,1,0, 0 }, { 0,0,1, 0 }, { closex,Terrain::getHeight(closex,closez),closez, 1 }));
-			return;
-		}
-		*/
+        int xTrasl = (truckPosX-treeDist*treeGridLength/2)/treeDist;
+        int zTrasl = (truckPosZ-treeDist*treeGridLength/2)/treeDist;
 
 		//make the current treeContiner as treeContainer5 if truck is present inside it
 		int shrt=1;
-		int t = treeGridLength * 2;
 		float small = 10000;
 		vec2 pos;
-		for (int i = 0; i < 9;i++) {
+
+        /*
+        //Gets the tree with the smallest distance
+        std::vector<Object*> sct = treeContainer->children;
+        for (int i = 0;i<sct.size();i++ ) {
+            Object* tree = sct[i];
 			//calculate distance between truck and treeContainer
-			float distance = sqrt(pow(truckPosX - treeContainer[i]->children[5]->getGlobalTransform()[3].x, 2) + pow(truckPosZ -
-                                                                                                                     treeContainer[i]->children[5]->getGlobalTransform()[3].z, 2));
+			float distance = sqrt(pow(truckPosX - tree->getGlobalTransform()[3].x, 2) +
+                    pow(truckPosZ - tree->getGlobalTransform()[3].z, 2));
+
 			if (distance < small) {
 				small = distance; shrt = i;
 			}
-		}
+		}*/
 
 		//std::cout << "grid no " << shrt << std::endl;
 
-		if (shrt == 0) {
-			treeContainer5 = treeContainer1;
-			for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < treeGridLength; j++) {
+            for (int i = 0; i < treeGridLength; i++) {
+                int index = (i*treeGridLength+j);
+                float x = (xTrasl+i)*treeDist;
+                float z = (zTrasl+j)*treeDist;
 
-				for (Object* obs:treeContainer[i]->children)
-				{
-					pos.x = obs->getGlobalTransform()[3].x - t;
-					pos.y = obs->getGlobalTransform()[3].z - t;
+                vec2 ht = hash2to2(vec2(x,z))*treeDist*0.9f;
+                x+= ht.x;
+                z+=ht.y;
+                mat4 t = translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z));
+                treeContainer->children[index]->setTransform(t);
 
-					obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1}));
-				}
-			}
-		}
-		else
-			if (shrt == 1) {
-				treeContainer5 = treeContainer2;
-				for (int i = 0; i < 9; i++) {
-						for (Object* obs : treeContainer[i]->children)
-						{
-							pos.x = obs->getGlobalTransform()[3].x ;
-							pos.y = obs->getGlobalTransform()[3].z - t;
+            }
+        }
 
-							obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-						}
-				}
-			}
+        /*
+        for (int i = 0; i < 9; i++) {
+            for (Object* obs:treeContainer->children)
+            {
+                pos.x = obs->getGlobalTransform()[3].x;
+                pos.y = obs->getGlobalTransform()[3].z;
 
-			else
-				if (shrt == 2) {
-					treeContainer5 = treeContainer3;
-					for (int i = 0; i < 9; i++) {
-							for (Object* obs : treeContainer[i]->children)
-							{
-								pos.x = obs->getGlobalTransform()[3].x + t;
-								pos.y = obs->getGlobalTransform()[3].z - t;
-
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-							}
-					}
-				}
-
-			else
-					if (shrt == 3) {
-						treeContainer5 = treeContainer4;
-						for (int i = 0; i < 9; i++) {
-								for (Object* obs : treeContainer[i]->children)
-								{
-									pos.x = obs->getGlobalTransform()[3].x - t;
-									pos.y = obs->getGlobalTransform()[3].z ;
-
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-								}
-						}
-					}
-
-			else
-						if (shrt == 5) {
-							treeContainer5 = treeContainer5;
-							for (int i = 0; i < 9; i++) {
-									for (Object* obs : treeContainer[i]->children)
-									{
-										pos.x = obs->getGlobalTransform()[3].x + t;
-										pos.y = obs->getGlobalTransform()[3].z ;
-
-										obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-									}
-							}
-						}
-		else
-			if (shrt == 6) {
-				treeContainer5 = treeContainer6;
-				for (int i = 0; i < 9; i++) {
-					for (Object* obs : treeContainer[i]->children)
-					{
-						pos.x = obs->getGlobalTransform()[3].x - t;
-						pos.y = obs->getGlobalTransform()[3].z + t;
-
-						obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-					}
-			}
-		}
-
-			else
-				if (shrt == 7) {
-					treeContainer5 = treeContainer7;
-					for (int i = 0; i < 9; i++) {
-							for (Object* obs : treeContainer[i]->children)
-							{
-								pos.x = obs->getGlobalTransform()[3].x ;
-								pos.y = obs->getGlobalTransform()[3].z + t;
-
-								obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-							}
-					}
-				}
-
-				else
-					if (shrt == 8) {
-						treeContainer5 = treeContainer8;
-						for (int i = 0; i < 9; i++) {
-								for (Object* obs : treeContainer[i]->children)
-								{
-									pos.x = obs->getGlobalTransform()[3].x + t;
-									pos.y = obs->getGlobalTransform()[3].z + t;
-
-									obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1 }));
-								}
-						}
-					}
+                obs->setTransform(mat4({ 1,0,0,0 }, { 0,1,0,0 }, { 0,0,1,0 }, {pos.x, Terrain::getHeight(pos.x, pos.y), pos.y , 1}));
+            }
+        }*/
 
 }
 
