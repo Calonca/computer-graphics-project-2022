@@ -7,7 +7,7 @@
 
 extern struct Model g_test;
 
-static mat4 initialTransform = translate(mat4(1), vec3(10, -10, 0));
+static mat4 initialTransform = translate(mat4(1), vec3(100, 10, 0));
 
 #pragma once
 class Truck : public Object// It is an entity

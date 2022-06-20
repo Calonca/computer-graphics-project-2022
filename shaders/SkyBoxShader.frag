@@ -53,6 +53,26 @@ vec3 lambert(vec3 L, vec3 N, vec3 C) {
 	return C*dotZeroOne(N,L);
 }
 
+vec3 Oren_Nayar_Diffuse_BRDF(vec3 L, vec3 N, vec3 V, vec3 C, float sigma) {
+
+	float thetai = acos(dot(L,N));
+	float thetar = acos(dot(V,N));
+
+	float alpha = max(thetai,thetar);
+	float beta = min(thetai,thetar);
+
+	float A = 1 -0.5*(pow(sigma,2))/(pow(sigma,2)+0.33);
+	float B = 0.45*(pow(sigma,2))/(pow(sigma,2)+0.09);
+
+	vec3 vi = normalize(L-dot(L,N)*N);
+	vec3 vr = normalize(V-dot(V,N)*N);
+
+	float G = max(0,dot(vi,vr));
+
+	vec3 Li = C*clamp(dot(L,N),0,1);
+
+	return Li*(A+B*G*sin(alpha)*tan(beta));
+}
 
 vec3 getSphereCoordinates(vec2 point,float radius)
 {
@@ -132,6 +152,8 @@ vec4 sun(float radius,vec3 sunPos){
 }
 
 void main() {
+	//vec3 EyeDir = normalize(gubo.eyePos - fragPos);
+
 	vec4 col=texture(skybox,fragTexCoord);
 	vec3 sunPos = vec3(0,sin(radians(time.y)),-cos(radians(-time.y)));
 	vec3 lightDir = -sunPos;

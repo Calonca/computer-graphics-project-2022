@@ -1036,7 +1036,7 @@ private:
  	}
  	
  	void createPhongPipeline() {
- 		createPipeline("PhongVert.spv", "PhongFrag.spv",
+ 		createPipeline("BRDFVert.spv", "BRDFFrag.spv",
  					    PhongPipelineLayout, PhongPipeline,
  					    PhongDescriptorSetLayout, VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL,
  					    1.0, VK_CULL_MODE_BACK_BIT, false, phongAndSkyBoxVertices);
@@ -3153,7 +3153,7 @@ private:
         //Up color
         //  x×(1−a)+y×a
         vec4 upColor = mix( vec4(212, 108, 34,256.0f)/256.0f,  // sunset and sunrise
-                            vec4(247, 245, 173,256.0f)/256.0f, // up
+                            vec4(247, 245, 173,256.0f)/200.0f, // up
                             max(sinHeight,0.0f) );
 
         //Down value is 0 at sunset and 1 when the sun is down
@@ -3395,7 +3395,10 @@ private:
                 vec2 ht = hash2to2(vec2(x,z))*treeDist*0.9f;
                 x+= ht.x;
                 z+=ht.y;
-                mat4 t = translate(mat4(1), vec3(x, Terrain::getHeight(x, z), z));
+                float height = Terrain::getHeight(x, z);
+                if (height>20)//If above snow level
+                    height = -200;
+                mat4 t = translate(mat4(1), vec3(x, height, z));
                 treeContainer->children[index]->setTransform(t);
 
             }

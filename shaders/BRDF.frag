@@ -65,6 +65,39 @@ vec3 spot_light_color(vec3 fragPosition,vec3 lightDir,vec3 lightPos,vec3 lightCo
 	return decay*coneDimming*lightColor;
 }
 
+vec3 Oren_Nayar_Diffuse_BRDF(vec3 L, vec3 N, vec3 V, vec3 C, float sigma) {
+
+	float thetai = acos(dot(L,N));
+	float thetar = acos(dot(V,N));
+
+	float alpha = max(thetai,thetar);
+	float beta = min(thetai,thetar);
+
+	float A = 1 -0.5*(pow(sigma,2))/(pow(sigma,2)+0.33);
+	float B = 0.45*(pow(sigma,2))/(pow(sigma,2)+0.09);
+
+	vec3 vi = normalize(L-dot(L,N)*N);
+	vec3 vr = normalize(V-dot(V,N)*N);
+
+	float G = max(0,dot(vi,vr));
+
+	vec3 Li = C*clamp(dot(L,N),0,1);
+
+	return Li*(A+B*G*sin(alpha)*tan(beta));
+}
+
+vec3 Blinn_Specular_BRDF(vec3 L, vec3 N, vec3 V, vec3 C, float gamma)  {
+	// Blinn Specular BRDF model
+	// additional parameter:
+	// float gamma : exponent of the cosine term
+
+	vec3 H = normalize(L+V);
+	float cosViewAndReflection = dotZeroOne(N,H);
+	float factor = pow(cosViewAndReflection,gamma);
+
+	return C*factor;
+}
+
 vec3 Phong_Specular_BRDF(vec3 L, vec3 N, vec3 V, vec3 C, float gamma)  {
 	// Phong Specular BRDF model
 	// additional parameter:
@@ -147,7 +180,8 @@ void main() {
 	vec3 topColor = vec3(0.3f, 0.3f, 1.0f);
 	vec3 bottomColor = vec3(0.3f,1.0f,0.3f);
 	vec3 ambient_light = ((dot(Norm,HemiDir)+1.0f)/2)*topColor + ((1.0f-dot(Norm,HemiDir))/2)*bottomColor;
-	vec3 specular = Phong_Specular_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor, 64.0f)*gubo.lightColor.rgb;
+	vec3 specular = Blinn_Specular_BRDF(gubo.lightDir, Norm, EyeDir, DiffColor, 64.0f)*gubo.lightColor.rgb;
+	//oren nayar 1.5f
 
 	vec3 color = (diffuse+specular+ (ambient_light*AmbFact*3*DiffColor));
 	//vec3 color =  (ambient_light*AmbFact*8*DiffColor);
