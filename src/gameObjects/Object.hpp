@@ -5,7 +5,7 @@
 #ifndef CGPROJECT_OBJECT_H
 #define CGPROJECT_OBJECT_H
 
-#include <stdlib.h>
+// #include <stdlib.h>
 #include <map>
 #include <vector>
 #include <string>

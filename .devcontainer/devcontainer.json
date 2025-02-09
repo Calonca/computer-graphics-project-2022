@@ -1,0 +1,51 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	"name": "Computer Graphics project",
+	// Use a Dockerfile 
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"containerEnv": {
+		"CC" : "zig cc",
+		"CXX" : "zig c++"
+		// "WAYLAND_DISPLAY": "${env:WAYLAND_DISPLAY}",
+		// "XDG_RUNTIME_DIR": "${env:XDG_RUNTIME_DIR}"
+	},
+	"runArgs": [
+		"--device",
+		"/dev/dri",
+		// "--gpus",
+		// "all",
+		// "--security-opt",
+		// "seccomp=unconfined",
+		// "--security-opt",
+		// "apparmor=unconfined"
+	],
+	"remoteUser": "vscode",
+	// "postCreateCommand": "echo done",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/devcontainers-extra/features/zsh-plugins:0": {}
+	},
+	// "mounts": [
+	// 	"source=${localEnv:HOME}/.vscode-server,target=/home/vscode/.vscode-server,type=bind,consistency=cached"
+	// ],
+	// "mounts": [
+	// 	{
+	// 		"source": "${env:XDG_RUNTIME_DIR}/${env:WAYLAND_DISPLAY}",
+	// 		"target": "${env:XDG_RUNTIME_DIR}/${env:WAYLAND_DISPLAY}",
+	// 		"type": "bind"
+	// 	}
+	// ],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cmake-tools",
+				"ms-azuretools.vscode-docker",
+				"ziglang.vscode-zig"
+			]
+		}
+	}
+}

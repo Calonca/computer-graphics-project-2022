@@ -2,6 +2,9 @@ set(PNAME CGProject)
 set(CFILE Project)
 SET(CMAKE_BUILD_TYPE Debug) #Enable this to enable breakpoints
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(WAYLAND REQUIRED wayland-client wayland-egl)
+
 cmake_minimum_required(VERSION 3.18)
 project(${PNAME})               # Create project PNAME
 set(CMAKE_CXX_STANDARD 20)            # c++ version
@@ -31,5 +34,15 @@ add_executable(${PNAME} src/${CFILE}.cpp
         )
 
 #target_compile_definitions (${PNAME} PUBLIC NDEBUG) #Used to deactivate validation layers messages
+include_directories(${WAYLAND_INCLUDE_DIRS})
+link_directories(${WAYLAND_LIBRARY_DIRS})
 
-target_link_libraries(${PNAME} -lglfw -lvulkan -ldl -lpthread -lX11 -lXrandr -lXi)
+target_link_libraries(${PNAME}
+    -lglfw
+    -lvulkan
+    -ldl
+    -lpthread
+    -lXrandr
+    -lXi
+    ${WAYLAND_LIBRARIES}
+)

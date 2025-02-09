@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Terrain.hpp"
 
 float tile_len = 1.0;   // length of each tile. Set to 1 for now for stable working. Do not change.

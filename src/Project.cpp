@@ -36,9 +36,10 @@ static float change_time = 0;
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "resources/models/";
-const std::string TEXTURE_PATH = "resources/textures/";
-const std::string SHADER_PATH = "shaders/";
+const std::string BASE_PATH = std::string(__FILE__).substr(0, std::string(__FILE__).find_last_of("/\\")) + "/";
+const std::string MODEL_PATH = BASE_PATH + "../resources/models/";
+const std::string TEXTURE_PATH = BASE_PATH + "../resources/textures/";
+const std::string SHADER_PATH = BASE_PATH + "../shaders/";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -319,6 +320,7 @@ private:
 	int currentView = 0;
 
     void initWindow() {
+		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
